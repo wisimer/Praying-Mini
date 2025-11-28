@@ -46,6 +46,20 @@ export default {
 			}
 		}
 	},
+	onLoad(query) {
+		if (query && query.item) {
+			try {
+				const it = JSON.parse(decodeURIComponent(query.item))
+				this.form = {
+					type: it.type || '线下祈福',
+					title: it.title || '',
+					desc: it.desc || '',
+					location: it.location || '',
+					reward: it.reward || ''
+				}
+			} catch(e) {}
+		}
+	},
 	methods: {
 		onTypeChange(e) { this.form.type = e.detail.value },
 		submit() {
