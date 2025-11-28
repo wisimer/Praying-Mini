@@ -3,15 +3,27 @@
 		{
 			"path": "pages/index/index",
 			"style": {
-				"navigationBarTitleText": "uni-app"
+				"navigationBarTitleText": "祈福"
+			}
+		},
+		{
+			"path": "pages/incense/incense",
+			"style": {
+				"navigationBarTitleText": "赛博烧香"
+			}
+		},
+		{
+			"path": "pages/request/publish",
+			"style": {
+				"navigationBarTitleText": "发布需求"
 			}
 		}
 	],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
-		"navigationBarTitleText": "uni-app",
-		"navigationBarBackgroundColor": "#F8F8F8",
-		"backgroundColor": "#F8F8F8"
+		"navigationBarTitleText": "祈福",
+		"navigationBarBackgroundColor": "#E6B89C",
+		"backgroundColor": "#FFF9F0"
 	},
 	"uniIdRouter": {}
 }
