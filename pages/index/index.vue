@@ -20,7 +20,7 @@
 
 		<view class="recommend">
 			<text class="section-title">推荐需求列表</text>
-			<view class="card" v-for="(req, i) in recommendations" :key="i">
+			<view class="card" v-for="(req, i) in recommendations" :key="i" @click="openDetail(req)">
 				<view class="card-head">
 					<text class="card-title">{{ req.title }}</text>
 					<text class="reward">¥{{ req.reward }}</text>
@@ -56,6 +56,10 @@ export default {
 				return
 			}
 			uni.navigateTo({ url: item.page })
+		},
+		openDetail(req) {
+			const item = encodeURIComponent(JSON.stringify(req))
+			uni.navigateTo({ url: `/pages/request/detail?item=${item}` })
 		}
 	}
 }

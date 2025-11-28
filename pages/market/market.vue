@@ -22,7 +22,7 @@
 		</view>
 
 		<view class="grid">
-			<view class="card" v-for="(item,idx) in visible" :key="idx">
+			<view class="card" v-for="(item,idx) in visible" :key="idx" @click="openDetail(item)">
 				<text class="card-title">{{ item.title }}</text>
 				<text class="card-desc">{{ item.desc }}</text>
 				<view class="meta">
@@ -81,6 +81,10 @@ export default {
 				itemList: ['默认','价格优先','最新优先'],
 				success: res => { this.sort = ['默认','价格优先','最新优先'][res.tapIndex]; this.applyFilter() }
 			})
+		},
+		openDetail(item) {
+			const q = encodeURIComponent(JSON.stringify(item))
+			uni.navigateTo({ url: `/pages/request/detail?item=${q}` })
 		}
 	}
 }

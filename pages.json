@@ -19,6 +19,12 @@
 			}
 		},
 		{
+			"path": "pages/request/detail",
+			"style": {
+				"navigationBarTitleText": "需求详情"
+			}
+		},
+		{
 			"path": "pages/market/market",
 			"style": {
 				"navigationBarTitleText": "需求市场"
