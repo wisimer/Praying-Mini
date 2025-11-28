@@ -1,5 +1,5 @@
 <template>
-	<view class="detail">
+	<view :class="['detail', themeClass]">
 		<view class="header">
 			<text class="title">{{ item.title }}</text>
 			<text class="reward">¥{{ item.reward }}</text>
@@ -43,10 +43,18 @@
 <script>
 export default {
 	data() {
-		return { item: {} }
+		return { item: {}, theme: 'light' }
+	},
+	computed: {
+		themeClass() { return `page theme-${this.theme}` }
 	},
 	onLoad(query) {
 		try { this.item = JSON.parse(decodeURIComponent(query.item || '{}')) } catch(e) { this.item = {} }
+	},
+	onShow() {
+		const t = uni.getStorageSync('theme') || 'light'
+		this.theme = t
+		this.applyNavColor()
 	},
 	methods: {
 		formatTime(t) {
@@ -73,29 +81,36 @@ export default {
 				itemList: ['虚假信息','违法违规','骚扰欺诈','其他'],
 				success: () => uni.showToast({ title: '已提交举报', icon: 'success' })
 			})
+		},
+		applyNavColor() {
+			if (this.theme==='dark') {
+				uni.setNavigationBarColor({ frontColor: '#ffffff', backgroundColor: '#0F1115' })
+			} else {
+				uni.setNavigationBarColor({ frontColor: '#000000', backgroundColor: '#E6B89C' })
+			}
 		}
 	}
 }
 </script>
 
 <style lang="scss">
-.detail { padding: 24rpx; background: $uni-bg-color; color: $uni-text-color; }
+.detail { padding: 24rpx; }
 .header { display: flex; justify-content: space-between; align-items: center; }
 .title { font-size: 34rpx; }
-.reward { color: $brand-accent; font-weight: 600; font-size: 30rpx; }
-.meta { margin-top: 12rpx; display: grid; grid-template-columns: 1fr; gap: 6rpx; color: $brand-secondary; }
-.badge { display: inline-block; padding: 8rpx 16rpx; background: #fff; border: 2rpx solid $brand-secondary; border-radius: 999rpx; width: fit-content; }
+.reward { color: var(--accent); font-weight: 600; font-size: 30rpx; }
+.meta { margin-top: 12rpx; display: grid; grid-template-columns: 1fr; gap: 6rpx; color: var(--secondary); }
+.badge { display: inline-block; padding: 8rpx 16rpx; background: var(--surface); border: 2rpx solid var(--border); border-radius: 999rpx; width: fit-content; }
 .location, .time { font-size: 24rpx; }
-.desc { margin-top: 16rpx; background: #fff; border: 2rpx solid $brand-secondary; border-radius: 16rpx; padding: 16rpx; font-size: 26rpx; color: #555; }
+.desc { margin-top: 16rpx; background: #fff; border: 2rpx solid $brand-secondary; border-radius: 24rpx; padding: 20rpx; font-size: 26rpx; color: #555; box-shadow: $shadow-sm; }
 .actions { margin-top: 20rpx; display: flex; gap: 12rpx; }
-.accent { background: $brand-accent; color: #fff; border: none; border-radius: 12rpx; height: 80rpx; font-size: 28rpx; flex: 1; }
-.ghost { background: #fff; color: $brand-secondary; border: 2rpx solid $brand-secondary; border-radius: 12rpx; height: 80rpx; font-size: 28rpx; flex: 1; }
+.accent { background: var(--primary); color: #fff; border: none; border-radius: 20rpx; height: 84rpx; font-size: 30rpx; flex: 1; box-shadow: $shadow-sm; }
+.ghost { background: var(--surface); color: var(--secondary); border: 2rpx solid var(--border); border-radius: 20rpx; height: 84rpx; font-size: 28rpx; flex: 1; box-shadow: $shadow-sm; }
 .sub-actions { margin-top: 12rpx; display: flex; gap: 12rpx; }
-.ghost.small { height: 56rpx; font-size: 24rpx; }
+.ghost.small { height: 56rpx; font-size: 24rpx; box-shadow: $shadow-sm; border-radius: 16rpx; }
 .section { margin-top: 20rpx; font-size: 28rpx; color: $brand-secondary; }
 .chips { margin-top: 8rpx; display: flex; gap: 12rpx; flex-wrap: wrap; }
-.chip { padding: 10rpx 16rpx; background: #fff; border: 2rpx solid $brand-secondary; border-radius: 999rpx; font-size: 24rpx; }
+.chip { padding: 10rpx 16rpx; background: #fff; border: 2rpx solid $brand-secondary; border-radius: 999rpx; font-size: 24rpx; box-shadow: $shadow-sm; }
 .gallery { margin-top: 16rpx; }
 .imgs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8rpx; }
-.img { width: 100%; height: 160rpx; border-radius: 12rpx; }
+.img { width: 100%; height: 160rpx; border-radius: 16rpx; box-shadow: $shadow-sm; }
 </style>

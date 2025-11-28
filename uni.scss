@@ -26,6 +26,69 @@ $brand-accent: #FF6B6B;
 $brand-bg: #FFF9F0;
 $brand-text: #333333;
 
+$shadow-sm: 0 4rpx 12rpx rgba(0,0,0,0.06);
+$shadow-md: 0 8rpx 24rpx rgba(0,0,0,0.08);
+$radius-lg: 20rpx;
+$btn-height: 84rpx;
+$btn-radius: 16rpx;
+$chip-radius: 999rpx;
+
+.btn {
+  height: $btn-height;
+  border-radius: $btn-radius;
+  font-size: 28rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn-accent {
+  @extend .btn;
+  background: $brand-accent;
+  color: #fff;
+  border: none;
+}
+.btn-ghost {
+  @extend .btn;
+  background: #fff;
+  color: $brand-secondary;
+  border: 2rpx solid $brand-secondary;
+}
+
+.card {
+  background: #fff;
+  border: 2rpx solid $brand-secondary;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-sm;
+  padding: 20rpx;
+}
+
+.chip {
+  padding: 12rpx 20rpx;
+  border: 2rpx solid $brand-secondary;
+  border-radius: $chip-radius;
+  background: #fff;
+  font-size: 26rpx;
+}
+.chip-active {
+  background: $uni-color-primary;
+  color: #fff;
+  border-color: $uni-color-primary;
+}
+
+.input-field {
+  width: 100%;
+  border: 2rpx solid $brand-secondary;
+  border-radius: 12rpx;
+  padding: 16rpx;
+  font-size: 26rpx;
+  background: #fff;
+}
+
+.section-title {
+  font-size: 30rpx;
+  color: $brand-secondary;
+}
+
 /* 文字基本颜色 */
 $uni-text-color:#333333;
 $uni-text-color-inverse:#fff;

@@ -1,5 +1,5 @@
 <template>
-	<view class="market">
+	<view :class="['market', themeClass]">
 		<view class="topbar">
 			<view class="search">
 				<text class="icon">🔍</text>
@@ -39,6 +39,7 @@
 export default {
 	data() {
 		return {
+			theme: 'light',
 			query: '',
 			types: ['全部','线下祈福','实物获取','陪伴服务','音视频','特殊体验'],
 			selectedType: '全部',
@@ -53,7 +54,15 @@ export default {
 			visible: []
 		}
 	},
+	computed: {
+		themeClass() { return `page theme-${this.theme}` }
+	},
 	created() { this.applyFilter() },
+	onShow() {
+		const t = uni.getStorageSync('theme') || 'light'
+		this.theme = t
+		this.applyNavColor()
+	},
 	methods: {
 		selectType(t) {
 			this.selectedType = t
@@ -85,30 +94,37 @@ export default {
 		openDetail(item) {
 			const q = encodeURIComponent(JSON.stringify(item))
 			uni.navigateTo({ url: `/pages/request/detail?item=${q}` })
+		},
+		applyNavColor() {
+			if (this.theme==='dark') {
+				uni.setNavigationBarColor({ frontColor: '#ffffff', backgroundColor: '#0F1115' })
+			} else {
+				uni.setNavigationBarColor({ frontColor: '#000000', backgroundColor: '#E6B89C' })
+			}
 		}
 	}
 }
 </script>
 
 <style lang="scss">
-.market { padding: 24rpx; background: $uni-bg-color; color: $uni-text-color; }
+.market { padding: 24rpx; }
 .topbar { display: flex; align-items: center; justify-content: space-between; gap: 20rpx; }
-.search { flex: 1; display: flex; align-items: center; gap: 12rpx; background: #fff; border: 2rpx solid $brand-secondary; border-radius: 16rpx; padding: 12rpx 16rpx; }
+.search { flex: 1; display: flex; align-items: center; gap: 12rpx; background: var(--surface); border: 2rpx solid var(--border); border-radius: 20rpx; padding: 12rpx 16rpx; box-shadow: $shadow-sm; }
 .icon { font-size: 30rpx; }
 .search-input { flex: 1; height: 56rpx; font-size: 26rpx; }
 .actions { display: flex; gap: 12rpx; }
-.ghost { background: #fff; color: $brand-secondary; border: 2rpx solid $brand-secondary; border-radius: 12rpx; height: 60rpx; font-size: 26rpx; }
+.ghost { background: var(--surface); color: var(--secondary); border: 2rpx solid var(--border); border-radius: 16rpx; height: 60rpx; font-size: 26rpx; box-shadow: $shadow-sm; }
 
 .types { display: flex; flex-wrap: wrap; gap: 12rpx; margin: 20rpx 0; }
-.chip { padding: 12rpx 20rpx; border: 2rpx solid $brand-secondary; border-radius: 999rpx; background: #fff; font-size: 26rpx; }
-.chip.active { background: $uni-color-primary; color: #fff; border-color: $uni-color-primary; }
+.chip { padding: 12rpx 20rpx; border: 2rpx solid var(--border); border-radius: 999rpx; background: var(--surface); font-size: 26rpx; box-shadow: $shadow-sm; }
+.chip.active { background: var(--secondary); color: #fff; border-color: var(--secondary); }
 
 .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16rpx; }
-.card { background: #fff; border: 2rpx solid $brand-secondary; border-radius: 16rpx; padding: 16rpx; }
-.card-title { font-size: 28rpx; }
+.card { background: var(--surface); border: 2rpx solid var(--border); border-radius: 24rpx; padding: 20rpx; box-shadow: $shadow-sm; }
+.card-title { font-size: 30rpx; color: var(--text); }
 .card-desc { margin-top: 8rpx; font-size: 24rpx; color: #555; }
 .meta { margin-top: 10rpx; display: flex; justify-content: space-between; align-items: center; }
-.type { color: $brand-secondary; font-size: 24rpx; }
-.reward { color: $brand-accent; font-weight: 600; }
+.type { color: var(--secondary); font-size: 24rpx; }
+.reward { color: var(--accent); font-weight: 700; }
 .location { margin-top: 6rpx; font-size: 22rpx; color: #777; }
 </style>

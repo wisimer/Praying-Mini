@@ -1,5 +1,5 @@
 <template>
-	<view class="incense">
+	<view :class="['incense', themeClass]">
 		<view class="scene">
 			<text class="scene-label">3D场景展示</text>
 		</view>
@@ -40,11 +40,20 @@
 export default {
 	data() {
 		return {
+			theme: 'light',
 			type: '普通',
 			scene: '寺庙',
 			deity: '学业',
 			wish: ''
 		}
+	},
+	computed: {
+		themeClass() { return `page theme-${this.theme}` }
+	},
+	onShow() {
+		const t = uni.getStorageSync('theme') || 'light'
+		this.theme = t
+		this.applyNavColor()
 	},
 	methods: {
 		onTypeChange(e) { this.type = e.detail.value },
@@ -57,44 +66,56 @@ export default {
 			}
 			uni.showToast({ title: '愿望已送出', icon: 'success' })
 			this.wish = ''
+		},
+		applyNavColor() {
+			if (this.theme==='dark') {
+				uni.setNavigationBarColor({ frontColor: '#ffffff', backgroundColor: '#0F1115' })
+			} else {
+				uni.setNavigationBarColor({ frontColor: '#000000', backgroundColor: '#E6B89C' })
+			}
 		}
 	}
 }
 </script>
 
 <style lang="scss">
-.incense { padding: 24rpx; background: $uni-bg-color; color: $uni-text-color; }
+.incense { padding: 24rpx; }
 .scene {
 	height: 360rpx;
 	border: 2rpx dashed $brand-secondary;
-	border-radius: 20rpx;
-	background: #fff;
+	border-radius: 24rpx;
+	background: var(--surface);
+	border-color: var(--border);
+	box-shadow: $shadow-sm;
 	display: flex; align-items: center; justify-content: center;
 }
-.scene-label { color: $brand-secondary; font-size: 28rpx; }
+.scene-label { color: var(--muted); font-size: 28rpx; }
 
 .group { margin-top: 24rpx; }
-.group-title { font-size: 28rpx; color: $brand-secondary; margin-bottom: 12rpx; display: block; }
-.radio-item { margin-right: 24rpx; font-size: 26rpx; }
+.group-title { font-size: 28rpx; color: var(--muted); margin-bottom: 12rpx; display: block; }
+.radio-item { margin-right: 24rpx; font-size: 26rpx; padding: 10rpx 16rpx; background: var(--surface); border: 2rpx solid var(--border); border-radius: 999rpx; }
 
 .wish-box { margin-top: 24rpx; }
 .wish-input {
 	width: 100%;
 	min-height: 120rpx;
-	background: #fff;
-	border: 2rpx solid $brand-secondary;
-	border-radius: 16rpx;
-	padding: 16rpx;
+	background: var(--surface);
+	border: 2rpx solid var(--border);
+	border-radius: 20rpx;
+	padding: 20rpx;
+	box-shadow: $shadow-sm;
 	font-size: 26rpx;
 }
 
+
 .accent-btn {
 	margin-top: 28rpx;
-	background: $brand-accent;
+	background: var(--primary);
 	color: #fff;
 	border: none;
-	border-radius: 16rpx;
-	height: 80rpx;
-	font-size: 28rpx;
+	border-radius: 20rpx;
+	height: 84rpx;
+	font-size: 30rpx;
+	box-shadow: $shadow-sm;
 }
 </style>

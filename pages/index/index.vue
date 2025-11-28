@@ -1,5 +1,5 @@
 <template>
-	<view class="home">
+	<view :class="['home', themeClass]">
 		<view class="search-bar">
 			<text class="icon">🔍</text>
 			<input class="search-input" v-model="searchQuery" placeholder="搜索需求或祈福内容" />
@@ -36,6 +36,7 @@
 export default {
 	data() {
 		return {
+			theme: 'light',
 			searchQuery: '',
 			actions: [
 				{ icon: '🏮', text: '赛博烧香', page: '/pages/incense/incense' },
@@ -49,6 +50,14 @@ export default {
 			]
 		}
 	},
+	computed: {
+		themeClass() { return `page theme-${this.theme}` }
+	},
+	onShow() {
+		const t = uni.getStorageSync('theme') || 'light'
+		this.theme = t
+		this.applyNavColor()
+	},
 	methods: {
 		go(item) {
 			if (item.disabled || !item.page) {
@@ -60,26 +69,30 @@ export default {
 		openDetail(req) {
 			const item = encodeURIComponent(JSON.stringify(req))
 			uni.navigateTo({ url: `/pages/request/detail?item=${item}` })
+		},
+		applyNavColor() {
+			if (this.theme==='dark') {
+				uni.setNavigationBarColor({ frontColor: '#ffffff', backgroundColor: '#0F1115' })
+			} else {
+				uni.setNavigationBarColor({ frontColor: '#000000', backgroundColor: '#E6B89C' })
+			}
 		}
 	}
 }
 </script>
 
 <style lang="scss">
-.home {
-	padding: 24rpx;
-	background: $uni-bg-color;
-	color: $uni-text-color;
-}
+.home { padding: 24rpx; }
 
 .search-bar {
 	display: flex;
 	align-items: center;
 	gap: 16rpx;
 	padding: 16rpx 20rpx;
-	background: #fff;
-	border: 2rpx solid $brand-secondary;
-	border-radius: 16rpx;
+	background: var(--surface);
+	border: 2rpx solid var(--border);
+	border-radius: 20rpx;
+	box-shadow: $shadow-sm;
 }
 .icon { font-size: 32rpx; }
 .search-input {
@@ -100,26 +113,30 @@ export default {
 	align-items: center;
 	justify-content: center;
 	padding: 28rpx 0;
-	background: #fff;
-	border: 2rpx solid $uni-color-primary;
-	border-radius: 20rpx;
+	background: var(--surface);
+	border: 2rpx solid var(--border);
+	border-radius: 24rpx;
+	box-shadow: $shadow-sm;
+  transition: transform .08s ease;
 }
 .action.disabled { opacity: 0.5; }
+.action:active { transform: scale(0.98); }
 .action-icon { font-size: 44rpx; }
 .action-text { margin-top: 12rpx; font-size: 28rpx; }
 
 .recommend { margin-top: 12rpx; }
-.section-title { font-size: 30rpx; color: $brand-secondary; }
+.section-title { font-size: 32rpx; color: var(--muted); }
 .card {
 	margin-top: 16rpx;
-	padding: 20rpx;
-	background: #fff;
-	border: 2rpx solid $brand-secondary;
-	border-radius: 16rpx;
+	padding: 24rpx;
+	background: var(--surface);
+	border: 2rpx solid var(--border);
+	border-radius: 24rpx;
+	box-shadow: $shadow-sm;
 }
 .card-head { display: flex; justify-content: space-between; align-items: center; }
 .card-title { font-size: 30rpx; }
-.reward { color: $brand-accent; font-weight: 600; }
+.reward { color: var(--accent); font-weight: 700; font-size: 30rpx; }
 .card-desc { margin-top: 10rpx; color: #555; font-size: 26rpx; }
 .card-meta { margin-top: 8rpx; color: #777; font-size: 24rpx; }
 </style>

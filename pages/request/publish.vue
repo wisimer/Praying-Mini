@@ -1,5 +1,5 @@
 <template>
-	<view class="publish">
+	<view :class="['publish', themeClass]">
 		<view class="group">
 			<text class="group-title">需求类型选择</text>
 			<radio-group @change="onTypeChange">
@@ -37,6 +37,7 @@
 export default {
 	data() {
 		return {
+			theme: 'light',
 			form: {
 				type: '线下祈福',
 				title: '',
@@ -45,6 +46,9 @@ export default {
 				reward: ''
 			}
 		}
+	},
+	computed: {
+		themeClass() { return `page theme-${this.theme}` }
 	},
 	onLoad(query) {
 		if (query && query.item) {
@@ -60,6 +64,11 @@ export default {
 			} catch(e) {}
 		}
 	},
+	onShow() {
+		const t = uni.getStorageSync('theme') || 'light'
+		this.theme = t
+		this.applyNavColor()
+	},
 	methods: {
 		onTypeChange(e) { this.form.type = e.detail.value },
 		submit() {
@@ -69,36 +78,46 @@ export default {
 			}
 			uni.showToast({ title: '已发布', icon: 'success' })
 			this.form = { type: '线下祈福', title: '', desc: '', location: '', reward: '' }
+		},
+		applyNavColor() {
+			if (this.theme==='dark') {
+				uni.setNavigationBarColor({ frontColor: '#ffffff', backgroundColor: '#0F1115' })
+			} else {
+				uni.setNavigationBarColor({ frontColor: '#000000', backgroundColor: '#E6B89C' })
+			}
 		}
 	}
 }
 </script>
 
 <style lang="scss">
-.publish { padding: 24rpx; background: $uni-bg-color; color: $uni-text-color; }
+.publish { padding: 24rpx; }
 .group { margin-bottom: 24rpx; }
-.group-title { font-size: 28rpx; color: $brand-secondary; margin-bottom: 12rpx; display: block; }
+.group-title { font-size: 28rpx; color: var(--muted); margin-bottom: 12rpx; display: block; }
 .radio-item { margin-right: 24rpx; font-size: 26rpx; }
 
-.form { background: #fff; border: 2rpx solid $brand-secondary; border-radius: 16rpx; padding: 20rpx; }
+.form { background: var(--surface); border: 2rpx solid var(--border); border-radius: 24rpx; padding: 24rpx; box-shadow: $shadow-sm; }
 .field { margin-bottom: 18rpx; }
 .label { display: block; margin-bottom: 8rpx; color: $brand-secondary; font-size: 26rpx; }
+
 .input, .textarea {
 	width: 100%;
-	border: 2rpx solid $brand-secondary;
-	border-radius: 12rpx;
-	padding: 16rpx;
+	border: 2rpx solid var(--border);
+	border-radius: 20rpx;
+	padding: 20rpx;
 	font-size: 26rpx;
-	background: #fff;
+	background: var(--surface);
+	box-shadow: $shadow-sm;
 }
 
 .accent-btn {
 	margin-top: 24rpx;
-	background: $brand-accent;
+	background: var(--primary);
 	color: #fff;
 	border: none;
-	border-radius: 16rpx;
-	height: 80rpx;
-	font-size: 28rpx;
+	border-radius: 20rpx;
+	height: 84rpx;
+	font-size: 30rpx;
+	box-shadow: $shadow-sm;
 }
 </style>
