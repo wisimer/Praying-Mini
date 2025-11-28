@@ -3,7 +3,8 @@
 		{
 			"path": "pages/index/index",
 			"style": {
-				"navigationBarTitleText": "祈福"
+				"navigationBarTitleText": "祈福",
+				"enablePullDownRefresh": true
 			}
 		},
 		{
@@ -41,8 +42,44 @@
 			"style": {
 				"navigationBarTitleText": "发布服务能力"
 			}
+		},
+		{
+			"path": "pages/tasks/tasks",
+			"style": {
+				"navigationBarTitleText": "任务",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/messages/messages",
+			"style": {
+				"navigationBarTitleText": "消息"
+			}
+		},
+		{
+			"path": "pages/wish/detail",
+			"style": {
+				"navigationBarTitleText": "愿望详情"
+			}
+		},
+		{
+			"path": "pages/wish/scene",
+			"style": {
+				"navigationBarTitleText": "祈福场景"
+			}
 		}
 	],
+    "tabBar": {
+        "color": "#666666",
+        "selectedColor": "#000000",
+        "borderStyle": "black",
+        "list": [
+            { "pagePath": "pages/index/index", "text": "首页" },
+            { "pagePath": "pages/tasks/tasks", "text": "任务" },
+            { "pagePath": "pages/messages/messages", "text": "消息" },
+            { "pagePath": "pages/me/me", "text": "我的" }
+        ]
+    },
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
 		"navigationBarTitleText": "祈福",
