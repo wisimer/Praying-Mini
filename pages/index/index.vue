@@ -40,8 +40,8 @@ export default {
 			actions: [
 				{ icon: '🏮', text: '赛博烧香', page: '/pages/incense/incense' },
 				{ icon: '📝', text: '发布需求', page: '/pages/request/publish' },
-				{ icon: '📋', text: '需求市场', disabled: true },
-				{ icon: '👤', text: '我的空间', disabled: true }
+				{ icon: '📋', text: '需求市场', page: '/pages/market/market' },
+				{ icon: '👤', text: '我的空间', page: '/pages/me/me' }
 			],
 			recommendations: [
 				{ title: '线下代拜求学业', desc: '本周到寺庙为孩子祈福，求学业进步', location: '杭州灵隐寺', reward: 88 },

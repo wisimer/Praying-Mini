@@ -17,6 +17,18 @@
 			"style": {
 				"navigationBarTitleText": "发布需求"
 			}
+		},
+		{
+			"path": "pages/market/market",
+			"style": {
+				"navigationBarTitleText": "需求市场"
+			}
+		},
+		{
+			"path": "pages/me/me",
+			"style": {
+				"navigationBarTitleText": "我的空间"
+			}
 		}
 	],
 	"globalStyle": {
