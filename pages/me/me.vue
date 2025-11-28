@@ -17,6 +17,7 @@
 			<button class="quick-btn" @click="openMine('accepted')">🙏 我接单的</button>
 			<button class="quick-btn" @click="openWallet">💰 我的钱包</button>
 			<button class="quick-btn" @click="openFavorites">⭐ 收藏夹</button>
+			<button class="quick-btn" @click="openCapability">🛎️ 发布服务能力</button>
 		</view>
 
 		<view class="orders">
@@ -82,6 +83,7 @@ export default {
 		openMine(type) { uni.showToast({ title: type==='published' ? '我发布的' : '我接单的', icon: 'none' }) },
 		openWallet() { uni.showToast({ title: '我的钱包', icon: 'none' }) },
 		openFavorites() { uni.showToast({ title: '收藏夹', icon: 'none' }) },
+		openCapability() { uni.navigateTo({ url: '/pages/me/capability' }) },
 		invite() { uni.showShareMenu && uni.showShareMenu() || uni.showToast({ title: '邀请好友', icon: 'none' }) },
 		service() { uni.showToast({ title: '联系客服', icon: 'none' }) },
 		settings() { uni.showToast({ title: '设置', icon: 'none' }) },

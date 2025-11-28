@@ -35,6 +35,12 @@
 			"style": {
 				"navigationBarTitleText": "我的空间"
 			}
+		},
+		{
+			"path": "pages/me/capability",
+			"style": {
+				"navigationBarTitleText": "发布服务能力"
+			}
 		}
 	],
 	"globalStyle": {
