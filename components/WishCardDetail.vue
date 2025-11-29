@@ -27,6 +27,13 @@
 
       <!-- Action Buttons -->
       <view class="action-area">
+        <view class="action-btn" @click="handleLike">
+          <view class="icon-wrapper like-icon" :class="{ 'is-liked': isLiked }">
+            <uni-icons :type="isLiked ? 'heart-filled' : 'heart'" size="24" :color="isLiked ? '#ff5a5f' : '#fff'"></uni-icons>
+          </view>
+          <text class="btn-text">{{ isLiked ? '已收藏' : '收藏' }}</text>
+        </view>
+
         <view class="action-btn" @click="handleSave">
           <view class="icon-wrapper save-icon">
             <uni-icons type="download" size="24" color="#fff"></uni-icons>
@@ -53,8 +60,11 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { BASE_URL_AVATAR } from '@/core/config.js' // Assuming this exists based on other files
+import { computed, ref, watch } from 'vue'
+import { BASE_URL_AVATAR } from '@/core/config.js'
+import { setLike, removeLike, getLikeDel } from '@/cloud-api/dynamic.js'
+import { store } from '@/uni_modules/uni-id-pages/common/store.js'
+import { showToast, toNextPage } from '@/core/app.js'
 
 const props = defineProps({
   visible: {
@@ -74,6 +84,8 @@ const props = defineProps({
 const emit = defineEmits(['update:visible', 'close'])
 
 const defaultAvatar = 'https://mp-182cf5aa-f083-45a9-8d28-e12bee639ce3.cdn.bspapp.com/appBgimgs/default_avatar.png'
+const isLiked = ref(false)
+const loading = ref(false)
 
 const isImageBg = computed(() => {
   const cs = props.wishData?.content_style
@@ -135,6 +147,51 @@ const handleClose = () => {
   emit('close')
 }
 
+const checkLogin = () => {
+  if (!store.hasLogin) {
+    toNextPage('/uni_modules/uni-id-pages/pages/login/login-withpwd')
+    return false
+  }
+  return true
+}
+
+const initLikeStatus = async () => {
+    if (store.hasLogin && props.wishData._id) {
+        try {
+            const res = await getLikeDel(props.wishData._id)
+            // check if data exists and has _id
+            isLiked.value = !!(res && res.data && res.data._id)
+        } catch (e) {
+            console.error('Check like status failed:', e)
+        }
+    } else {
+        isLiked.value = false
+    }
+}
+
+const handleLike = async () => {
+  if (!checkLogin()) return
+  
+  if (loading.value) return
+  loading.value = true
+  
+  try {
+    if (isLiked.value) {
+        await removeLike(props.wishData._id)
+        isLiked.value = false
+        showToast('已取消收藏')
+    } else {
+        await setLike(props.wishData._id)
+        isLiked.value = true
+        showToast('收藏成功')
+    }
+  } catch (e) {
+    showToast(e.message || '操作失败')
+  } finally {
+    loading.value = false
+  }
+}
+
 const handleSave = () => {
   // Mock save functionality
   uni.showLoading({ title: '保存中...' })
@@ -161,6 +218,8 @@ const handleShare = () => {
 }
 
 const handleSameWish = () => {
+  if (!checkLogin()) return
+
   // Mock navigation to publish page with copied content
   uni.showToast({
     title: '正在创建同款...',
@@ -173,6 +232,18 @@ const handleSameWish = () => {
     })
   }, 500)
 }
+
+watch(() => props.visible, (val) => {
+    if (val) {
+        initLikeStatus()
+    }
+})
+
+watch(() => store.hasLogin, (val) => {
+    if (val && props.visible) {
+        initLikeStatus()
+    }
+})
 </script>
 
 <style lang="scss" scoped>
@@ -355,6 +426,16 @@ const handleSameWish = () => {
 
       &:active {
         transform: scale(0.95);
+      }
+
+      &.like-icon {
+        background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        box-shadow: 0 4px 10px rgba(168, 237, 234, 0.3);
+        
+        &.is-liked {
+          background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+          box-shadow: 0 4px 10px rgba(255, 154, 158, 0.3);
+        }
       }
 
       &.save-icon {
