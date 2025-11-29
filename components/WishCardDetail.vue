@@ -42,7 +42,7 @@
               <view class="chat-content-wrapper">
                 <text class="chat-name">还愿 · {{ formatFulfillDate }}</text>
                 <view class="chat-bubble left-bubble fulfill-bubble-style">
-                  <text class="bubble-text">{{ wishData.fullfill_content }}</text>
+                  <text class="bubble-text" :style="textStyle">{{ wishData.fullfill_content }}</text>
                 </view>
               </view>
             </view>
@@ -435,9 +435,10 @@ watch(() => props.visible, (val) => {
   }
   
   &.right-bubble {
-    background-color: #95ec69;
+    background-color: #fffbf0;
     border-top-right-radius: 4rpx;
-    color: #000;
+    color: #333;
+    border: 1px solid #f0e6d2;
   }
 }
 
