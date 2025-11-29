@@ -8,54 +8,59 @@
         <view v-else class="card-bg-css" :style="{ background: bgValue }"></view>
         
         <view class="conversation-container">
-          <!-- Left Side: Wish -->
-          <view class="chat-section left-section">
-            <view class="section-header">
-              <image class="user-avatar" :src="wishData.user?.avatar || defaultAvatar" mode="aspectFill"></image>
-              <view class="header-info">
-                <text class="user-name">许愿</text>
-                <text class="date-text">{{ formattedDate }}</text>
-              </view>
-            </view>
+          <!-- Chat Layout -->
+          <view class="chat-list">
             
-            <view class="bubble-group">
-              <view class="bubble wish-bubble">
-                <text class="bubble-text" :style="textStyle">{{ wishContent }}</text>
-              </view>
-              
-              <view class="bubble ai-bubble" v-if="aiMessage">
-                <view class="ai-header">
-                  <uni-icons type="star-filled" size="14" color="#FFD700"></uni-icons>
-                  <text class="ai-title">星语</text>
+            <!-- 1. Publisher Wish Content (Left) -->
+            <view class="chat-item left">
+              <image class="chat-avatar" :src="wishData.user?.avatar || defaultAvatar" mode="aspectFill"></image>
+              <view class="chat-content-wrapper">
+                <text class="chat-name">许愿 · {{ formattedDate }}</text>
+                <view class="chat-bubble left-bubble">
+                  <text class="bubble-text" :style="textStyle">{{ wishContent }}</text>
                 </view>
-                <text class="ai-content">{{ aiMessage }}</text>
-              </view>
-            </view>
-          </view>
-
-          <!-- Right Side: Fulfillment -->
-          <view class="chat-section right-section" v-if="wishData.fullfilled">
-            <view class="section-header reverse">
-              <image class="user-avatar" :src="wishData.user?.avatar || defaultAvatar" mode="aspectFill"></image>
-              <view class="header-info align-right">
-                <text class="user-name">还愿</text>
-                <text class="date-text">{{ formatFulfillDate }}</text>
               </view>
             </view>
 
-            <view class="bubble-group align-right">
-              <view class="bubble fulfill-bubble">
-                <text class="bubble-text">{{ wishData.fullfill_content }}</text>
-              </view>
-
-              <view class="bubble ai-bubble fulfill-ai" v-if="wishData.fullfill_ai_message">
-                <view class="ai-header">
-                  <uni-icons type="heart-filled" size="14" color="#FF6B81"></uni-icons>
-                  <text class="ai-title">祝福</text>
+            <!-- 2. AI Message (Right) -->
+            <view class="chat-item right" v-if="aiMessage">
+              <view class="chat-content-wrapper align-right">
+                 <view class="ai-header-row">
+                    <text class="chat-name">星语AI</text>
+                    <uni-icons type="star-filled" size="12" color="#FFD700"></uni-icons>
+                 </view>
+                <view class="chat-bubble right-bubble">
+                  <text class="bubble-text">{{ aiMessage }}</text>
                 </view>
-                <text class="ai-content">{{ wishData.fullfill_ai_message }}</text>
+              </view>
+              <image class="chat-avatar" :src="aiAvatar" mode="aspectFill"></image>
+            </view>
+
+            <!-- 3. Publisher Fulfillment Content (Left) -->
+            <view class="chat-item left" v-if="wishData.fullfilled">
+              <image class="chat-avatar" :src="wishData.user?.avatar || defaultAvatar" mode="aspectFill"></image>
+              <view class="chat-content-wrapper">
+                <text class="chat-name">还愿 · {{ formatFulfillDate }}</text>
+                <view class="chat-bubble left-bubble fulfill-bubble-style">
+                  <text class="bubble-text">{{ wishData.fullfill_content }}</text>
+                </view>
               </view>
             </view>
+
+            <!-- 4. AI Fulfillment Message (Right) -->
+            <view class="chat-item right" v-if="wishData.fullfilled && wishData.fullfill_ai_message">
+              <view class="chat-content-wrapper align-right">
+                <view class="ai-header-row">
+                    <text class="chat-name">祝福AI</text>
+                    <uni-icons type="heart-filled" size="12" color="#FF6B81"></uni-icons>
+                 </view>
+                <view class="chat-bubble right-bubble">
+                  <text class="bubble-text">{{ wishData.fullfill_ai_message }}</text>
+                </view>
+              </view>
+              <image class="chat-avatar" :src="aiAvatar" mode="aspectFill"></image>
+            </view>
+
           </view>
         </view>
       </scroll-view>
@@ -125,6 +130,7 @@ const props = defineProps({
 const emit = defineEmits(['update:visible', 'close'])
 
 const defaultAvatar = 'https://mp-182cf5aa-f083-45a9-8d28-e12bee639ce3.cdn.bspapp.com/appBgimgs/default_avatar.png'
+const aiAvatar = 'https://mp-182cf5aa-f083-45a9-8d28-e12bee639ce3.cdn.bspapp.com/petModal/modal1.png'
 const isLiked = ref(false)
 const loading = ref(false)
 
@@ -347,132 +353,97 @@ watch(() => props.visible, (val) => {
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  gap: 30rpx;
-  
-  .wide-mode & {
-    flex-direction: row;
-    align-items: flex-start;
-    gap: 20rpx;
-  }
 }
 
-.chat-section {
-  flex: 1;
-  background: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(5px);
-  border-radius: 20rpx;
-  padding: 20rpx;
+.chat-list {
   display: flex;
   flex-direction: column;
-  
-  &.right-section {
-    background: rgba(255, 240, 245, 0.7); // Light pink tint
-  }
+  gap: 40rpx;
+  width: 100%;
 }
 
-.section-header {
+.chat-item {
   display: flex;
-  align-items: center;
-  margin-bottom: 20rpx;
-  
-  &.reverse {
-    flex-direction: row-reverse;
-  }
-  
-  .user-avatar {
-    width: 60rpx;
-    height: 60rpx;
-    border-radius: 50%;
-    border: 2px solid #fff;
-    margin: 0 10rpx;
-  }
-  
-  .header-info {
-    display: flex;
-    flex-direction: column;
-    
-    &.align-right {
-      align-items: flex-end;
-    }
-    
-    .user-name {
-      font-size: 26rpx;
-      font-weight: bold;
-      color: #333;
-    }
-    
-    .date-text {
-      font-size: 20rpx;
-      color: #666;
-    }
-  }
-}
-
-.bubble-group {
-  display: flex;
-  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
   gap: 20rpx;
-  
+
+  &.right {
+    flex-direction: row;
+    justify-content: flex-end;
+  }
+}
+
+.chat-avatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 10rpx;
+  background-color: #f5f5f5;
+  flex-shrink: 0;
+  border: 1px solid rgba(0,0,0,0.05);
+}
+
+.chat-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  max-width: 70%;
+
   &.align-right {
     align-items: flex-end;
   }
 }
 
-.bubble {
-  padding: 20rpx;
-  border-radius: 20rpx;
-  max-width: 100%;
-  box-sizing: border-box;
+.chat-name {
+  font-size: 22rpx;
+  color: #999; /* Lighter color for date/name */
+  margin-bottom: 6rpx;
+  margin-left: 10rpx; /* Align with bubble */
+}
+
+.chat-content-wrapper.align-right .chat-name {
+    margin-right: 10rpx;
+    margin-left: 0;
+    text-align: right;
+}
+
+.ai-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8rpx;
+    margin-bottom: 6rpx;
+    margin-right: 10rpx;
+}
+
+.chat-bubble {
+  padding: 18rpx 24rpx;
+  border-radius: 12rpx;
   position: relative;
+  font-size: 30rpx;
+  line-height: 1.5;
+  color: #333;
   
-  &.wish-bubble {
-    background: #fff;
-    border-top-left-radius: 4rpx;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  }
-  
-  &.fulfill-bubble {
-    background: #fff0f5;
-    border-top-right-radius: 4rpx;
-    box-shadow: 0 2px 8px rgba(255, 182, 193, 0.2);
-    color: #333;
-    font-size: 28rpx;
-    line-height: 1.5;
-  }
-  
-  &.ai-bubble {
-    background: rgba(255,255,255,0.9);
-    border: 1px solid rgba(255,255,255,0.5);
+  &.left-bubble {
+    background-color: #fff;
+    border: 1px solid #e5e5e5;
+    border-top-left-radius: 4rpx; /* Square off corner near avatar */
     
-    &.fulfill-ai {
-      background: rgba(255, 250, 250, 0.95);
+    &.fulfill-bubble-style {
+       background-color: #fff0f5;
+       border-color: #ffdae0;
     }
   }
   
-  .bubble-text {
-    word-break: break-all;
-    white-space: pre-wrap;
+  &.right-bubble {
+    background-color: #95ec69;
+    border-top-right-radius: 4rpx;
+    color: #000;
   }
 }
 
-.ai-header {
-  display: flex;
-  align-items: center;
-  gap: 8rpx;
-  margin-bottom: 8rpx;
-  
-  .ai-title {
-    font-size: 22rpx;
-    color: #999;
-    font-weight: bold;
-  }
-}
-
-.ai-content {
-  font-size: 24rpx;
-  color: #555;
-  line-height: 1.4;
-  text-align: justify;
+.bubble-text {
+  word-break: break-all;
+  white-space: pre-wrap;
 }
 
 .action-area {
@@ -482,6 +453,7 @@ watch(() => props.visible, (val) => {
   padding: 0 20rpx;
   flex-wrap: wrap;
   gap: 10rpx;
+  margin-top: 20rpx;
 
   .action-btn {
     display: flex;
