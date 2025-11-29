@@ -159,6 +159,7 @@
       v-if="showResult"
       :visible="showResult"
       :wish-data="resultData"
+      :show-same-wish="false"
       @close="closeResult"
       @update:visible="v => showResult = v"
     />

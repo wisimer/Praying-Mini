@@ -41,7 +41,7 @@
           <text class="btn-text">分享给好友</text>
         </view>
 
-        <view class="action-btn" @click="handleSameWish">
+        <view class="action-btn" @click="handleSameWish" v-if="showSameWish">
           <view class="icon-wrapper same-icon">
             <uni-icons type="plus" size="24" color="#fff"></uni-icons>
           </view>
@@ -64,6 +64,10 @@ const props = defineProps({
   wishData: {
     type: Object,
     default: () => ({})
+  },
+  showSameWish: {
+    type: Boolean,
+    default: true
   }
 })
 
