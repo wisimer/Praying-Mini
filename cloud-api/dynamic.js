@@ -356,3 +356,39 @@ export async function removeLike(dynamicId) {
 		})
 	})
 }
+
+// 获取未还愿列表
+export async function getUnfulfilledWishes() {
+	return new Promise((resolve, reject) => {
+		db.collection('app-dynamic')
+			.where({
+				user_id: db.getCloudEnv('$cloudEnv_uid'),
+				sort: 0,
+				fullfilled: db.command.neq(true)
+			})
+			.orderBy('publish_date', 'desc')
+			.get()
+			.then(res => {
+				resolve(res.result)
+			})
+			.catch(err => {
+				reject(err.errMsg)
+			})
+	})
+}
+
+// 许愿还愿
+export async function fulfillWish(id, content, aiMessage) {
+	return new Promise((resolve, reject) => {
+		db.collection('app-dynamic').doc(id).update({
+			fullfilled: true,
+			fullfill_content: content,
+			fullfill_ai_message: aiMessage,
+			fullfill_date: Date.now()
+		}).then(res => {
+			resolve(res.result)
+		}).catch(err => {
+			reject(err.errMsg)
+		})
+	})
+}

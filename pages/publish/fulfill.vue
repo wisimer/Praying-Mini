@@ -1,103 +1,182 @@
 <template>
-  <div class="publish-container">
-    <div class="nav-header">
+  <view class="fulfill-page">
+    <view class="nav-header">
       <uni-icons type="back" size="24" @click="goBack"></uni-icons>
-      <span class="title">我要还愿</span>
-      <div class="placeholder"></div>
-    </div>
+      <text class="title">我要还愿</text>
+      <view class="placeholder"></view>
+    </view>
 
-    <div class="form-content">
-      <div class="form-item">
-        <div class="label">关联愿望</div>
-        <picker @change="bindPickerChange" :value="index" :range="wishList" range-key="text">
-          <div class="picker-box">
-            <span v-if="index > -1">{{ wishList[index].text }}</span>
-            <span v-else class="placeholder-text">请选择要还愿的愿望</span>
-            <uni-icons type="bottom" size="14" color="#999"></uni-icons>
-          </div>
-        </picker>
-      </div>
+    <scroll-view scroll-y class="content-area">
+      <!-- Step 1: Select Wish -->
+      <view class="section-header">
+        <text class="section-title">选择愿望</text>
+        <text class="section-subtitle">请选择要还愿的祈愿</text>
+      </view>
+      
+      <view class="wish-list-container">
+        <view v-if="loadingWishes" class="loading-state">
+          <uni-icons type="spinner-cycle" size="24" color="#999" class="rotating"></uni-icons>
+          <text>加载中...</text>
+        </view>
+        
+        <view v-else-if="wishes.length > 0" class="wish-list">
+          <view 
+            v-for="item in wishes" 
+            :key="item._id" 
+            class="wish-item"
+            :class="{ active: selectedWishId === item._id }"
+            @click="selectWish(item)"
+          >
+            <view class="wish-content-wrapper">
+              <text class="wish-content">{{ item.content }}</text>
+              <text class="wish-date">{{ formatDate(item.publish_date) }}</text>
+            </view>
+            <view class="radio-circle">
+              <view class="radio-inner" v-if="selectedWishId === item._id"></view>
+            </view>
+          </view>
+        </view>
+        
+        <view v-else class="empty-state">
+          <image src="https://mp-182cf5aa-f083-45a9-8d28-e12bee639ce3.cdn.bspapp.com/appBgimgs/empty-box.png" mode="aspectFit" class="empty-img"></image>
+          <text>暂无待还愿的祈愿</text>
+        </view>
+      </view>
 
-      <div class="form-item input-group">
-        <textarea 
-          class="wish-input" 
-          v-model="fulfillContent" 
-          placeholder="愿望已实现，写下你的还愿感言..." 
-          maxlength="200"
-        ></textarea>
-        <div class="word-count">{{ fulfillContent.length }}/200</div>
-      </div>
-    </div>
+      <!-- Step 2: Fulfill Message -->
+      <view class="input-section" :class="{ disabled: !selectedWishId }">
+        <view class="section-header">
+          <text class="section-title">还愿感言</text>
+        </view>
+        <view class="textarea-wrapper">
+          <textarea
+            class="fulfill-input"
+            v-model="fulfillContent"
+            placeholder="写下你的还愿感言，感谢神恩..."
+            :maxlength="200"
+            :disabled="!selectedWishId"
+          ></textarea>
+          <text class="char-count">{{ fulfillContent.length }}/200</text>
+        </view>
+      </view>
+    </scroll-view>
 
-    <div class="footer-action">
-      <button class="submit-btn" @click="handleFulfill" :disabled="isLoading">
-        <span v-if="!isLoading">还愿</span>
-        <div v-else class="loading-spinner flower-bloom">🌸</div>
+    <view class="action-bar">
+      <button 
+        class="fulfill-btn" 
+        :class="{ disabled: !selectedWishId || !fulfillContent.trim() || submitting }"
+        :disabled="!selectedWishId || !fulfillContent.trim() || submitting"
+        @click="handleFulfill"
+      >
+        <text v-if="!submitting">确认还愿</text>
+        <view v-else class="loading-dots">
+          <text>.</text><text>.</text><text>.</text>
+        </view>
       </button>
-    </div>
-  </div>
+    </view>
+  </view>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { getUnfulfilledWishes, fulfillWish } from '@/cloud-api/dynamic.js'
+import { showToast } from '@/core/app.js'
 
+const wishes = ref([])
+const selectedWishId = ref('')
 const fulfillContent = ref('')
-const isLoading = ref(false)
-const index = ref(-1)
+const loadingWishes = ref(false)
+const submitting = ref(false)
 
-// Mock data for wishes
-const wishList = ref([
-  { id: 1, text: '希望家人身体健康' },
-  { id: 2, text: '顺利通过考试' },
-  { id: 3, text: '找到心仪的工作' }
-])
+const goBack = () => uni.navigateBack()
 
-const goBack = () => {
-  uni.navigateBack()
+const formatDate = (timestamp) => {
+  if (!timestamp) return ''
+  const date = new Date(timestamp)
+  return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`
 }
 
-const bindPickerChange = (e) => {
-  index.value = e.detail.value
+const loadWishes = async () => {
+  loadingWishes.value = true
+  try {
+    const res = await getUnfulfilledWishes()
+    wishes.value = res.data || []
+  } catch (e) {
+    console.error(e)
+    showToast('获取愿望列表失败')
+  } finally {
+    loadingWishes.value = false
+  }
 }
 
-const handleFulfill = () => {
-  if (index.value === -1) {
-    uni.showToast({
-      title: '请选择关联愿望',
-      icon: 'none'
-    })
-    return
+const selectWish = (item) => {
+  if (selectedWishId.value === item._id) {
+    selectedWishId.value = '' // Deselect
+  } else {
+    selectedWishId.value = item._id
   }
-  
-  if (!fulfillContent.value.trim()) {
-    uni.showToast({
-      title: '请填写还愿文案',
-      icon: 'none'
-    })
-    return
-  }
+}
 
-  isLoading.value = true
+const handleFulfill = async () => {
+  if (!selectedWishId.value || !fulfillContent.value.trim()) return
   
-  setTimeout(() => {
-    isLoading.value = false
+  submitting.value = true
+  
+  try {
+    // Check text content (if needed, similar to wish.vue)
+    // #ifdef MP-WEIXIN
+    const checkRes = await uniCloud.callFunction({ 
+      name: 'set-check-text', 
+      data: { text: fulfillContent.value } 
+    })
+    if (checkRes.result.errCode === 400) {
+      throw new Error('内容不合规')
+    }
+    // #endif
+
+    // Generate AI Message
+    const aiMessages = [
+      "你的诚心已获回应，愿福泽常伴左右。",
+      "感恩之心是幸福的源泉，愿你未来更加美好。",
+      "善愿得偿，功德无量。继续保持这份美好。",
+      "愿望成真，是努力与幸运的共鸣。祝贺你！"
+    ]
+    const aiMessage = aiMessages[Math.floor(Math.random() * aiMessages.length)]
+
+    await fulfillWish(selectedWishId.value, fulfillContent.value, aiMessage)
+    
     uni.showToast({
       title: '还愿成功',
       icon: 'success'
     })
+    
     setTimeout(() => {
       uni.navigateBack()
     }, 1500)
-  }, 2500)
+    
+  } catch (e) {
+    console.error(e)
+    if (e.message === '内容不合规') {
+      showToast('内容不合规，请重新编辑')
+    } else {
+      showToast('还愿失败，请重试')
+    }
+  } finally {
+    submitting.value = false
+  }
 }
+
+onMounted(() => {
+  loadWishes()
+})
 </script>
 
 <style lang="scss" scoped>
-.publish-container {
-  min-height: 100vh;
-  background-color: #f8f9fa;
+.fulfill-page {
+  height: 100vh;
   display: flex;
   flex-direction: column;
+  background-color: #f9f9f9;
 }
 
 .nav-header {
@@ -108,110 +187,202 @@ const handleFulfill = () => {
   align-items: center;
   justify-content: space-between;
   background-color: #fff;
-  
-  .title {
-    font-size: 18px;
-    font-weight: bold;
-  }
-  
-  .placeholder {
-    width: 24px;
-  }
+  z-index: 100;
+  .title { font-size: 18px; font-weight: bold; color: #333; }
+  .placeholder { width: 24px; }
 }
 
-.form-content {
+.content-area {
   flex: 1;
   padding: 20px;
-  
-  .form-item {
-    margin-bottom: 20px;
-    
-    .label {
-      font-size: 14px;
-      color: #333;
-      margin-bottom: 8px;
-      font-weight: 500;
-    }
-    
-    .picker-box {
-      background-color: #fff;
-      border-radius: 12px;
-      padding: 14px 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 15px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
-      
-      .placeholder-text {
-        color: #999;
-      }
-    }
+  box-sizing: border-box;
+}
+
+.section-header {
+  margin-bottom: 16px;
+  .section-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    margin-right: 8px;
   }
-  
-  .input-group {
-    background-color: #fff;
-    border-radius: 12px;
-    padding: 16px;
-    position: relative;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    
-    .wish-input {
-      width: 100%;
-      height: 200px;
-      font-size: 16px;
-      line-height: 1.6;
-      border: none;
-      outline: none;
-    }
-    
-    .word-count {
-      text-align: right;
-      color: #999;
-      font-size: 12px;
-      margin-top: 8px;
-    }
+  .section-subtitle {
+    font-size: 12px;
+    color: #999;
   }
 }
 
-.footer-action {
-  padding: 20px;
-  padding-bottom: calc(20px + env(safe-area-inset-bottom));
+.wish-list-container {
+  min-height: 100px;
+  margin-bottom: 30px;
+}
+
+.wish-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.wish-item {
+  background: #fff;
+  padding: 16px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
   
-  .submit-btn {
-    background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
-    color: #fff;
-    border-radius: 25px;
-    height: 50px;
+  &.active {
+    border-color: #FF6B81;
+    background-color: #fff5f6;
+  }
+  
+  .wish-content-wrapper {
+    flex: 1;
+    margin-right: 16px;
+    display: flex;
+    flex-direction: column;
+    
+    .wish-content {
+      font-size: 15px;
+      color: #333;
+      margin-bottom: 6px;
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      overflow: hidden;
+    }
+    
+    .wish-date {
+      font-size: 12px;
+      color: #999;
+    }
+  }
+  
+  .radio-circle {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid #ddd;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 18px;
-    font-weight: bold;
-    border: none;
-    box-shadow: 0 4px 15px rgba(161, 140, 209, 0.4);
     
-    &:active {
+    .radio-inner {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background-color: #FF6B81;
+    }
+  }
+  
+  &.active .radio-circle {
+    border-color: #FF6B81;
+  }
+}
+
+.loading-state, .empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 0;
+  color: #999;
+  font-size: 14px;
+  
+  .rotating {
+    animation: rotate 1s linear infinite;
+    margin-bottom: 10px;
+  }
+  
+  .empty-img {
+    width: 120px;
+    height: 120px;
+    margin-bottom: 10px;
+    opacity: 0.5;
+  }
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.input-section {
+  transition: opacity 0.3s;
+  &.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+  
+  .textarea-wrapper {
+    background: #fff;
+    border-radius: 12px;
+    padding: 16px;
+    position: relative;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    
+    .fulfill-input {
+      width: 100%;
+      height: 120px;
+      font-size: 15px;
+      line-height: 1.5;
+      color: #333;
+    }
+    
+    .char-count {
+      position: absolute;
+      bottom: 12px;
+      right: 16px;
+      font-size: 12px;
+      color: #ccc;
+    }
+  }
+}
+
+.action-bar {
+  padding: 16px 20px;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom));
+  background: #fff;
+  border-top: 1px solid #f0f0f0;
+  
+  .fulfill-btn {
+    height: 50px;
+    border-radius: 25px;
+    background: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 100%);
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    transition: all 0.3s;
+    
+    &.disabled {
+      opacity: 0.6;
+      background: #ccc;
+    }
+    
+    &:active:not(.disabled) {
       transform: scale(0.98);
     }
     
-    &:disabled {
-      opacity: 0.8;
+    .loading-dots {
+      display: flex;
+      gap: 4px;
+      text { animation: bounce 1.4s infinite ease-in-out both; }
+      text:nth-child(1) { animation-delay: -0.32s; }
+      text:nth-child(2) { animation-delay: -0.16s; }
     }
   }
 }
 
-.loading-spinner {
-  font-size: 24px;
-  
-  &.flower-bloom {
-    animation: bloom 2s ease-in-out infinite;
-  }
-}
-
-@keyframes bloom {
-  0% { transform: scale(0.5); opacity: 0.5; }
-  50% { transform: scale(1.2); opacity: 1; }
-  100% { transform: scale(0.5); opacity: 0.5; }
+@keyframes bounce {
+  0%, 80%, 100% { transform: scale(0); }
+  40% { transform: scale(1); }
 }
 </style>

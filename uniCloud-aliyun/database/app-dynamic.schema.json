@@ -120,6 +120,32 @@
         "$env": "clientIP"
       }
     },
+    "ai_message": {
+      "bsonType": "string",
+      "title": "AI寄语"
+    },
+    "fullfill_ai_message": {
+      "bsonType": "string",
+      "title": "还愿AI寄语"
+    },
+    "fullfilled": {
+      "bsonType": "boolean",
+      "title": "是否还愿",
+      "defaultValue": false
+    },
+    "fullfill_content": {
+      "bsonType": "string",
+      "title": "还愿信息",
+      "defaultValue": "已还愿"
+    },
+    "fullfill_date": {
+      "bsonType": "timestamp",
+      "title": "还愿时间",
+      "description": "还愿时间",
+      "defaultValue": {
+        "$env": "now"
+      }
+    },
     "content_style": {
       "bsonType": "object",
       "title": "样式附加信息",
@@ -144,10 +170,6 @@
         "fontWeight": {
           "bsonType": "string",
           "title": "字体权重"
-        },
-        "aiMessage": {
-          "bsonType": "string",
-          "title": "AI寄语"
         }
       }
     }

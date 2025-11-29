@@ -319,7 +319,7 @@ const finishWish = async () => {
     
     const obj = {
       content: wishText.value,
-      sort: 6, // 6: Wish type
+      sort: 0, // 6: Wish type
       imgs: "",
       content_style: contentStyle
     }

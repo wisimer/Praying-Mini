@@ -210,7 +210,11 @@ const loadData = async (reload = false) => {
         nickname: item.user?.nickname || 'Unknown',
         avatar: item.user?.avatar_file?.url || '/static/default-avatar.png'
       },
-      createTime: formatTime(item.publish_date)
+      createTime: formatTime(item.publish_date),
+      // Backup original content for detail view
+      original_content: item.content,
+      // Display logic: show fullfill_content if fulfilled
+      content: item.fullfilled && item.fullfill_content ? item.fullfill_content : item.content
     }))
     
     if (reload) {
