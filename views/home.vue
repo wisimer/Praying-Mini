@@ -23,12 +23,13 @@
       </div>
     </div>
 
-    <BottomNav v-model="currentNavIndex" />
+    <!-- <BottomNav v-model="currentNavIndex" /> -->
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { onShow, onHide } from '@dcloudio/uni-app'
 import TopNav from '../components/TopNav.vue'
 import TabBar from '../components/TabBar.vue'
 import WishCard from '../components/WishCard.vue'
@@ -38,6 +39,14 @@ import mockData from '../assets/mock/wishData.json'
 const currentTab = ref(0)
 const currentNavIndex = ref(0)
 const wishList = ref([])
+
+onShow(() => {
+  uni.hideTabBar()
+})
+
+onHide(() => {
+  uni.showTabBar()
+})
 
 onMounted(() => {
   // Simulate API call

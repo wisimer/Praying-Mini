@@ -35,15 +35,22 @@ const emit = defineEmits(['update:modelValue'])
 const activeIndex = ref(props.modelValue)
 
 const navItems = [
-  { label: '首页', icon: 'home', activeIcon: 'home-filled' },
-  { label: '任务', icon: 'calendar', activeIcon: 'calendar-filled' },
-  { label: '消息', icon: 'chat', activeIcon: 'chat-filled' },
-  { label: '我的', icon: 'person', activeIcon: 'person-filled' }
+  { label: '首页', icon: 'home', activeIcon: 'home-filled', path: '/pages/home/home' },
+  { label: '任务', icon: 'calendar', activeIcon: 'calendar-filled', path: '/pages/share/share' },
+  { label: '消息', icon: 'chat', activeIcon: 'chat-filled', path: '/pages/message/message' },
+  { label: '我的', icon: 'person', activeIcon: 'person-filled', path: '/pages/wode/wode' }
 ]
 
 const switchTab = (index) => {
   activeIndex.value = index
   emit('update:modelValue', index)
+  
+  const item = navItems[index]
+  if (item.path) {
+    uni.switchTab({
+      url: item.path
+    })
+  }
 }
 </script>
 
