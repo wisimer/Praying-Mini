@@ -15,8 +15,9 @@
       </view>
     </view>
 
-    <view class="addicon" @click.stop="toggleMenu" :class="{ 'is-active': isExpanded }">
-      <image class="icon" src="https://mp-182cf5aa-f083-45a9-8d28-e12bee639ce3.cdn.bspapp.com/appBgimgs/addicon.png"></image>
+    <view class="addicon" @click.stop="toggleMenu" :class="{ 'is-active': isExpanded, 'is-loading': isLoading }">
+      <image v-if="!isLoading" class="icon" src="https://mp-182cf5aa-f083-45a9-8d28-e12bee639ce3.cdn.bspapp.com/appBgimgs/addicon.png"></image>
+      <view v-else class="loading-spinner"></view>
     </view>
     
     <view v-if="isExpanded" class="overlay" @click="closeMenu"></view>
@@ -35,6 +36,7 @@
  */
 import { ref } from 'vue'
 import { toNextPage } from '@/core/app.js'
+import { store } from '@/uni_modules/uni-id-pages/common/store'
 
 const props = defineProps({
   right: {
@@ -48,8 +50,66 @@ const props = defineProps({
 })
 
 const isExpanded = ref(false)
+const isLoading = ref(false)
 
 const toggleMenu = () => {
+  if (isLoading.value) return
+
+  // 1. 检测当前用户登录状态
+  const userInfo = uniCloud.getCurrentUserInfo()
+  const tokenExpired = userInfo.tokenExpired
+  const isLogin = store.hasLogin && tokenExpired > Date.now()
+
+  // 2. 未登录处理流程
+  if (!isLogin) {
+    isLoading.value = true
+    uni.showToast({
+      title: "请先登录后再进行操作",
+      icon: 'none',
+      duration: 1500
+    })
+
+    // 3. 页面跳转控制
+    setTimeout(() => {
+      const pages = getCurrentPages()
+      const currentPage = pages[pages.length - 1]
+      let currentRoute = currentPage.route
+      if (!currentRoute.startsWith('/')) {
+        currentRoute = '/' + currentRoute
+      }
+      
+      // 保留当前页面的参数
+      if (currentPage.options && Object.keys(currentPage.options).length > 0) {
+        const query = Object.keys(currentPage.options)
+          .map(key => `${key}=${currentPage.options[key]}`)
+          .join('&')
+        currentRoute += `?${query}`
+      }
+      
+      // 4. 跳转参数处理
+      const redirect = encodeURIComponent(currentRoute)
+      const url = `/uni_modules/uni-id-pages/pages/login/login-withpwd?uniIdRedirectUrl=${redirect}`
+      
+      uni.navigateTo({
+        url: url,
+        success: () => {
+          // 5. 按钮交互优化 - 跳转完成后恢复
+          isLoading.value = false
+        },
+        fail: (err) => {
+          // 6. 异常处理
+          console.error('Navigate failed:', err)
+          isLoading.value = false
+          uni.showToast({
+            title: '跳转失败，请检查网络',
+            icon: 'none'
+          })
+        }
+      })
+    }, 1500)
+    return
+  }
+
   isExpanded.value = !isExpanded.value
 }
 
@@ -173,5 +233,24 @@ const navigateTo = (toUrl) => {
   bottom: 0;
   z-index: 990;
   /* Transparent overlay to capture clicks outside */
+}
+
+.loading-spinner {
+  width: 30rpx;
+  height: 30rpx;
+  border: 3rpx solid #ffffff;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.addicon.is-loading {
+  background-color: #ccc; 
+  pointer-events: none;
 }
 </style>
