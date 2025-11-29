@@ -1,0 +1,45 @@
+{
+	"bsonType": "object",
+	"required": [
+		"user_id"
+	],
+	"permission": {
+		"read": "auth.uid != null",
+		"create": "auth.uid != null",
+		"update": "auth.uid != null",
+		"delete": "auth.uid != null"
+	},
+	"properties": {
+		"_id": {
+			"description": "ID，系统自动生成"
+		},
+		"user_id": {
+			"bsonType": "string",
+			"description": "用户id",
+			"foreignKey": "uni-id-users._id",
+			"forceDefaultValue": {
+				"$env": "uid"
+			}
+		},
+		"pet_id": {
+			"bsonType": "string",
+			"description": "宠物id",
+			"foreignKey": "app-pet._id"
+		},
+		"content": {
+			"bsonType": "string",
+			"description": "发送的内容"
+		},
+		"type": {
+			"bsonType": "string",
+			"description": "发送者；1：用户，2：宠物"
+		},
+		"create_date": {
+			"bsonType": "timestamp",
+			"description": "记录时间",
+			"forceDefaultValue": {
+				"$env": "now"
+			}
+		}
+	}
+}

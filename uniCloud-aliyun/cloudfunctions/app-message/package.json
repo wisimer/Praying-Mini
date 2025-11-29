@@ -1,0 +1,12 @@
+{
+    "name": "app-message",
+    "dependencies": {},
+    "extensions": {
+        "uni-cloud-jql": {},
+        "uni-cloud-push": {}
+    },
+    "origin-plugin-dev-name": "wang-pet-cloud",
+    "origin-plugin-version": "1.0.0",
+    "plugin-dev-name": "wang-pet-cloud",
+    "plugin-version": "1.0.0"
+}

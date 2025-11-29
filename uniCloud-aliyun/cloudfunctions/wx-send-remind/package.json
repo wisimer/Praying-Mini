@@ -1,0 +1,14 @@
+{
+    "name": "wx-send",
+    "dependencies": {
+        "uni-subscribemsg": "file:..\/..\/..\/uni_modules\/uni-subscribemsg\/uniCloud\/cloudfunctions\/common\/uni-subscribemsg",
+        "dayjs-utils": "file:..\/common\/dayjs-utils"
+    },
+    "extensions": {
+        "uni-cloud-jql": {}
+    },
+    "origin-plugin-dev-name": "wang-pet-cloud",
+    "origin-plugin-version": "1.0.0",
+    "plugin-dev-name": "wang-pet-cloud",
+    "plugin-version": "1.0.0"
+}

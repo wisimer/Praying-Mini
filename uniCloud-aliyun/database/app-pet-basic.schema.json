@@ -1,0 +1,24 @@
+{
+	"bsonType": "object",
+	"required": ["name"],
+	"permission": {
+		"read": true,
+		"create": true,
+		"update": "auth.uid != null",
+		"delete": "auth.uid != null"
+	},
+	"properties": {
+		"_id": {
+			"description": "ID，系统自动生成"
+		},
+		"name": {
+			"bsonType": "string",
+			"description": "宠物名称",
+			"errorMessage": "请添加宠物名称"
+		},
+		"weight_interval": {
+			"bsonType": "array",
+			"description": "体重区间"
+		}
+	}
+}

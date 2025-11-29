@@ -1,0 +1,152 @@
+.cu-bar {
+	display: flex;
+	position: relative;
+	align-items: center;
+	min-height: 100upx;
+	justify-content: space-between;
+}
+
+.cu-bar .action {
+	display: flex;
+	align-items: center;
+	height: 100%;
+	justify-content: center;
+	max-width: 100%;
+}
+
+
+.cu-bar .action:first-child {
+	margin-left: 30upx;
+	font-size: 30upx;
+}
+
+.cu-bar .action text.text-cut {
+	text-align: left;
+	width: 100%;
+}
+
+.cu-bar .cu-avatar:first-child {
+	margin-left: 20upx;
+}
+
+.cu-bar .action:first-child>text[class*="cuIcon-"] {
+	margin-left: -0.3em;
+	margin-right: 0.3em;
+}
+
+.cu-bar .action:last-child {
+	margin-right: 30upx;
+}
+
+.cu-bar .action>text[class*="cuIcon-"],
+.cu-bar .action>view[class*="cuIcon-"] {
+	font-size: 36upx;
+}
+
+.cu-bar .action>text[class*="cuIcon-"]+text[class*="cuIcon-"] {
+	margin-left: 0.5em;
+}
+
+.cu-bar .content {
+	position: absolute;
+	text-align: center;
+	width: calc(100% - 340upx);
+	left: 0;
+	right: 0;
+	bottom: 0;
+	top: 0;
+	margin: auto;
+	height: 60upx;
+	font-size: 32upx;
+	line-height: 60upx;
+	cursor: none;
+	pointer-events: none;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+.cu-bar.ios .content {
+	bottom: 7px;
+	height: 30px;
+	font-size: 32upx;
+	line-height: 30px;
+}
+
+
+.cu-bar.fixed,
+.nav.fixed {
+	position: fixed;
+	width: 100%;
+	top: 0;
+	left: 0;
+	right: 0;
+	z-index: 1024;
+	box-shadow: 0 1upx 6upx rgba(0, 0, 0, 0.1);
+}
+
+
+.cu-custom {
+	display: block;
+	position: relative;
+}
+
+.cu-custom .cu-bar .content {
+	width: calc(100% - 440upx);
+}
+
+/* #ifdef MP-ALIPAY */
+.cu-custom .cu-bar .action .cuIcon-back {
+	opacity: 0;
+}
+
+/* #endif */
+
+
+.cu-custom .cu-bar {
+	min-height: 0px;
+	/* #ifdef MP-WEIXIN */
+	padding-right: 220upx;
+	/* #endif */
+	/* #ifdef MP-ALIPAY */
+	padding-right: 150upx;
+	/* #endif */
+	box-shadow: 0upx 0upx 0upx;
+	/* z-index: 9999; */
+}
+
+/* ==================
+         导航栏
+ ==================== */
+
+.nav {
+	white-space: nowrap;
+}
+
+::-webkit-scrollbar {
+	display: none;
+}
+
+.nav .cu-item {
+	height: 90upx;
+	display: inline-block;
+	line-height: 90upx;
+	margin: 0 10upx;
+	padding: 0 20upx;
+	font-size: 30rpx;
+}
+
+.nav .cu-item.cur {
+	position: relative;
+}
+
+.nav .cu-item.cur::after {
+	position: absolute;
+	content: '';
+	width: 40rpx;
+	height: 4rpx;
+	bottom: 0;
+	background-color: #4facfe;
+	left: 50%;
+	transform: translate(-50%);
+}

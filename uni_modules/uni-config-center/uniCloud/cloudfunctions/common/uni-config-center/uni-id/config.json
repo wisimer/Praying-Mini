@@ -1,0 +1,98 @@
+{
+	"passwordSecret": [{
+		"value": "shijing525",
+		"version": 1
+	}, {
+		"type": "hmac-sha256",
+		"version": 2
+	}],
+	"passwordStrength": "medium",
+	"tokenSecret": "shijing525",
+	"requestAuthSecret": "",
+	"tokenExpiresIn": 7200,
+	"tokenExpiresThreshold": 3600,
+	"maxTokenLength": 10,
+	"passwordErrorLimit": 6,
+	"passwordErrorRetryTime": 3600,
+	"autoSetInviteCode": false,
+	"forceInviteCode": false,
+	"idCardCertifyLimit": 1,
+	"realNameCertifyLimit": 5,
+	"sensitiveInfoEncryptSecret": "",
+	"frvNeedAlivePhoto": false,
+	"userRegisterDefaultRole": [],
+	"app": {
+		"tokenExpiresIn": 2592000,
+		"tokenExpiresThreshold": 864000,
+		"oauth": {
+			"weixin": {
+				"appid": "",
+				"appsecret": ""
+			},
+			"qq": {
+				"appid": "",
+				"appsecret": ""
+			},
+			"apple": {
+				"bundleId": ""
+			}
+		}
+	},
+	"dcloudAppid": "__UNI__5955E4C",
+	"web": {
+		"tokenExpiresIn": 259200,
+		"tokenExpiresThreshold": 86400,
+		"oauth": {
+			"weixin-h5": {
+				"appid": "wx45f68996fe91389b",
+				"appsecret": "aac241146dc9d75df95ed8c422f6235a"
+			}
+		}
+	},
+	"mp-weixin": {
+		"tokenExpiresIn": 259200,
+		"tokenExpiresThreshold": 86400,
+		"oauth": {
+			"weixin": {
+				"appid": "wx9a96f0ff49d93656",
+				"appsecret": "a2a7d6aec5d40b1b5d04974f7f06bf7f"
+			}
+		}
+	},
+	"mp-qq": {
+		"tokenExpiresIn": 259200,
+		"tokenExpiresThreshold": 86400,
+		"oauth": {
+			"qq": {
+				"appid": "",
+				"appsecret": ""
+			}
+		}
+	},
+	"mp-alipay": {
+		"tokenExpiresIn": 259200,
+		"tokenExpiresThreshold": 86400,
+		"oauth": {
+			"alipay": {
+				"appid": "",
+				"privateKey": "",
+				"keyType": "PKCS8"
+			}
+		},
+		"service": {
+			"sms": {
+				"name": "",
+				"codeExpiresIn": 180,
+				"scene": {
+					"bind-mobile-by-sms": {
+						"templateId": "",
+						"codeExpiresIn": 240
+					}
+				}
+			},
+			"univerify": {
+				"appid": ""
+			}
+		}
+	}
+}

@@ -1,0 +1,10 @@
+{
+	"queryStringParameters": {
+		"signature": "974dd67179b01154f0aa161c5fe8f5bee69fe98b",
+		"timestamp": "1749549457",
+		"nonce": "34748295",
+		"openid": "oUIb66TWNjl_Z6ndmS6rRILXCGGQ"
+	},
+	"isBase64Encoded": false,
+	"body": "<xml><ToUserName><![CDATA[gh_7786cf21e9ed]]></ToUserName>\n<FromUserName><![CDATA[oUIb66TWNjl_Z6ndmS6rRILXCGGQ]]></FromUserName>\n<CreateTime>1749549457</CreateTime>\n<MsgType><![CDATA[event]]></MsgType>\n<Event><![CDATA[subscribe]]></Event>\n<EventKey><![CDATA[]]></EventKey>\n</xml>"
+}

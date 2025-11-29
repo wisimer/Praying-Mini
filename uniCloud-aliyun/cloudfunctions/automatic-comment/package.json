@@ -1,0 +1,17 @@
+{
+    "name": "automatic-comment",
+    "dependencies": {
+        "openai": "^5.20.0",
+        "dayjs-utils": "file:..\/common\/dayjs-utils"
+    },
+    "extensions": {
+        "uni-cloud-jql": {}
+    },
+    "cloudfunction-config": {
+        "runtime": "Nodejs18"
+    },
+    "origin-plugin-dev-name": "wang-pet-cloud",
+    "origin-plugin-version": "1.0.0",
+    "plugin-dev-name": "wang-pet-cloud",
+    "plugin-version": "1.0.0"
+}

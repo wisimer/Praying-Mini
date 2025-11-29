@@ -1,106 +1,201 @@
-/**
- * 这里是uni-app内置的常用样式变量
- *
- * uni-app 官方扩展插件及插件市场（https://ext.dcloud.net.cn）上很多三方插件均使用了这些样式变量
- * 如果你是插件开发者，建议你使用scss预处理，并在插件代码中直接使用这些变量（无需 import 这个文件），方便用户通过搭积木的方式开发整体风格一致的App
- *
- */
 
-/**
- * 如果你是App开发者（插件使用者），你可以通过修改这些变量来定制自己的插件主题，实现自定义主题功能
- *
- * 如果你的项目同样使用了scss预处理，你也可以直接在你的 scss 代码中使用如下变量，同时无需 import 这个文件
- */
 
-/* 颜色变量 */
+view,
+scroll-view,
+swiper,
+button,
+input,
+textarea,
+label,
+navigator,
+image {
+	box-sizing: border-box;
+	font-size: 28rpx;
+}
+
+page {
+	color: #352926;
+	font-size: 28upx;
+	background-color: #F7F5F6;
+	font-family: "YouYuan", "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", sans-serif;
+}
+
+$c-B3B3B3:#B3B3B3;
+$c-FFFFFF:#FFFFFF;
+$c-41454C:#41454C;
+$c-D55E64:#D55E64;
+$c-222222:#222222;
+$c-8F8F8F:#8F8F8F;
+$c-f29100:#f29100;
+$c-F6F7F9:#F6F7F9;
+$c-FF4C2C:#FF4C2C;
+$c-949494:#949494;
+$c-f4f8fb:#f4f8fb;
+$-theme-color:#4facfe;
+
+$-theme-bg:linear-gradient(to right, #4facfe 0%, #00f2fe 100%);
+
+// flex布局
+.flex { display: flex;}
+.flex-direction { flex-direction: column; }
+.align-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.justify-around { justify-content: space-around; }
+.justify-center { justify-content: center; }
+.justify-end { justify-content: flex-end; }
+.align-end { align-items: flex-end; } 
+.align-start { align-items: flex-start; } 
+.flex-1 { flex: 1; }
+.flex-wrap{flex-wrap: wrap;}
+
+// 内边距
+.padding10{ padding: 10rpx; }
+.padding16{ padding: 16rpx; }
+.padding20{ padding: 20rpx; }
+.padding30{ padding: 30rpx; }
+.padding32{ padding: 32rpx; }
+.padding40{ padding: 40rpx; }
+.padding-t5{ padding-top: 5rpx; }
+.padding-t20{ padding-top: 20rpx; }
+.padding-t10{ padding-top: 10rpx; }
+.padding-b10{ padding-bottom: 10rpx; }
+.padding-b16{ padding-bottom: 16rpx; }
+.padding-b20{ padding-bottom: 20rpx; }
+.padding-b30{ padding-bottom: 30rpx; }
+.padding-b32{ padding-bottom: 32rpx; }
+.padding-b40{ padding-bottom: 40rpx; }
+.padding-lr10{ padding: 0 10rpx; }
+.padding-lr20{ padding: 0 20rpx; }
+.padding-lr32{ padding: 0 32rpx; }
+.padding-lr40{ padding: 0 40rpx; }
+.padding-tb10{ padding: 10rpx 0; }
+.padding-tb20{ padding: 20rpx 0; }
+.padding-tb24{ padding: 24rpx 0; }
+.padding-tb32{ padding: 32rpx 0; }
+
+// 外边距
+.marginlauto{margin-left: auto;}
+.margin20{ margin: 20rpx; }
+.margin-t12{ margin-top: 12rpx; }
+.margin-t20{ margin-top: 20rpx; }
+.margin-t30{ margin-top: 30rpx; }
+.margin-t10{ margin-top: 10rpx; }
+.margin-b20{ margin-bottom: 20rpx; }
+.margin-b10{ margin-bottom: 10rpx; }
+.margin-b16{ margin-bottom: 16rpx; }
+.margin-b5{ margin-bottom: 5rpx; }
+.margin-b12{ margin-bottom: 12rpx; }
+.margin-b24{ margin-bottom: 24rpx; }
+.margin-b30{ margin-bottom: 30rpx; }
+.margin-b32{ margin-bottom: 32rpx; }
+.margin-b40{ margin-bottom: 40rpx; }
+.margin-b50{ margin-bottom: 50rpx; }
+.margin-r10{ margin-right: 10rpx; }
+.margin-r16{ margin-right: 16rpx; }
+.margin-r20{ margin-right: 20rpx; }
+.margin-r30{ margin-right: 30rpx; }
+.margin-r40{ margin-right: 40rpx; }
+.margin-l10{ margin-left: 10rpx; }
+.margin-l16{ margin-left: 16rpx; }
+.margin-l20{ margin-left: 20rpx; }
+.margin-l30{ margin-left: 30rpx; }
+.margin-tb20{ margin: 20rpx 0; }
+.margin-lr20{ margin: 0 20rpx; }
+
+// 字体大小
+.font-size14{ font-size: 14rpx; }
+.font-size16{ font-size: 16rpx; }
+.font-size18{ font-size: 18rpx; }
+.font-size20{ font-size: 20rpx; }
+.font-size22{ font-size: 22rpx; }
+.font-size24{ font-size: 24rpx; }
+.font-size26{ font-size: 26rpx; }
+.font-size28 { font-size: 28rpx; }
+.font-size30 { font-size: 30rpx; }
+.font-size32 { font-size: 32rpx; }
+.font-size34 { font-size: 34rpx; }
+.font-size36 { font-size: 36rpx; }
+.font-size40 { font-size: 40rpx; }
+.font-size50 { font-size: 50rpx; }
+.font-size80 { font-size: 80rpx; }
+.font-weight{ font-weight: bold;}
+.text-align{text-align: center;}
+
+// 字体颜色
+.color-8F8F8F{ color: $c-8F8F8F; }
+.color-352926{ color: #352926; }
+.color-775047{ color: #775047; }
+.color-8C8888{ color: #8C8888; }
+
+.color-f29100{ color: $c-f29100; }
+.color-B3B3B3{ color: $c-B3B3B3; }
+.color-41454C{ color: $c-41454C; }
+.color-D55E64{ color: $c-D55E64; }
+.color-222222{ color: $c-222222; }
+.color-FF4C2C{ color: $c-FF4C2C; }
+.color-949494{ color: $c-949494; }
+.color-12C17D{ color:#12C17D; }
+.color-ffffff{ color:#ffffff; }
+.color-999999{ color:#999999; }
+.color-00A5FF{ color: #00A5FF;}
+.color-f4f8fb { color: $c-f4f8fb;}
+.color-theme{ color:$-theme-color; }
+
+
+
+
+// 背景颜色
+.bg-f29100{ background-color: $c-f29100; }
+.bg-F6F7F9{ background-color: $c-F6F7F9; }
+.bg-FFFFFF{ background-color: $c-FFFFFF; }
+.bg-white{ background-color: white; }
+.bg-f4f8fb{ background-color: $c-f4f8fb; }
+.navBgColor { background-image: #AFC272;}
+
+
+
+
+.bg-333333{ background-color: #333333; }
+
+// 下划线
+.border-bottom{ border-bottom: 0.01rem solid #F3F3F3; }
+.border-top{border-top: 0.01rem solid #F3F3F3;}
+
+// 圆角
+.radius10{ border-radius: 10rpx; }
+.radius20{ border-radius: 20rpx; }
+
+.c-card{
+	border-radius: 24rpx;
+	background: white;
+	padding: 30rpx;
+}
+
+.ellipsis {
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
 
 /* 行为相关颜色 */
-$uni-color-primary: #E6B89C;
+$uni-color-primary: #007aff;
 $uni-color-success: #4cd964;
 $uni-color-warning: #f0ad4e;
 $uni-color-error: #dd524d;
 
-/* 自定义品牌色 */
-$brand-secondary: #8B7355;
-$brand-accent: #FF6B6B;
-$brand-bg: #FFF9F0;
-$brand-text: #333333;
-
-$shadow-sm: 0 4rpx 12rpx rgba(0,0,0,0.06);
-$shadow-md: 0 8rpx 24rpx rgba(0,0,0,0.08);
-$radius-lg: 20rpx;
-$btn-height: 84rpx;
-$btn-radius: 16rpx;
-$chip-radius: 999rpx;
-
-.btn {
-  height: $btn-height;
-  border-radius: $btn-radius;
-  font-size: 28rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.btn-accent {
-  @extend .btn;
-  background: $brand-accent;
-  color: #fff;
-  border: none;
-}
-.btn-ghost {
-  @extend .btn;
-  background: #fff;
-  color: $brand-secondary;
-  border: 2rpx solid $brand-secondary;
-}
-
-.card {
-  background: #fff;
-  border: 2rpx solid $brand-secondary;
-  border-radius: $radius-lg;
-  box-shadow: $shadow-sm;
-  padding: 20rpx;
-}
-
-.chip {
-  padding: 12rpx 20rpx;
-  border: 2rpx solid $brand-secondary;
-  border-radius: $chip-radius;
-  background: #fff;
-  font-size: 26rpx;
-}
-.chip-active {
-  background: $uni-color-primary;
-  color: #fff;
-  border-color: $uni-color-primary;
-}
-
-.input-field {
-  width: 100%;
-  border: 2rpx solid $brand-secondary;
-  border-radius: 12rpx;
-  padding: 16rpx;
-  font-size: 26rpx;
-  background: #fff;
-}
-
-.section-title {
-  font-size: 30rpx;
-  color: $brand-secondary;
-}
-
 /* 文字基本颜色 */
-$uni-text-color:#333333;
-$uni-text-color-inverse:#fff;
-$uni-text-color-grey:#999;
+$uni-text-color:#333;//基本色
+$uni-text-color-inverse:#fff;//反色
+$uni-text-color-grey:#999;//辅助灰色，如加载更多的提示信息
 $uni-text-color-placeholder: #808080;
 $uni-text-color-disable:#c0c0c0;
 
 /* 背景颜色 */
-$uni-bg-color:#FFF9F0;
+$uni-bg-color:#ffffff;
 $uni-bg-color-grey:#f8f8f8;
-$uni-bg-color-hover:#f1f1f1;
-$uni-bg-color-mask:rgba(0, 0, 0, 0.4);
+$uni-bg-color-hover:#f1f1f1;//点击状态颜色
+$uni-bg-color-mask:rgba(0, 0, 0, 0.4);//遮罩颜色
 
 /* 边框颜色 */
 $uni-border-color:#c8c7cc;
@@ -110,7 +205,7 @@ $uni-border-color:#c8c7cc;
 /* 文字尺寸 */
 $uni-font-size-sm:12px;
 $uni-font-size-base:14px;
-$uni-font-size-lg:16px;
+$uni-font-size-lg:16;
 
 /* 图片尺寸 */
 $uni-img-size-sm:20px;

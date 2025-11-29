@@ -1,0 +1,58 @@
+{
+	"bsonType": "object",
+	"required": [
+		"name"
+	],
+	"permission": {
+		"read": true,
+		"create": "auth.uid != null",
+		"update": "doc.user_id == auth.uid",
+		"delete": "doc.user_id == auth.uid"
+	},
+	"properties": {
+		"_id": {
+			"description": "存储文档 ID，系统自动生成"
+		},
+		"name": {
+			"bsonType": "string",
+			"description": "挑战名称"
+		},
+		"state": {
+			"bsonType": "int",
+			"description": "挑战状态：0 已结束 1 进行中 ",
+			"enum": [0, 1]
+		},
+		"img": {
+			"bsonType": "string",
+			"description": "挑战图片"
+		},
+		"month": {
+			"bsonType": "string",
+			"description": "挑战月份"
+		},
+		"nav_color": {
+			"bsonType": "string",
+			"description": "导航栏颜色"
+		},
+		"damage": {
+			"bsonType": "int",
+			"description": "挑战需要达成的伤害"
+		},
+		"award_icon": {
+			"bsonType": "string",
+			"description": "奖励图标"
+		},
+		"award_num": {
+			"bsonType": "int",
+			"description": "奖励罐头数量"
+		},
+		"create_date": {
+			"bsonType": "timestamp",
+			"description": "评论发表时间",
+			"forceDefaultValue": {
+				"$env": "now"
+			}
+		}
+	},
+	"version": "0.0.1"
+}

@@ -1,0 +1,69 @@
+{
+	"bsonType": "object",
+	"required": [
+		"pet_id"
+	],
+	"permission": {
+		"read": "doc.user_id == auth.uid",
+		"create": "auth.uid != null",
+		"update": "doc.user_id == auth.uid",
+		"delete": "doc.user_id == auth.uid"
+	},
+	"properties": {
+		"_id": {
+			"description": "ID，系统自动生成"
+		},
+		"user_id": {
+			"bsonType": "string",
+			"description": "创建记录的用户ID",
+			"foreignKey": "uni-id-users._id",
+			"defaultValue": {
+				"$env": "uid"
+			}
+		},
+		"pet_id": {
+			"bsonType": "string",
+			"description": "宠物id",
+			"foreignKey": "app-pet._id"
+		},
+		"hospital": {
+			"bsonType": "string",
+			"description": "医院名称"
+		},
+		"symptom": {
+			"bsonType": "string",
+			"description": "生病症状"
+		},
+		"detection": {
+			"bsonType": "string",
+			"description": "检测结果"
+		},
+		"medicine": {
+			"bsonType": "string",
+			"description": "治疗药品"
+		},
+		"treatment": {
+			"bsonType": "string",
+			"description": "治疗方式"
+		},
+		"remark": {
+			"bsonType": "string",
+			"description": "备注"
+		},
+		"imgs": {
+			"bsonType": "string",
+			"description": "备注图片"
+		},
+		"doctor_time": {
+			"bsonType": "string",
+			"description": "就诊时间"
+		},
+		"create_date": {
+			"bsonType": "timestamp",
+			"description": "记录时间",
+			"forceDefaultValue": {
+				"$env": "now"
+			}
+		}
+	}
+}

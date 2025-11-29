@@ -1,0 +1,38 @@
+{
+	"bsonType": "object",
+	"required": [
+		"users",
+		"sender",
+		"recipient"
+	],
+	"permission": {
+		"read": "auth.uid != null",
+		"create": "auth.uid != null",
+		"update": "auth.uid != null",
+		"delete": "auth.uid != null"
+	},
+	"properties": {
+		"_id": {
+			"description": "ID，系统自动生成"
+		},
+		"users": {
+			"bsonType": "array",
+			"description": "聊天用户id组"
+		},
+		"sender": {
+			"bsonType": "string",
+			"description": "发送者的id",
+			"foreignKey": "uni-id-users._id"
+		},
+		"recipient": {
+			"bsonType": "string",
+			"description": "接收者的id",
+			"foreignKey": "uni-id-users._id"
+		},
+		"lastMessage_id": {
+			"bsonType": "string",
+			"description": "最后一次聊天记录的id",
+			"foreignKey": "app-messages._id"
+		}
+	}
+}

@@ -1,0 +1,112 @@
+// 本文件用于，使用JQL语法操作项目关联的uniCloud空间的数据库，方便开发调试和远程数据库管理
+// 编写clientDB的js API（也支持常规js语法，比如var），可以对云数据库进行增删改查操作。不支持uniCloud-db组件写法
+// 可以全部运行，也可以选中部分代码运行。点击工具栏上的运行按钮或者按下【F5】键运行代码
+// 如果文档中存在多条JQL语句，只有最后一条语句生效
+// 如果混写了普通js，最后一条语句需是数据库操作语句
+// 此处代码运行不受DB Schema的权限控制，移植代码到实际业务中注意在schema中配好permission
+// 不支持clientDB的action
+
+// 新增月挑战
+// db.collection('app-challenge').add({
+// 	"name": "荣耀之星",
+// 	"state": 1,
+// 	"img": "https://mp-182cf5aa-f083-45a9-8d28-e12bee639ce3.cdn.bspapp.com/appBgimgs/tiaozhan.png",
+// 	"month": "2025-10",
+// 	"damage": 3500,
+// 	"nav_color": "#D9E5F3",
+// 	"award_icon": "https://mp-182cf5aa-f083-45a9-8d28-e12bee639ce3.cdn.bspapp.com/challenge/guoqin.png",
+// 	"award_num": 300
+// });
+
+
+// db.collection('app-action-stock').where('user_id == "67ee50121c90b62515d92317"').remove()
+// db.collection('app-signin').remove()
+// db.collection('app-signin').field('dateToString(add(new Date(0),create_date),"%Y-%m-%d","+0800") as publish_date_str')
+// 	.get()
+
+
+// db.collection('app-achievement').add({
+// 	"name": "收藏家",
+// 	"icon": "https://mp-182cf5aa-f083-45a9-8d28-e12bee639ce3.cdn.bspapp.com/achievements/pfsc.png",
+// 	"describe": "获取3个皮肤"
+// });
+
+// db.collection('app-topic').add({
+// 	name: '领养代替购买',
+// })
+
+// 小程序用户id
+// 67ee50121c90b62515d92317
+
+
+// 清理测试数据
+// db.collection('app-user-record').remove()
+// db.collection('app-conversations').remove()
+// db.collection('app-messages').remove()
+// db.collection('app-stock').remove()
+// db.collection('app-action-stock').remove()
+
+// db.collection('app-remind').remove()
+// db.collection('app-like-dynamic').remove()
+// db.collection('app-user-petmodel').where("model_id != '682199feeef9cbdc978f78b7'").remove()
+// db.collection('app-player').update({
+// 	strength: 10,
+// 	wisdom: 0,
+// 	agility: 0,
+// 	level: 1,
+// 	can: 0,
+// 	empirical: 0,
+// 	next_empirical: 10,
+// 	pet_modal_id: '682199feeef9cbdc978f78b7',
+// 	achievement_id: '67ea0e24149854a900153f56'
+// })
+// db.collection('app-user-achievement').where("achievement_id != '67ea0e24149854a900153f56'").remove()
+// db.collection('app-join-challenge').remove()
+// db.collection('app-case').remove()
+// db.collection('app-comments').remove()
+// db.collection('app-dynamic').update({
+// 	comment_count: 0,
+// })
+// db.collection('app-ai-question').remove()
+// db.collection('app-join-challenge').where('challenge_month == "2025-08"').count()
+// 67ee50121c90b62515d92317   我自己的微信用户
+// db.collection('app-user-record').where(`user_id == '68a3e85f55b3378561881167'`).remove()
+
+// db.collection('app-food').add({
+// 	className: "主食",
+// 	name: "米饭",
+// 	calories: "130",
+// 	protein: "2.7",
+// 	carbohydrates: "28.2",
+// 	water: "68.5",
+// 	cholesterol: "0",
+// 	fat: "0.3",
+// 	saturatedFat: "0.1",
+// 	transFat: "0",
+// 	omega3: "0",
+// 	omega6: "0.1",
+// 	calcium: "10",
+// 	phosphorus: "43",
+// 	potassium: "35",
+// 	sodium: "1",
+// 	magnesium: "12",
+// 	iron: "0.2",
+// 	copper: "0.1",
+// 	zinc: "0.5",
+// 	vitaminA: "0",
+// 	vitaminD: "0",
+// 	vitaminE: "0.1",
+// 	vitaminK: "0.1",
+// 	vitaminB1: "0.02",
+// 	vitaminB2: "0.01",
+// 	pantothenicAcid: "0.4",
+// 	niacin: "0.4",
+// 	choline: "2.1",
+// 	taurine: "0",
+// 	isCatFit: '0,0,0,0',
+// 	isDogFit: '0,1,2,1',
+// 	img: 'https://mp-182cf5aa-f083-45a9-8d28-e12bee639ce3.cdn.bspapp.com/foot/mifan.png'
+// })
+
+// db.collection('app-messages')
+// 	.remove()

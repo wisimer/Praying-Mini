@@ -1,0 +1,13 @@
+{
+    "name": "choose-breed",
+    "dependencies": {
+        "breed": "file:..\/common\/breed"
+    },
+    "extensions": {
+        "uni-cloud-jql": {}
+    },
+    "origin-plugin-dev-name": "wang-pet-cloud",
+    "origin-plugin-version": "1.0.0",
+    "plugin-dev-name": "wang-pet-cloud",
+    "plugin-version": "1.0.0"
+}

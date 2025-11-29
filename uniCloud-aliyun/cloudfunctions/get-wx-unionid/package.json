@@ -1,0 +1,14 @@
+{
+    "name": "get-wx-unionid",
+    "dependencies": {
+        "wx-xml2js": "file:..\/common\/wx-xml2js",
+        "uni-open-bridge-common": "file:..\/..\/..\/uni_modules\/uni-open-bridge-common\/uniCloud\/cloudfunctions\/common\/uni-open-bridge-common"
+    },
+    "extensions": {
+        "uni-cloud-jql": {}
+    },
+    "origin-plugin-dev-name": "wang-pet-cloud",
+    "origin-plugin-version": "1.0.0",
+    "plugin-dev-name": "wang-pet-cloud",
+    "plugin-version": "1.0.0"
+}

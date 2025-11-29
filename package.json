@@ -1,0 +1,25 @@
+{
+    "id": "wang-pet-cloud",
+    "name": "宠物社交uniCloud云开发",
+    "displayName": "宠物社交uniCloud云开发",
+    "version": "1.0.0",
+    "description": "项目采用uniapp一体化开发，包含日常记录，社交分享，成就系统3大模块",
+    "keywords": [
+        "社交、uniCloud、项目模板"
+    ],
+    "dcloudext": {
+        "type": "projecttemplate",
+        "sale": {
+            "regular": {
+                "price": "0.00"
+            },
+            "sourcecode": {
+                "price": "0.00"
+            }
+        }
+    },
+    "uni_modules": {
+        "dependencies": [],
+        "encrypt": []
+    }
+}

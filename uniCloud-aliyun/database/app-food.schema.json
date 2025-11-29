@@ -1,0 +1,147 @@
+{
+	"bsonType": "object",
+	"required": [],
+	"permission": {
+		"read": true,
+		"create": false,
+		"update": false,
+		"delete": false
+	},
+	"properties": {
+		"_id": {
+			"description": "ID，系统自动生成"
+		},
+		"className": {
+			"bsonType": "string",
+			"description": "食物分类"
+		},
+		"name": {
+			"bsonType": "string",
+			"description": "食物名称"
+		},
+		"calories": {
+			"bsonType": "string",
+			"description": "热量（单位：千卡）"
+		},
+		"protein": {
+			"bsonType": "string",
+			"description": "蛋白质（单位：克）"
+		},
+		"carbohydrates": {
+			"bsonType": "string",
+			"description": "碳水化合物（单位：克）"
+		},
+		"water": {
+			"bsonType": "string",
+			"description": "水分含量（单位：克）"
+		},
+		"cholesterol": {
+			"bsonType": "string",
+			"description": "胆固醇（单位：毫克）"
+		},
+		"fat": {
+			"bsonType": "string",
+			"description": "总脂肪（单位：克）"
+		},
+		"saturatedFat": {
+			"bsonType": "string",
+			"description": "饱和脂肪酸（单位：克）"
+		},
+		"transFat": {
+			"bsonType": "string",
+			"description": "反式脂肪酸（单位：克）"
+		},
+		"omega3": {
+			"bsonType": "string",
+			"description": "Omega-3脂肪酸（单位：克）"
+		},
+		"omega6": {
+			"bsonType": "string",
+			"description": "Omega-6脂肪酸（单位：克）"
+		},
+		"calcium": {
+			"bsonType": "string",
+			"description": "钙（单位：毫克）"
+		},
+		"phosphorus": {
+			"bsonType": "string",
+			"description": "磷（单位：毫克）"
+		},
+		"potassium": {
+			"bsonType": "string",
+			"description": "钾（单位：毫克）"
+		},
+		"sodium": {
+			"bsonType": "string",
+			"description": "钠（单位：毫克）"
+		},
+		"magnesium": {
+			"bsonType": "string",
+			"description": "镁（单位：毫克）"
+		},
+		"iron": {
+			"bsonType": "string",
+			"description": "铁（单位：毫克）"
+		},
+		"copper": {
+			"bsonType": "string",
+			"description": "铜（单位：毫克）"
+		},
+		"zinc": {
+			"bsonType": "string",
+			"description": "锌（单位：毫克）"
+		},
+		"vitaminA": {
+			"bsonType": "string",
+			"description": "维生素A"
+		},
+		"vitaminD": {
+			"bsonType": "string",
+			"description": "维生素D"
+		},
+		"vitaminE": {
+			"bsonType": "string",
+			"description": "维生素E"
+		},
+		"vitaminK": {
+			"bsonType": "string",
+			"description": "维生素K"
+		},
+		"vitaminB1": {
+			"bsonType": "string",
+			"description": "维生素B1"
+		},
+		"vitaminB2": {
+			"bsonType": "string",
+			"description": "维生素B2"
+		},
+		"pantothenicAcid": {
+			"bsonType": "string",
+			"description": "泛酸（维生素B5）（单位：毫克）"
+		},
+		"niacin": {
+			"bsonType": "string",
+			"description": "烟酸（维生素B3）（单位：毫克）"
+		},
+		"choline": {
+			"bsonType": "string",
+			"description": "胆碱（单位：毫克）"
+		},
+		"taurine": {
+			"bsonType": "string",
+			"description": "牛磺酸（单位：毫克）"
+		},
+		"isCatFit": {
+			"bsonType": "string",
+			"description": "适用猫 [0,1,2,3] 0代表禁止，1代表不推荐，2代表少量，3可以食用"
+		},
+		"isDogFit": {
+			"bsonType": "string",
+			"description": "适用狗 [0,1,2,3] 0代表禁止，1代表不推荐，2代表少量，3可以食用"
+		},
+		"img": {
+			"bsonType": "string",
+			"description": "图片url"
+		}
+	}
+}
