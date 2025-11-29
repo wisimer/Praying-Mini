@@ -290,7 +290,7 @@
 			},
 			{
 				"pagePath": "pages/share/share",
-				"text": "宠圈",
+				"text": "任务",
 				"iconPath": "static/tabBar/chongquan.png",
 				"selectedIconPath": "static/tabBar/action/chongquan.png"
 			},

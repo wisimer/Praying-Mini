@@ -1,11 +1,11 @@
 {
-    "name": "database",
-    "dependencies": {
-        "dayjs-utils": "file:..\/cloudfunctions\/common\/dayjs-utils"
-    },
-    "extensions": {},
-    "origin-plugin-dev-name": "wang-pet-cloud",
-    "origin-plugin-version": "1.0.0",
-    "plugin-dev-name": "wang-pet-cloud",
-    "plugin-version": "1.0.0"
+  "name": "database",
+  "dependencies": {
+    "dayjs-utils": "file:../cloudfunctions/common/dayjs-utils"
+  },
+  "extensions": {},
+  "origin-plugin-dev-name": "wang-pet-cloud",
+  "origin-plugin-version": "1.0.0",
+  "plugin-dev-name": "wang-pet-cloud",
+  "plugin-version": "1.0.0"
 }
