@@ -1,5 +1,5 @@
 <template>
-  <div class="wish-card">
+  <div class="wish-card" @click="handleClick">
     <div class="poster-wrapper">
       <image class="poster-image" :src="data.poster" mode="aspectFill"></image>
       <div class="poster-overlay"></div>
@@ -37,6 +37,8 @@ const props = defineProps({
   }
 })
 
+const emit = defineEmits(['click'])
+
 // Note: In a real app, these would emit events to the parent or call a store
 const toggleLike = () => {
   // Mock toggle for UI feedback
@@ -46,6 +48,10 @@ const toggleLike = () => {
 
 const toggleCollect = () => {
   props.data.isCollected = !props.data.isCollected
+}
+
+const handleClick = () => {
+  emit('click')
 }
 </script>
 

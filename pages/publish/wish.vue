@@ -29,9 +29,16 @@
 
 <script setup>
 import { ref } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
 
 const wishContent = ref('')
 const isLoading = ref(false)
+
+onLoad((options) => {
+  if (options.content) {
+    wishContent.value = decodeURIComponent(options.content)
+  }
+})
 
 const goBack = () => {
   uni.navigateBack()

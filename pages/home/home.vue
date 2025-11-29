@@ -16,6 +16,7 @@
           v-for="item in wishList" 
           :key="item.id" 
           :data="item" 
+          @click="handleCardClick(item)"
         />
       </div>
       <div class="loading-state" v-else>
@@ -24,6 +25,11 @@
     </div>
 
     <AddIconComponent style="margin-right: 24rpx;"/>
+    
+    <WishCardDetail 
+      v-model:visible="showDetail" 
+      :wishData="selectedWish"
+    />
   </div>
 </template>
 
@@ -33,12 +39,21 @@ import { onShow, onHide } from '@dcloudio/uni-app'
 import TopNav from '@/components/TopNav.vue'
 import TabBar from '@/components/TabBar.vue'
 import WishCard from '@/components/WishCard.vue'
+import WishCardDetail from '@/components/WishCardDetail.vue'
 import AddIconComponent from '@/components/AddIconComponent/AddIconComponent.vue'
 import mockData from '@/assets/mock/wishData.json'
 
 const currentTab = ref(0)
 const currentNavIndex = ref(0)
 const wishList = ref([])
+
+const showDetail = ref(false)
+const selectedWish = ref({})
+
+const handleCardClick = (item) => {
+  selectedWish.value = item
+  showDetail.value = true
+}
 
 onShow(() => {
   // uni.hideTabBar()
