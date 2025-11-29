@@ -20,7 +20,7 @@
 			</image>
 		</view>
     
-    <BottomNav :modelValue="1" />
+    <!-- <BottomNav :modelValue="1" /> -->
 	</view>
 </template>
 
@@ -34,7 +34,7 @@
   import BottomNav from '@/components/BottomNav.vue'
 
   onShow(() => {
-    uni.hideTabBar()
+    // uni.hideTabBar()
   })
 
 	const menuIndex = ref(0)

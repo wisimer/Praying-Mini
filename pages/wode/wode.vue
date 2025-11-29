@@ -76,7 +76,7 @@
 				<Empty></Empty>
 			</view>
 		</view>
-    <BottomNav :modelValue="3" />
+    <!-- <BottomNav :modelValue="3" /> -->
 	</view>
 </template>
 
@@ -91,7 +91,7 @@
   import BottomNav from '@/components/BottomNav.vue'
 
   onShow(() => {
-    uni.hideTabBar()
+    // uni.hideTabBar()
   })
 
 	const achievements = ref([])

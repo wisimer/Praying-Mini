@@ -90,9 +90,9 @@
           <text class="menu-label">任务</text>
         </view>
       </view>
-      <view class="close-btn" @click="toggleMenu">
+<!--      <view class="close-btn" @click="toggleMenu">
         <uni-icons type="closeempty" size="30" color="#333"></uni-icons>
-      </view>
+      </view> -->
     </view>
   </view>
 </template>
