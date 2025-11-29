@@ -19,13 +19,9 @@
       </div>
       
       <div class="interactions" v-if="showInteractions">
-        <div class="action-btn" @click.stop="toggleLike">
-          <uni-icons :type="data.isLiked ? 'heart-filled' : 'heart'" size="20" :color="data.isLiked ? '#FF6B81' : '#999'"></uni-icons>
-          <span class="count" :class="{ active: data.isLiked }">{{ data.likes }}</span>
-        </div>
         <div class="action-btn" @click.stop="toggleCollect">
-          <uni-icons :type="data.isCollected ? 'star-filled' : 'star'" size="20" :color="data.isCollected ? '#FFCC00' : '#999'"></uni-icons>
-          <!-- <span class="count">{{ data.collects }}</span> -->
+          <uni-icons :type="'eye'" size="20" :color="data.isCollected ? '#FFCC00' : '#999'"></uni-icons>
+          <span class="count">{{ data.view_count }}</span>
         </div>
       </div>
     </div>

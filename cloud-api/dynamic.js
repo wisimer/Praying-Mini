@@ -196,12 +196,11 @@ export async function getHomeWishList(option) {
 	const $ = db.command.aggregate
 	const pageNum = option.pageNum || 0
 	const pageSize = option.pageSize || 20
-	const checkLikeStatus = option.checkLikeStatus !== false
-
+	
 	let agg = db.collection('app-dynamic').aggregate()
 		.match({
 			sort: 0
-		})
+		})	
 		.lookup({
 			from: 'uni-id-users',
 			let: {
@@ -217,30 +216,12 @@ export async function getHomeWishList(option) {
 			as: 'userInfo'
 		})
 
-	if (checkLikeStatus) {
-		agg = agg.lookup({
-			from: 'app-like-dynamic',
-			let: {
-				dynamic_id: '$_id'
-			},
-			pipeline: $.pipeline()
-				.match(dbCmd.expr($.and([
-					$.eq(['$dynamic_id', '$$dynamic_id']),
-					$.eq(['$user_id', db.getCloudEnv('$cloudEnv_uid')])
-				])))
-				.done(),
-			as: 'userLike'
-		})
-		.addFields({
-			isLiked: $.gt([$.size('$userLike'), 0]),
-			user: $.arrayElemAt(['$userInfo', 0])
-		})
-	} else {
+	
 		agg = agg.addFields({
 			isLiked: false,
 			user: $.arrayElemAt(['$userInfo', 0])
 		})
-	}
+	
 
 	return new Promise((resolve) => {
 		agg.sort({

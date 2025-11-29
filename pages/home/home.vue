@@ -11,12 +11,12 @@
 
     <div class="content-area">
       <!-- List -->
-      <div class="feed-list" v-if="wishList.length > 0">
+      <div class="feed-list" v-if="displayWishList.length > 0">
         <WishCard 
-          v-for="item in wishList" 
+          v-for="item in displayWishList" 
           :key="item.id" 
           :data="item" 
-          :showInteractions="store.hasLogin"
+          :showInteractions="true"
           @click="handleCardClick(item)"
           @like="handleLike(item)"
         />
@@ -24,7 +24,7 @@
       <div class="loading-state" v-if="loading">
         Loading...
       </div>
-      <div class="empty-state" v-if="!loading && wishList.length === 0">
+      <div class="empty-state" v-if="!loading && displayWishList.length === 0">
         暂无数据
       </div>
     </div>
@@ -39,7 +39,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 import { onShow, onHide, onReachBottom } from '@dcloudio/uni-app'
 import TopNav from '@/components/TopNav.vue'
 import TabBar from '@/components/TabBar.vue'
@@ -52,6 +52,7 @@ import { store } from '@/uni_modules/uni-id-pages/common/store.js'
 const currentTab = ref(0)
 const currentNavIndex = ref(0)
 const wishList = ref([])
+const userLikes = ref({}) // Store user like status separately: { id: boolean }
 const pageNum = ref(0)
 const pageSize = 20
 const hasMore = ref(true)
@@ -60,8 +61,22 @@ const loading = ref(false)
 const showDetail = ref(false)
 const selectedWish = ref({})
 
-watch(() => store.hasLogin, () => {
-  loadData(true)
+// Computed list merging wishList and userLikes
+const displayWishList = computed(() => {
+  return wishList.value.map(item => ({
+    ...item,
+    isLiked: !!userLikes.value[item.id]
+  }))
+})
+
+watch(() => store.hasLogin, (newVal) => {
+  if (newVal) {
+    // If logged in, fetch like status for existing list
+
+  } else {
+    // If logged out, clear like status
+    userLikes.value = {}
+  }
 })
 
 const handleCardClick = (item) => {
@@ -70,19 +85,37 @@ const handleCardClick = (item) => {
 }
 
 const handleLike = async (item) => {
-  if (!store.hasLogin) return
+  if (!store.hasLogin) {
+    uni.navigateTo({
+      url: '/uni_modules/uni-id-pages/pages/login/login-withoutpwd'
+    })
+    return
+  }
+  
+  // Optimistic update
+  const originalStatus = userLikes.value[item.id]
+  const isLiked = !originalStatus
+  userLikes.value = { ...userLikes.value, [item.id]: isLiked }
+  
+  // Update count in wishList
+  const wishItem = wishList.value.find(w => w.id === item.id)
+  if (wishItem) {
+    wishItem.likes = isLiked ? wishItem.likes + 1 : Math.max(0, wishItem.likes - 1)
+  }
+
   try {
-    if (item.isLiked) {
+    if (originalStatus) {
       await removeLike(item._id)
-      item.isLiked = false
-      item.likes = Math.max(0, item.likes - 1)
     } else {
       await setLike(item._id)
-      item.isLiked = true
-      item.likes++
     }
   } catch (e) {
     console.error('Like operation failed', e)
+    // Revert on failure
+    userLikes.value = { ...userLikes.value, [item.id]: originalStatus }
+    if (wishItem) {
+      wishItem.likes = originalStatus ? wishItem.likes + 1 : Math.max(0, wishItem.likes - 1)
+    }
     uni.showToast({
       title: '操作失败',
       icon: 'none'
@@ -101,22 +134,68 @@ const formatTime = (timestamp) => {
   return `${date.getMonth() + 1}月${date.getDate()}日`
 }
 
+// Fetch user like status for a list of items
+const fetchUserLikeStatus = async (items) => {
+  if (!store.hasLogin || items.length === 0) return
+  
+  const allIds = items.map(item => item.id)
+  const db = uniCloud.database()
+  const dbCmd = db.command
+  const CHUNK_SIZE = 50 // Safe limit for 'in' query
+  
+  try {
+    const promises = []
+    for (let i = 0; i < allIds.length; i += CHUNK_SIZE) {
+      const chunkIds = allIds.slice(i, i + CHUNK_SIZE)
+      promises.push(
+        db.collection('app-like-dynamic')
+          .where({
+            dynamic_id: dbCmd.in(chunkIds),
+            user_id: store.userInfo._id
+          })
+          .get()
+      )
+    }
+    
+    const results = await Promise.all(promises)
+    const likedIds = new Set()
+    
+    results.forEach(res => {
+      if (res.result && res.result.data) {
+        res.result.data.forEach(item => likedIds.add(item.dynamic_id))
+      }
+    })
+    
+    // Update userLikes map
+    const newLikes = { ...userLikes.value }
+    allIds.forEach(id => {
+      newLikes[id] = likedIds.has(id)
+    })
+    userLikes.value = newLikes
+  } catch (e) {
+    console.error('Failed to fetch like status', e)
+  }
+}
+
 const loadData = async (reload = false) => {
   if (loading.value) return
   if (reload) {
     pageNum.value = 0
     hasMore.value = true
     wishList.value = []
+    userLikes.value = {}
   }
   if (!hasMore.value) return
 
   loading.value = true
   try {
+    // Always fetch with checkLikeStatus: false (Unconditional total count)
     const res = await getHomeWishList({ 
       pageNum: pageNum.value, 
       pageSize,
-      checkLikeStatus: store.hasLogin 
+      checkLikeStatus: false 
     })
+    
     if (res.data && res.data.length < pageSize) {
       hasMore.value = false
     }
