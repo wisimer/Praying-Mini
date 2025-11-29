@@ -3,8 +3,9 @@
     <view class="modal-content" @click.stop>
       <!-- Card Area -->
       <view class="card-container" id="wish-card-capture">
-        <image v-if="bgUrl" class="card-bg" :src="bgUrl" mode="aspectFill"></image>
-        <view v-else class="card-bg-gradient"></view>
+        <!-- Background Layer -->
+        <image v-if="isImageBg" class="card-bg" :src="bgValue" mode="aspectFill"></image>
+        <view v-else class="card-bg-css" :style="{ background: bgValue }"></view>
         
         <view class="card-header">
           <image class="user-avatar" :src="wishData.user?.avatar || defaultAvatar" mode="aspectFill"></image>
@@ -12,7 +13,11 @@
         </view>
 
         <view class="card-body">
-          <text class="wish-text">{{ wishData.title }}</text>
+          <text class="wish-text" :style="textStyle">{{ wishData.title }}</text>
+          <view v-if="wishData.aiMessage" class="ai-message" :class="{ show: showAiMessage }">
+            <text class="ai-label">AI 寄语</text>
+            <text class="ai-content">{{ wishData.aiMessage }}</text>
+          </view>
         </view>
 
         <view class="card-footer">
@@ -66,10 +71,27 @@ const emit = defineEmits(['update:visible', 'close'])
 
 const defaultAvatar = 'https://mp-182cf5aa-f083-45a9-8d28-e12bee639ce3.cdn.bspapp.com/appBgimgs/default_avatar.png'
 
-const bgUrl = computed(() => {
-  const src = props.wishData?.poster || props.wishData?.bg || ''
-  return src && typeof src === 'string' ? src : ''
+const isImageBg = computed(() => {
+  return props.wishData?.bgType === 'image' || (!props.wishData?.bgType && props.wishData?.poster)
 })
+
+const bgValue = computed(() => {
+  if (isImageBg.value) {
+    return props.wishData?.poster || props.wishData?.bgValue
+  }
+  return props.wishData?.bgValue || 'linear-gradient(135deg, #fff1eb 0%, #ace0f9 100%)'
+})
+
+const textStyle = computed(() => {
+  const s = props.wishData?.settings || {}
+  return {
+    fontSize: (s.fontSize || 18) + 'px',
+    color: s.color || '#333',
+    fontWeight: s.fontWeight || 'normal'
+  }
+})
+
+const showAiMessage = computed(() => !!props.wishData?.aiMessage)
 
 const formattedDate = computed(() => {
   if (!props.wishData.createTime) return ''
@@ -181,14 +203,13 @@ const handleSameWish = () => {
     z-index: 0;
   }
 
-  .card-bg-gradient {
+  .card-bg-css {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     z-index: 0;
-    background: linear-gradient(135deg, #fff1eb 0%, #ace0f9 100%);
   }
 
   .card-header {
@@ -218,17 +239,49 @@ const handleSameWish = () => {
     z-index: 1;
     flex: 1;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     padding: 20rpx 0;
 
     .wish-text {
-      font-size: 36rpx;
-      color: #333;
       line-height: 1.6;
       text-align: center;
-      font-weight: 500;
       font-family: serif; /* Elegant font feel */
+      white-space: pre-wrap;
+      word-break: break-all;
+      max-width: 90%;
+    }
+
+    .ai-message {
+      margin-top: 20px;
+      padding: 10px;
+      background: rgba(255,255,255,0.8);
+      border-radius: 8px;
+      max-width: 90%;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.5s ease;
+      
+      &.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      
+      .ai-label {
+        display: block;
+        font-size: 10px;
+        color: #999;
+        margin-bottom: 4px;
+        text-align: center;
+      }
+      
+      .ai-content {
+        font-size: 12px;
+        color: #555;
+        line-height: 1.4;
+        text-align: justify;
+      }
     }
   }
 
