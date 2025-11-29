@@ -1,0 +1,62 @@
+[
+  {
+    "id": 1,
+    "title": "想去看极光，体验北极圈的神秘之美",
+    "poster": "https://picsum.photos/800/450?random=1",
+    "user": {
+      "id": 101,
+      "nickname": "追光者小雨",
+      "avatar": "https://picsum.photos/100/100?random=1"
+    },
+    "createTime": "2小时前",
+    "likes": 328,
+    "isLiked": false,
+    "collects": 45,
+    "isCollected": false
+  },
+  {
+    "id": 2,
+    "title": "学会做一顿丰盛的泰式晚餐，邀请朋友们来家里聚餐",
+    "poster": "https://picsum.photos/800/450?random=2",
+    "user": {
+      "id": 102,
+      "nickname": "美食家阿强",
+      "avatar": "https://picsum.photos/100/100?random=2"
+    },
+    "createTime": "5小时前",
+    "likes": 120,
+    "isLiked": true,
+    "collects": 12,
+    "isCollected": false
+  },
+  {
+    "id": 3,
+    "title": "坚持跑步30天，每天5公里，为了更健康的自己",
+    "poster": "https://picsum.photos/800/450?random=3",
+    "user": {
+      "id": 103,
+      "nickname": "奔跑的蜗牛",
+      "avatar": "https://picsum.photos/100/100?random=3"
+    },
+    "createTime": "1天前",
+    "likes": 856,
+    "isLiked": false,
+    "collects": 99,
+    "isCollected": true
+  },
+  {
+    "id": 4,
+    "title": "读完《百年孤独》，写一篇读后感",
+    "poster": "https://picsum.photos/800/450?random=4",
+    "user": {
+      "id": 104,
+      "nickname": "文艺青年",
+      "avatar": "https://picsum.photos/100/100?random=4"
+    },
+    "createTime": "2天前",
+    "likes": 45,
+    "isLiked": false,
+    "collects": 5,
+    "isCollected": false
+  }
+]
