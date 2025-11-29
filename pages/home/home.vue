@@ -23,6 +23,7 @@
       </div>
     </div>
 
+    <AddIconComponent style="margin-right: 24rpx;"/>
   </div>
 </template>
 
@@ -32,6 +33,7 @@ import { onShow, onHide } from '@dcloudio/uni-app'
 import TopNav from '@/components/TopNav.vue'
 import TabBar from '@/components/TabBar.vue'
 import WishCard from '@/components/WishCard.vue'
+import AddIconComponent from '@/components/AddIconComponent/AddIconComponent.vue'
 import mockData from '@/assets/mock/wishData.json'
 
 const currentTab = ref(0)

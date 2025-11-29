@@ -1,0 +1,177 @@
+<template>
+  <view class="add-icon-container" :style="{ right: right, bottom: bottom }">
+    <view class="menu-items" :class="{ 'is-expanded': isExpanded }">
+      <view class="menu-item" @click="navigateTo('/pages/publish/wish')" :style="{ transitionDelay: isExpanded ? '0.1s' : '0.2s' }">
+        <view class="menu-btn wish-btn">✨</view>
+        <text class="menu-label">许愿</text>
+      </view>
+      <view class="menu-item" @click="navigateTo('/pages/publish/fulfill')" :style="{ transitionDelay: isExpanded ? '0.15s' : '0.1s' }">
+        <view class="menu-btn fulfill-btn">🌸</view>
+        <text class="menu-label">还愿</text>
+      </view>
+      <view class="menu-item" @click="navigateTo('/pages/publish/task')" :style="{ transitionDelay: isExpanded ? '0.2s' : '0s' }">
+        <view class="menu-btn task-btn">📝</view>
+        <text class="menu-label">任务</text>
+      </view>
+    </view>
+
+    <view class="addicon" @click.stop="toggleMenu" :class="{ 'is-active': isExpanded }">
+      <image class="icon" src="https://mp-182cf5aa-f083-45a9-8d28-e12bee639ce3.cdn.bspapp.com/appBgimgs/addicon.png"></image>
+    </view>
+    
+    <view v-if="isExpanded" class="overlay" @click="closeMenu"></view>
+  </view>
+</template>
+
+<script setup>
+/**
+ * AddIconComponent
+ * 
+ * A floating action button that expands into a menu with 3 options: Wish, Fulfill, and Task.
+ * 
+ * Props:
+ * - right: CSS value for right position (default: '30rpx')
+ * - bottom: CSS value for bottom position (default: '130rpx')
+ */
+import { ref } from 'vue'
+import { toNextPage } from '@/core/app.js'
+
+const props = defineProps({
+  right: {
+    type: String,
+    default: '30rpx'
+  },
+  bottom: {
+    type: String,
+    default: '130rpx'
+  }
+})
+
+const isExpanded = ref(false)
+
+const toggleMenu = () => {
+  isExpanded.value = !isExpanded.value
+}
+
+const closeMenu = () => {
+  isExpanded.value = false
+}
+
+const navigateTo = (toUrl) => {
+	console.log("navigateTo : ", toUrl)
+  toNextPage(toUrl)
+  // Delay closing to ensure navigation triggers and provides visual feedback
+  setTimeout(() => {
+    closeMenu()
+  }, 300)
+}
+</script>
+
+<style lang="scss" scoped>
+.add-icon-container {
+  position: fixed;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.addicon {
+  width: 80rpx;
+  height: 80rpx;
+  background-color: #AFC272;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(175, 194, 114, 0.4);
+  transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  z-index: 1001;
+  position: relative;
+
+  &.is-active {
+    transform: rotate(45deg);
+    background-color: #FF6B81;
+  }
+
+  &:active {
+    transform: scale(0.95) rotate(45deg);
+  }
+}
+
+.icon {
+  width: 26rpx;
+  height: 26rpx;
+}
+
+.menu-items {
+  position: absolute;
+  bottom: 90rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 16rpx;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 1002;
+  
+  &.is-expanded {
+    pointer-events: auto;
+    opacity: 1;
+    
+    .menu-item {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+    }
+  }
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  transform: translateY(20rpx) scale(0.8);
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  
+  .menu-label {
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 8rpx 16rpx;
+    border-radius: 8rpx;
+    font-size: 24rpx;
+    color: #333;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    font-weight: 500;
+  }
+  
+  .menu-btn {
+    width: 70rpx;
+    height: 70rpx;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30rpx;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+    background-color: #fff;
+    
+    &.wish-btn { color: #FFD700; background-color: #FEF9E7; }
+    &.fulfill-btn { color: #FF69B4; background-color: #FFF0F5; }
+    &.task-btn { color: #4682B4; background-color: #F0F8FF; }
+    
+    &:active {
+      transform: scale(0.9);
+    }
+  }
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 990;
+  /* Transparent overlay to capture clicks outside */
+}
+</style>

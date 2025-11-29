@@ -15,11 +15,7 @@
 			<Empty v-if="shares.length === 0"></Empty>
 		</view>
 
-		<view class="addicon" @click="toNextPage('/subShare/add-dynamic/add-dynamic')">
-			<image class="icon" src="https://mp-182cf5aa-f083-45a9-8d28-e12bee639ce3.cdn.bspapp.com/appBgimgs/addicon.png">
-			</image>
-		</view>
-    
+    <AddIconComponent style="margin-right: 24rpx;"/>
 	</view>
 </template>
 
@@ -30,6 +26,7 @@
 	import { getDynamicListAggregate } from '@/cloud-api/dynamic.js'
 	import DynamicCard from '@/components/Dynamic-card/index.vue'
 	import Empty from '@/components/Empty/index.vue'
+	import AddIconComponent from '@/components/AddIconComponent/AddIconComponent.vue'
 
   onShow(() => {
     // uni.hideTabBar()
@@ -140,23 +137,5 @@
 			transform: translateX(-50%);
 			bottom: -15rpx;
 		}
-	}
-
-	.addicon {
-		width: 80rpx;
-		height: 80rpx;
-		background-color: #AFC272;
-		border-radius: 50%;
-		position: fixed;
-		right: 30rpx;
-		bottom: 130rpx;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
-
-	.icon {
-		width: 26rpx;
-		height: 26rpx;
 	}
 </style>
