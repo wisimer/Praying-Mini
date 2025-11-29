@@ -171,7 +171,7 @@ import { ref, computed, reactive } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import WishCardDetail from '@/components/WishCardDetail.vue'
 import { addDynamic } from '@/cloud-api/dynamic.js'
-import { showLoading, showToast } from '@/core/app.js'
+import { showLoading, showToast, asyncUploadFile } from '@/core/app.js'
 
 // State
 const wishText = ref('')
@@ -249,29 +249,11 @@ const setBgMode = (mode) => {
 }
 
 const chooseImage = () => {
-  uni.chooseImage({
-    count: 1,
-    sizeType: ['compressed'],
-    sourceType: ['album'],
-    success: (res) => {
+  asyncUploadFile(1).then(results => {
+    if (results && results.length > 0) {
       settings.bgType = 'image'
-      settings.bgValue = res.tempFilePaths[0]
+      settings.bgValue = results[0].fileID
     }
-  })
-}
-
-const uploadImage = (filePath) => {
-  return new Promise((resolve, reject) => {
-    // Generate a unique cloud path
-    const ext = filePath.split('.').pop() || 'jpg'
-    const cloudPath = `wish/${Date.now()}-${Math.random().toString(36).slice(-6)}.${ext}`
-    
-    uniCloud.uploadFile({
-      filePath: filePath,
-      cloudPath: cloudPath,
-      success: (res) => resolve(res.fileID),
-      fail: (err) => reject(err)
-    })
   })
 }
 
@@ -325,16 +307,10 @@ const finishWish = async () => {
     ]
     const randomMsg = aiMessages[Math.floor(Math.random() * aiMessages.length)]
     
-    // 3. Upload Image if needed
-    let finalBgValue = settings.bgValue
-    if (settings.bgType === 'image' && settings.bgValue && !settings.bgValue.startsWith('http')) {
-      finalBgValue = await uploadImage(settings.bgValue)
-    }
-    
-    // 4. Construct Data
+    // 3. Construct Data
     const contentStyle = {
       bgType: settings.bgType,
-      bgValue: finalBgValue,
+      bgValue: settings.bgValue,
       fontSize: settings.fontSize,
       color: settings.color,
       fontWeight: settings.fontWeight,
@@ -348,16 +324,16 @@ const finishWish = async () => {
       content_style: contentStyle
     }
     
-    // 5. Save to DB
+    // 4. Save to DB
     await addDynamic(obj)
     uni.$emit('saveRecord')
     
-    return { finalBgValue, randomMsg }
+    return { randomMsg }
   })()
   
   // Wait for both
   const [_, result] = await Promise.all([animationPromise, savePromise])
-  const { finalBgValue, randomMsg } = result
+  const { randomMsg } = result
   
   isAnimating.value = false
   
@@ -370,9 +346,9 @@ const finishWish = async () => {
     },
     createTime: '刚刚',
     bgType: settings.bgType,
-    bgValue: finalBgValue,
-    poster: settings.bgType === 'image' ? finalBgValue : '',
-    settings: { ...settings, bgValue: finalBgValue },
+    bgValue: settings.bgValue,
+    poster: settings.bgType === 'image' ? settings.bgValue : '',
+    settings: { ...settings },
     aiMessage: randomMsg
   }
   
