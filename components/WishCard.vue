@@ -1,27 +1,33 @@
 <template>
-  <div class="wish-card" @click="handleClick">
-    <div class="poster-wrapper">
+  <div class="wish-card" @click="handleClick" :style="cardStyle">
+    <div class="poster-wrapper" v-if="data.poster">
       <image class="poster-image" :src="data.poster" mode="aspectFill"></image>
       <div class="poster-overlay"></div>
-      <div class="card-title">{{ data.title }}</div>
+      <div class="card-title" :style="textStyle">{{ data.title }}</div>
+    </div>
+    <div class="content-wrapper" v-else>
+       <div class="card-title" :style="textStyle">{{ data.title }}</div>
+       <div class="ai-message" v-if="data.content_style && data.content_style.aiMessage">
+         {{ data.content_style.aiMessage }}
+       </div>
     </div>
     
     <div class="card-footer">
       <div class="user-info">
         <image class="avatar" :src="data.user.avatar" mode="aspectFill"></image>
         <div class="info-col">
-          <span class="nickname">{{ data.user.nickname }}</span>
-          <span class="time">{{ data.createTime }}</span>
+          <span class="nickname" :style="textStyle">{{ data.user.nickname }}</span>
+          <span class="time" :style="textStyle">{{ data.createTime }}</span>
         </div>
       </div>
       
       <div class="interactions">
         <div class="action-btn" @click.stop="toggleLike">
-          <uni-icons :type="data.isLiked ? 'heart-filled' : 'heart'" size="20" :color="data.isLiked ? '#FF6B81' : '#999'"></uni-icons>
-          <span class="count" :class="{ active: data.isLiked }">{{ data.likes }}</span>
+          <uni-icons :type="data.isLiked ? 'heart-filled' : 'heart'" size="20" :color="data.isLiked ? '#FF6B81' : (cardStyle.color || '#999')"></uni-icons>
+          <span class="count" :class="{ active: data.isLiked }" :style="data.isLiked ? {} : textStyle">{{ data.likes }}</span>
         </div>
         <div class="action-btn" @click.stop="toggleCollect">
-          <uni-icons :type="data.isCollected ? 'star-filled' : 'star'" size="20" :color="data.isCollected ? '#FFCC00' : '#999'"></uni-icons>
+          <uni-icons :type="data.isCollected ? 'star-filled' : 'star'" size="20" :color="data.isCollected ? '#FFCC00' : (cardStyle.color || '#999')"></uni-icons>
           <!-- <span class="count">{{ data.collects }}</span> -->
         </div>
       </div>
@@ -30,6 +36,8 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
+
 const props = defineProps({
   data: {
     type: Object,
@@ -37,17 +45,42 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['click'])
+const emit = defineEmits(['click', 'like', 'collect'])
 
-// Note: In a real app, these would emit events to the parent or call a store
+const cardStyle = computed(() => {
+  const style = {}
+  const cs = props.data.content_style
+  if (!cs) return style
+  
+  if (cs.bgType === 'color' && cs.bgValue) {
+    style.backgroundColor = cs.bgValue
+  } else if (cs.bgType === 'image' && cs.bgValue) {
+    style.backgroundImage = `url(${cs.bgValue})`
+    style.backgroundSize = 'cover'
+    style.backgroundPosition = 'center'
+  }
+  
+  return style
+})
+
+const textStyle = computed(() => {
+  const style = {}
+  const cs = props.data.content_style
+  if (!cs) return style
+  
+  if (cs.color) style.color = cs.color
+  if (cs.fontSize) style.fontSize = cs.fontSize + 'px'
+  if (cs.fontWeight) style.fontWeight = cs.fontWeight
+  
+  return style
+})
+
 const toggleLike = () => {
-  // Mock toggle for UI feedback
-  props.data.isLiked = !props.data.isLiked
-  props.data.likes += props.data.isLiked ? 1 : -1
+  emit('like')
 }
 
 const toggleCollect = () => {
-  props.data.isCollected = !props.data.isCollected
+  emit('collect')
 }
 
 const handleClick = () => {
@@ -101,6 +134,28 @@ const handleClick = () => {
       -webkit-line-clamp: 2;
       overflow: hidden;
       text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+  }
+
+  .content-wrapper {
+    padding: 20px;
+    min-height: 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    
+    .card-title {
+      font-size: 16px;
+      font-weight: 600;
+      line-height: 1.5;
+      margin-bottom: 8px;
+      word-break: break-all;
+    }
+    
+    .ai-message {
+      font-size: 12px;
+      opacity: 0.8;
+      font-style: italic;
     }
   }
 

@@ -189,6 +189,63 @@ export async function getDynamicListDelAggregate(id) {
 }
 
 
+// 首页愿望卡片列表
+export async function getHomeWishList(option) {
+	const db = uniCloud.database()
+	const dbCmd = db.command
+	const $ = db.command.aggregate
+	const pageNum = option.pageNum || 0
+	const pageSize = option.pageSize || 20
+
+	return new Promise((resolve) => {
+		db.collection('app-dynamic').aggregate()
+			.match({
+				sort: 0
+			})
+			.lookup({
+				from: 'uni-id-users',
+				let: {
+					user_id: '$user_id'
+				},
+				pipeline: $.pipeline()
+					.match(dbCmd.expr($.eq(['$_id', '$$user_id'])))
+					.project({
+						nickname: 1,
+						avatar_file: 1
+					})
+					.done(),
+				as: 'userInfo'
+			})
+			.lookup({
+				from: 'app-like-dynamic',
+				let: {
+					dynamic_id: '$_id'
+				},
+				pipeline: $.pipeline()
+					.match(dbCmd.expr($.and([
+						$.eq(['$dynamic_id', '$$dynamic_id']),
+						$.eq(['$user_id', db.getCloudEnv('$cloudEnv_uid')])
+					])))
+					.done(),
+				as: 'userLike'
+			})
+			.addFields({
+				isLiked: $.gt([$.size('$userLike'), 0]),
+				user: $.arrayElemAt(['$userInfo', 0])
+			})
+			.sort({
+				view_count: -1
+			})
+			.skip(pageNum * pageSize)
+			.limit(pageSize)
+			.end()
+			.then(res => {
+				resolve(res.result)
+			})
+	})
+}
+
+
 // 查看已关注动态
 export async function getLikes(Num) {
 	const pageNum = Num || 0

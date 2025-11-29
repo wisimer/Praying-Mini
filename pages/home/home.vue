@@ -17,10 +17,14 @@
           :key="item.id" 
           :data="item" 
           @click="handleCardClick(item)"
+          @like="handleLike(item)"
         />
       </div>
-      <div class="loading-state" v-else>
+      <div class="loading-state" v-if="loading">
         Loading...
+      </div>
+      <div class="empty-state" v-if="!loading && wishList.length === 0">
+        暂无数据
       </div>
     </div>
 
@@ -35,17 +39,21 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { onShow, onHide } from '@dcloudio/uni-app'
+import { onShow, onHide, onReachBottom } from '@dcloudio/uni-app'
 import TopNav from '@/components/TopNav.vue'
 import TabBar from '@/components/TabBar.vue'
 import WishCard from '@/components/WishCard.vue'
 import WishCardDetail from '@/components/WishCardDetail.vue'
 import AddIconComponent from '@/components/AddIconComponent/AddIconComponent.vue'
-import mockData from '@/assets/mock/wishData.json'
+import { getHomeWishList, setLike, removeLike } from '@/cloud-api/dynamic.js'
 
 const currentTab = ref(0)
 const currentNavIndex = ref(0)
 const wishList = ref([])
+const pageNum = ref(0)
+const pageSize = 20
+const hasMore = ref(true)
+const loading = ref(false)
 
 const showDetail = ref(false)
 const selectedWish = ref({})
@@ -53,6 +61,84 @@ const selectedWish = ref({})
 const handleCardClick = (item) => {
   selectedWish.value = item
   showDetail.value = true
+}
+
+const handleLike = async (item) => {
+  try {
+    if (item.isLiked) {
+      await removeLike(item._id)
+      item.isLiked = false
+      item.likes = Math.max(0, item.likes - 1)
+    } else {
+      await setLike(item._id)
+      item.isLiked = true
+      item.likes++
+    }
+  } catch (e) {
+    console.error('Like operation failed', e)
+    uni.showToast({
+      title: '操作失败',
+      icon: 'none'
+    })
+  }
+}
+
+const formatTime = (timestamp) => {
+  if (!timestamp) return ''
+  const date = new Date(timestamp)
+  const now = new Date()
+  const diff = now - date
+  if (diff < 60000) return '刚刚'
+  if (diff < 3600000) return `${Math.floor(diff / 60000)}分钟前`
+  if (diff < 86400000) return `${Math.floor(diff / 3600000)}小时前`
+  return `${date.getMonth() + 1}月${date.getDate()}日`
+}
+
+const loadData = async (reload = false) => {
+  if (loading.value) return
+  if (reload) {
+    pageNum.value = 0
+    hasMore.value = true
+    wishList.value = []
+  }
+  if (!hasMore.value) return
+
+  loading.value = true
+  try {
+    const res = await getHomeWishList({ pageNum: pageNum.value, pageSize })
+    if (res.data && res.data.length < pageSize) {
+      hasMore.value = false
+    }
+    const data = res.data
+	
+    const formattedList = data.map(item => ({
+      ...item,
+      id: item._id,
+      likes: item.like_count || 0,
+      // user info mapping
+      user: {
+        nickname: item.user?.nickname || 'Unknown',
+        avatar: item.user?.avatar_file?.url || '/static/default-avatar.png'
+      },
+      createTime: formatTime(item.publish_date)
+    }))
+    
+    if (reload) {
+      wishList.value = formattedList
+    } else {
+      wishList.value = [...wishList.value, ...formattedList]
+    }
+    
+    pageNum.value++
+  } catch (e) {
+    console.error(e)
+    uni.showToast({
+      title: '加载失败',
+      icon: 'none'
+    })
+  } finally {
+    loading.value = false
+  }
 }
 
 onShow(() => {
@@ -64,10 +150,11 @@ onHide(() => {
 })
 
 onMounted(() => {
-  // Simulate API call
-  setTimeout(() => {
-    wishList.value = mockData
-  }, 500)
+  loadData(true)
+})
+
+onReachBottom(() => {
+  loadData()
 })
 </script>
 
