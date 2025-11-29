@@ -13,10 +13,10 @@
         </view>
 
         <view class="card-body">
-          <text class="wish-text" :style="textStyle">{{ wishData.title }}</text>
-          <view v-if="wishData.aiMessage" class="ai-message" :class="{ show: showAiMessage }">
+          <text class="wish-text" :style="textStyle">{{ wishData.content || wishData.title }}</text>
+          <view v-if="wishData.content_style && wishData.content_style.aiMessage" class="ai-message" :class="{ show: showAiMessage }">
             <text class="ai-label">AI 寄语</text>
-            <text class="ai-content">{{ wishData.aiMessage }}</text>
+            <text class="ai-content">{{ wishData.content_style.aiMessage }}</text>
           </view>
         </view>
 
@@ -76,26 +76,28 @@ const emit = defineEmits(['update:visible', 'close'])
 const defaultAvatar = 'https://mp-182cf5aa-f083-45a9-8d28-e12bee639ce3.cdn.bspapp.com/appBgimgs/default_avatar.png'
 
 const isImageBg = computed(() => {
-  return props.wishData?.bgType === 'image' || (!props.wishData?.bgType && props.wishData?.poster)
+  const cs = props.wishData?.content_style
+  return cs?.bgType === 'image' || (!cs?.bgType && props.wishData?.poster)
 })
 
 const bgValue = computed(() => {
+  const cs = props.wishData?.content_style
   if (isImageBg.value) {
-    return props.wishData?.poster || props.wishData?.bgValue
+    return cs?.bgValue || props.wishData?.poster
   }
-  return props.wishData?.bgValue || 'linear-gradient(135deg, #fff1eb 0%, #ace0f9 100%)'
+  return cs?.bgValue || 'linear-gradient(135deg, #fff1eb 0%, #ace0f9 100%)'
 })
 
 const textStyle = computed(() => {
-  const s = props.wishData?.settings || {}
+  const cs = props.wishData?.content_style || {}
   return {
-    fontSize: (s.fontSize || 18) + 'px',
-    color: s.color || '#333',
-    fontWeight: s.fontWeight || 'normal'
+    fontSize: (cs.fontSize || 18) + 'px',
+    color: cs.color || '#333',
+    fontWeight: cs.fontWeight || 'normal'
   }
 })
 
-const showAiMessage = computed(() => !!props.wishData?.aiMessage)
+const showAiMessage = computed(() => !!props.wishData?.content_style?.aiMessage)
 
 const formattedDate = computed(() => {
   if (!props.wishData.createTime) return ''
@@ -143,7 +145,7 @@ const handleSameWish = () => {
   setTimeout(() => {
     // Navigate to publish page (assuming path based on analysis)
     uni.navigateTo({
-      url: `/pages/publish/wish?content=${encodeURIComponent(props.wishData.title)}`
+      url: `/pages/publish/wish?content=${encodeURIComponent(props.wishData.content || props.wishData.title)}`
     })
   }, 500)
 }

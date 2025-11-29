@@ -1,33 +1,30 @@
 <template>
-  <div class="wish-card" @click="handleClick" :style="cardStyle">
+  <div class="wish-card" @click="handleClick">
     <div class="poster-wrapper" v-if="data.poster">
       <image class="poster-image" :src="data.poster" mode="aspectFill"></image>
       <div class="poster-overlay"></div>
-      <div class="card-title" :style="textStyle">{{ data.title }}</div>
+      <div class="card-title" :style="textStyle">{{ data.content || data.title }}</div>
     </div>
     <div class="content-wrapper" v-else>
-       <div class="card-title" :style="textStyle">{{ data.title }}</div>
-       <div class="ai-message" v-if="data.content_style && data.content_style.aiMessage">
-         {{ data.content_style.aiMessage }}
-       </div>
+       <div class="card-title" :style="textStyle">{{ data.content || data.title }}</div>
     </div>
     
     <div class="card-footer">
       <div class="user-info">
         <image class="avatar" :src="data.user.avatar" mode="aspectFill"></image>
         <div class="info-col">
-          <span class="nickname" :style="textStyle">{{ data.user.nickname }}</span>
-          <span class="time" :style="textStyle">{{ data.createTime }}</span>
+          <span class="nickname">{{ data.user.nickname }}</span>
+          <span class="time">{{ data.createTime }}</span>
         </div>
       </div>
       
       <div class="interactions">
         <div class="action-btn" @click.stop="toggleLike">
-          <uni-icons :type="data.isLiked ? 'heart-filled' : 'heart'" size="20" :color="data.isLiked ? '#FF6B81' : (cardStyle.color || '#999')"></uni-icons>
-          <span class="count" :class="{ active: data.isLiked }" :style="data.isLiked ? {} : textStyle">{{ data.likes }}</span>
+          <uni-icons :type="data.isLiked ? 'heart-filled' : 'heart'" size="20" :color="data.isLiked ? '#FF6B81' : '#999'"></uni-icons>
+          <span class="count" :class="{ active: data.isLiked }">{{ data.likes }}</span>
         </div>
         <div class="action-btn" @click.stop="toggleCollect">
-          <uni-icons :type="data.isCollected ? 'star-filled' : 'star'" size="20" :color="data.isCollected ? '#FFCC00' : (cardStyle.color || '#999')"></uni-icons>
+          <uni-icons :type="data.isCollected ? 'star-filled' : 'star'" size="20" :color="data.isCollected ? '#FFCC00' : '#999'"></uni-icons>
           <!-- <span class="count">{{ data.collects }}</span> -->
         </div>
       </div>
@@ -46,22 +43,6 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['click', 'like', 'collect'])
-
-const cardStyle = computed(() => {
-  const style = {}
-  const cs = props.data.content_style
-  if (!cs) return style
-  
-  if (cs.bgType === 'color' && cs.bgValue) {
-    style.backgroundColor = cs.bgValue
-  } else if (cs.bgType === 'image' && cs.bgValue) {
-    style.backgroundImage = `url(${cs.bgValue})`
-    style.backgroundSize = 'cover'
-    style.backgroundPosition = 'center'
-  }
-  
-  return style
-})
 
 const textStyle = computed(() => {
   const style = {}
