@@ -1,5 +1,5 @@
 <template>
-  <div class="wish-card" @click="handleClick">
+  <div class="wish-card" @click="handleClick" :style="cardStyle">
     <div class="poster-wrapper" v-if="data.poster">
       <image class="poster-image" :src="data.poster" mode="aspectFill"></image>
       <div class="poster-overlay"></div>
@@ -43,6 +43,22 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['click', 'like', 'collect'])
+
+const cardStyle = computed(() => {
+  const style = {}
+  const cs = props.data.content_style
+  if (!cs) return style
+  
+  if (cs.bgType === 'color' && cs.bgValue) {
+    style.backgroundColor = cs.bgValue
+  } else if (cs.bgType === 'image' && cs.bgValue) {
+    style.backgroundImage = `url(${cs.bgValue})`
+    style.backgroundSize = 'cover'
+    style.backgroundPosition = 'center'
+  }
+  
+  return style
+})
 
 const textStyle = computed(() => {
   const style = {}

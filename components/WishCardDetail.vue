@@ -10,18 +10,18 @@
         <view class="card-header">
           <image class="user-avatar" :src="wishData.user?.avatar || defaultAvatar" mode="aspectFill"></image>
           <text class="user-name">{{ wishData.user?.nickname || 'Unknown' }}</text>
+          <text class="date-text">{{ formattedDate }}</text>
         </view>
 
         <view class="card-body">
           <text class="wish-text" :style="textStyle">{{ wishData.content || wishData.title }}</text>
+        </view>
+
+        <view class="card-footer">
           <view v-if="wishData.content_style && wishData.content_style.aiMessage" class="ai-message" :class="{ show: showAiMessage }">
             <text class="ai-label">AI 寄语</text>
             <text class="ai-content">{{ wishData.content_style.aiMessage }}</text>
           </view>
-        </view>
-
-        <view class="card-footer">
-          <text class="date-text">{{ formattedDate }}</text>
         </view>
       </view>
 
@@ -101,9 +101,33 @@ const showAiMessage = computed(() => !!props.wishData?.content_style?.aiMessage)
 
 const formattedDate = computed(() => {
   if (!props.wishData.createTime) return ''
-  // Assuming createTime is a string or timestamp that needs formatting
-  // Simple format for now, can use utils if needed
-  return props.wishData.createTime
+  // Handle if createTime is "XX分钟前" or "刚刚"
+  if (props.wishData.createTime.includes('前') || props.wishData.createTime.includes('刚刚')) {
+      // If it's relative time, we might want to use publish_date if available, or just keep it.
+      // But requirement says yyyy年mm月dd日.
+      // Let's try to use publish_date timestamp if available in wishData
+      if (props.wishData.publish_date) {
+          const date = new Date(props.wishData.publish_date)
+          const y = date.getFullYear()
+          const m = String(date.getMonth() + 1).padStart(2, '0')
+          const d = String(date.getDate()).padStart(2, '0')
+          return `${y}年${m}月${d}日`
+      }
+      return props.wishData.createTime // Fallback
+  }
+  
+  // If it's already formatted or timestamp
+  try {
+      const date = new Date(props.wishData.createTime)
+      if (isNaN(date.getTime())) return props.wishData.createTime
+      
+      const y = date.getFullYear()
+      const m = String(date.getMonth() + 1).padStart(2, '0')
+      const d = String(date.getDate()).padStart(2, '0')
+      return `${y}年${m}月${d}日`
+  } catch (e) {
+      return props.wishData.createTime
+  }
 })
 
 const handleClose = () => {
@@ -238,6 +262,12 @@ const handleSameWish = () => {
       color: #333;
       font-weight: 600;
     }
+
+    .date-text {
+      margin-left: auto;
+      font-size: 24rpx;
+      color: #666;
+    }
   }
 
   .card-body {
@@ -258,9 +288,19 @@ const handleSameWish = () => {
       word-break: break-all;
       max-width: 90%;
     }
+  }
+
+  .card-footer {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    margin-top: auto;
+    width: 100%;
+    display: flex;
+    justify-content: center;
 
     .ai-message {
-      margin-top: 20px;
+      margin-top: 10px;
       padding: 10px;
       background: rgba(255,255,255,0.8);
       border-radius: 8px;
@@ -288,18 +328,6 @@ const handleSameWish = () => {
         line-height: 1.4;
         text-align: justify;
       }
-    }
-  }
-
-  .card-footer {
-    position: relative;
-    z-index: 1;
-    text-align: center;
-    margin-top: auto;
-
-    .date-text {
-      font-size: 24rpx;
-      color: #666;
     }
   }
 }
