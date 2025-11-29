@@ -170,6 +170,8 @@
 import { ref, computed, reactive } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import WishCardDetail from '@/components/WishCardDetail.vue'
+import { addDynamic } from '@/cloud-api/dynamic.js'
+import { showLoading, showToast } from '@/core/app.js'
 
 // State
 const wishText = ref('')
@@ -258,7 +260,22 @@ const chooseImage = () => {
   })
 }
 
-const handleWish = () => {
+const uploadImage = (filePath) => {
+  return new Promise((resolve, reject) => {
+    // Generate a unique cloud path
+    const ext = filePath.split('.').pop() || 'jpg'
+    const cloudPath = `wish/${Date.now()}-${Math.random().toString(36).slice(-6)}.${ext}`
+    
+    uniCloud.uploadFile({
+      filePath: filePath,
+      cloudPath: cloudPath,
+      success: (res) => resolve(res.fileID),
+      fail: (err) => reject(err)
+    })
+  })
+}
+
+const handleWish = async () => {
   if (!wishText.value.trim()) {
     uni.showToast({ title: '写下你的愿望吧~', icon: 'none' })
     return
@@ -269,42 +286,99 @@ const handleWish = () => {
 
   isAnimating.value = true
   
-  // Animation Sequence
-  setTimeout(() => {
-    finishWish()
-  }, 3000)
+  try {
+    await finishWish()
+  } catch (e) {
+    isAnimating.value = false
+    console.error(e)
+    if (e.message === '内容不合规') {
+      showToast('内容不合规，请重新编辑')
+    } else {
+      showToast('许愿失败，请稍后重试')
+    }
+  }
 }
 
-const finishWish = () => {
+const finishWish = async () => {
+  // Animation Sequence (min 3s)
+  const animationPromise = new Promise(resolve => setTimeout(resolve, 3000))
+  
+  // Data Preparation & Save Sequence
+  const savePromise = (async () => {
+    // 1. Check Text (Weixin MP)
+    // #ifdef MP-WEIXIN
+    const checkRes = await uniCloud.callFunction({ 
+      name: 'set-check-text', 
+      data: { text: wishText.value } 
+    })
+    if (checkRes.result.errCode === 400) {
+      throw new Error('内容不合规')
+    }
+    // #endif
+
+    // 2. Generate AI Message
+    const aiMessages = [
+      "你的愿望已被星辰听见，正在赶来的路上。",
+      "愿你所求皆如愿，所行化坦途。",
+      "念念不忘，必有回响。加油！",
+      "美好的事情即将发生，请保持期待。"
+    ]
+    const randomMsg = aiMessages[Math.floor(Math.random() * aiMessages.length)]
+    
+    // 3. Upload Image if needed
+    let finalBgValue = settings.bgValue
+    if (settings.bgType === 'image' && settings.bgValue && !settings.bgValue.startsWith('http')) {
+      finalBgValue = await uploadImage(settings.bgValue)
+    }
+    
+    // 4. Construct Data
+    const contentStyle = {
+      bgType: settings.bgType,
+      bgValue: finalBgValue,
+      fontSize: settings.fontSize,
+      color: settings.color,
+      fontWeight: settings.fontWeight,
+      aiMessage: randomMsg
+    }
+    
+    const obj = {
+      content: wishText.value,
+      sort: 6, // 6: Wish type
+      imgs: "",
+      content_style: contentStyle
+    }
+    
+    // 5. Save to DB
+    await addDynamic(obj)
+    uni.$emit('saveRecord')
+    
+    return { finalBgValue, randomMsg }
+  })()
+  
+  // Wait for both
+  const [_, result] = await Promise.all([animationPromise, savePromise])
+  const { finalBgValue, randomMsg } = result
+  
   isAnimating.value = false
   
-  // Mock AI Result
-  const aiMessages = [
-    "你的愿望已被星辰听见，正在赶来的路上。",
-    "愿你所求皆如愿，所行化坦途。",
-    "念念不忘，必有回响。加油！",
-    "美好的事情即将发生，请保持期待。"
-  ]
-  const randomMsg = aiMessages[Math.floor(Math.random() * aiMessages.length)]
-
+  // Show Result
   resultData.value = {
     title: wishText.value,
     user: {
-      nickname: '我', // Should come from global user store
+      nickname: '我',
       avatar: ''
     },
     createTime: '刚刚',
     bgType: settings.bgType,
-    bgValue: settings.bgValue,
-    poster: settings.bgType === 'image' ? settings.bgValue : '',
-    settings: { ...settings },
+    bgValue: finalBgValue,
+    poster: settings.bgType === 'image' ? finalBgValue : '',
+    settings: { ...settings, bgValue: finalBgValue },
     aiMessage: randomMsg
   }
   
   uni.showToast({ title: '许愿成功', icon: 'success' })
   setTimeout(() => {
     showResult.value = true
-    // Clear text but keep settings
     wishText.value = ''
   }, 1000)
 }
