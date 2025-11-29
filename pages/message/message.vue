@@ -32,8 +32,6 @@
 			</view>
 		</view>
 
-
-    <BottomNav :modelValue="2" />
 	</view>
 </template>
 
@@ -47,10 +45,9 @@
 	import { BASE_URL_AVATAR } from '@/core/config.js'
 	import { formatTimeDifference } from '@/utils/date.js'
 	import Empty from '@/components/Empty/index.vue'
-  import BottomNav from '@/components/BottomNav.vue'
 
   onShow(() => {
-    uni.hideTabBar()
+    // uni.hideTabBar()
   })
 
 	const menuIndex = ref(0)

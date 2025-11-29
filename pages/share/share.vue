@@ -20,7 +20,6 @@
 			</image>
 		</view>
     
-    <!-- <BottomNav :modelValue="1" /> -->
 	</view>
 </template>
 
@@ -31,7 +30,6 @@
 	import { getDynamicListAggregate } from '@/cloud-api/dynamic.js'
 	import DynamicCard from '@/components/Dynamic-card/index.vue'
 	import Empty from '@/components/Empty/index.vue'
-  import BottomNav from '@/components/BottomNav.vue'
 
   onShow(() => {
     // uni.hideTabBar()

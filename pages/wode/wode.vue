@@ -76,7 +76,6 @@
 				<Empty></Empty>
 			</view>
 		</view>
-    <!-- <BottomNav :modelValue="3" /> -->
 	</view>
 </template>
 
@@ -88,7 +87,6 @@
 	import { BASE_URL_AVATAR } from '@/core/config.js'
 	import { store } from '@/uni_modules/uni-id-pages/common/store'
 	import Empty from '@/components/Empty/index.vue'
-  import BottomNav from '@/components/BottomNav.vue'
 
   onShow(() => {
     // uni.hideTabBar()

@@ -23,7 +23,6 @@
       </div>
     </div>
 
-    <!-- <BottomNav v-model="currentNavIndex" /> -->
   </div>
 </template>
 
@@ -33,7 +32,6 @@ import { onShow, onHide } from '@dcloudio/uni-app'
 import TopNav from '@/components/TopNav.vue'
 import TabBar from '@/components/TabBar.vue'
 import WishCard from '@/components/WishCard.vue'
-import BottomNav from '@/components/BottomNav.vue'
 import mockData from '@/assets/mock/wishData.json'
 
 const currentTab = ref(0)
