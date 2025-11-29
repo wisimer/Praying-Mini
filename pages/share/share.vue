@@ -19,16 +19,23 @@
 			<image class="icon" src="https://mp-182cf5aa-f083-45a9-8d28-e12bee639ce3.cdn.bspapp.com/appBgimgs/addicon.png">
 			</image>
 		</view>
+    
+    <BottomNav :modelValue="1" />
 	</view>
 </template>
 
 <script setup>
 	import { ref } from 'vue'
-	import { onLoad, onReachBottom } from '@dcloudio/uni-app'
+	import { onLoad, onReachBottom, onShow } from '@dcloudio/uni-app'
 	import { toNextPage } from '@/core/app.js'
 	import { getDynamicListAggregate } from '@/cloud-api/dynamic.js'
 	import DynamicCard from '@/components/Dynamic-card/index.vue'
 	import Empty from '@/components/Empty/index.vue'
+  import BottomNav from '@/components/BottomNav.vue'
+
+  onShow(() => {
+    uni.hideTabBar()
+  })
 
 	const menuIndex = ref(0)
 

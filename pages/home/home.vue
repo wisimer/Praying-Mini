@@ -23,7 +23,7 @@
       </div>
     </div>
 
-    <!-- <BottomNav v-model="currentNavIndex" /> -->
+    <BottomNav v-model="currentNavIndex" />
   </div>
 </template>
 
@@ -41,7 +41,7 @@ const currentNavIndex = ref(0)
 const wishList = ref([])
 
 onShow(() => {
-  // uni.hideTabBar()
+  uni.hideTabBar()
 })
 
 onHide(() => {

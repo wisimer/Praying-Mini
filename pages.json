@@ -33,6 +33,27 @@
 			"style": {
 				"navigationBarTitleText": "个人资料"
 			}
+		},
+		{
+			"path": "pages/publish/wish",
+			"style": {
+				"navigationBarTitleText": "我要许愿",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/publish/fulfill",
+			"style": {
+				"navigationBarTitleText": "我要还愿",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/publish/task",
+			"style": {
+				"navigationBarTitleText": "发布任务",
+				"navigationStyle": "custom"
+			}
 		}
 		// {
 		// 	"path": "uni_modules/uni-id-pages/pages/login/login-withoutpwd",

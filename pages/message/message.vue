@@ -33,12 +33,13 @@
 		</view>
 
 
+    <BottomNav :modelValue="2" />
 	</view>
 </template>
 
 <script setup>
 	import { ref, computed } from 'vue'
-	import { onLoad } from '@dcloudio/uni-app'
+	import { onLoad, onShow } from '@dcloudio/uni-app'
 	import { getRooms, getPetList } from '@/cloud-api/index.js'
 	import { showLoading, toNextPage } from '@/core/app.js'
 	import { store } from '@/uni_modules/uni-id-pages/common/store'
@@ -46,6 +47,11 @@
 	import { BASE_URL_AVATAR } from '@/core/config.js'
 	import { formatTimeDifference } from '@/utils/date.js'
 	import Empty from '@/components/Empty/index.vue'
+  import BottomNav from '@/components/BottomNav.vue'
+
+  onShow(() => {
+    uni.hideTabBar()
+  })
 
 	const menuIndex = ref(0)
 

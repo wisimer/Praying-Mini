@@ -76,17 +76,23 @@
 				<Empty></Empty>
 			</view>
 		</view>
+    <BottomNav :modelValue="3" />
 	</view>
 </template>
 
 <script setup>
-	import { onLoad } from '@dcloudio/uni-app'
+	import { onLoad, onShow } from '@dcloudio/uni-app'
 	import { ref } from 'vue'
 	import { getWodePage, changeAchievement } from '@/cloud-api/index.js'
 	import { toNextPage, showLoading, showModal, showToast } from '@/core/app.js'
 	import { BASE_URL_AVATAR } from '@/core/config.js'
 	import { store } from '@/uni_modules/uni-id-pages/common/store'
 	import Empty from '@/components/Empty/index.vue'
+  import BottomNav from '@/components/BottomNav.vue'
+
+  onShow(() => {
+    uni.hideTabBar()
+  })
 
 	const achievements = ref([])
 	const defachievement = ref('')
