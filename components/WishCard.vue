@@ -18,7 +18,7 @@
         </div>
       </div>
       
-      <div class="interactions">
+      <div class="interactions" v-if="showInteractions">
         <div class="action-btn" @click.stop="toggleLike">
           <uni-icons :type="data.isLiked ? 'heart-filled' : 'heart'" size="20" :color="data.isLiked ? '#FF6B81' : '#999'"></uni-icons>
           <span class="count" :class="{ active: data.isLiked }">{{ data.likes }}</span>
@@ -39,6 +39,10 @@ const props = defineProps({
   data: {
     type: Object,
     required: true
+  },
+  showInteractions: {
+    type: Boolean,
+    default: true
   }
 })
 

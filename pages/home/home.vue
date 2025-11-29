@@ -16,6 +16,7 @@
           v-for="item in wishList" 
           :key="item.id" 
           :data="item" 
+          :showInteractions="store.hasLogin"
           @click="handleCardClick(item)"
           @like="handleLike(item)"
         />
@@ -38,7 +39,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { onShow, onHide, onReachBottom } from '@dcloudio/uni-app'
 import TopNav from '@/components/TopNav.vue'
 import TabBar from '@/components/TabBar.vue'
@@ -46,6 +47,7 @@ import WishCard from '@/components/WishCard.vue'
 import WishCardDetail from '@/components/WishCardDetail.vue'
 import AddIconComponent from '@/components/AddIconComponent/AddIconComponent.vue'
 import { getHomeWishList, setLike, removeLike } from '@/cloud-api/dynamic.js'
+import { store } from '@/uni_modules/uni-id-pages/common/store.js'
 
 const currentTab = ref(0)
 const currentNavIndex = ref(0)
@@ -58,12 +60,17 @@ const loading = ref(false)
 const showDetail = ref(false)
 const selectedWish = ref({})
 
+watch(() => store.hasLogin, () => {
+  loadData(true)
+})
+
 const handleCardClick = (item) => {
   selectedWish.value = item
   showDetail.value = true
 }
 
 const handleLike = async (item) => {
+  if (!store.hasLogin) return
   try {
     if (item.isLiked) {
       await removeLike(item._id)
@@ -105,7 +112,11 @@ const loadData = async (reload = false) => {
 
   loading.value = true
   try {
-    const res = await getHomeWishList({ pageNum: pageNum.value, pageSize })
+    const res = await getHomeWishList({ 
+      pageNum: pageNum.value, 
+      pageSize,
+      checkLikeStatus: store.hasLogin 
+    })
     if (res.data && res.data.length < pageSize) {
       hasMore.value = false
     }
