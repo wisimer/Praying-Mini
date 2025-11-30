@@ -98,38 +98,63 @@
 
 		<!-- 任务详情弹窗 -->
 		<uni-popup ref="taskPopup" type="center" :mask-click="true">
-			<view class="popup-content">
-				<view class="popup-header">
-					<text class="font-size32 font-weight">任务请求</text>
-					<uni-icons type="closeempty" size="24" @click="closeTaskPopup" color="#999"></uni-icons>
-				</view>
-				<view class="popup-body flex-col align-center" v-if="currentTask">
-					<image :src="currentTask.requester.avatar ? currentTask.requester.avatar : 'https://mp-182cf5aa-f083-45a9-8d28-e12bee639ce3.cdn.bspapp.com/appBgimgs/avatar_default.png'" class="popup-avatar margin-b20" @click="toUserHome(currentTask.requester._id)"></image>
-					<view class="font-size32 margin-b10">{{ currentTask.requester.nickname }}</view>
-					<view class="font-size28 color-666 margin-b30 text-center">
-						{{ getPopupDesc(currentTask) }}
+			<view class="popup-card" v-if="currentTask">
+				<!-- Header -->
+				<view class="card-header">
+					<view class="user-info">
+						<image :src="currentTask.requester.avatar ? currentTask.requester.avatar : 'https://mp-182cf5aa-f083-45a9-8d28-e12bee639ce3.cdn.bspapp.com/appBgimgs/avatar_default.png'" class="card-avatar"></image>
+						<view class="user-details">
+							<text class="nickname">@{{ currentTask.requester.nickname }}</text>
+							<view class="profile-btn" @click="toUserHome(currentTask.requester._id)">
+								<uni-icons type="person-filled" size="12" color="#fff"></uni-icons>
+								<text class="btn-text">查看用户主页</text>
+							</view>
+						</view>
 					</view>
-					
+				</view>
+				
+				<!-- Content Bubble -->
+				<view class="content-bubble">
+					<text class="bubble-text">{{ getPopupDesc(currentTask) }}</text>
+				</view>
+				
+				<!-- Action Buttons -->
+				<view class="action-buttons">
 					<!-- msg_type 0: Agree / Reject -->
 					<block v-if="currentTask.msg_type === 0">
-						<button class="agree-btn" @click="handleTaskAction('agree')">同意请求</button>
-						<button class="reject-btn margin-t20" @click="handleTaskAction('reject')">拒绝请求</button>
+						<button class="action-btn reject" @click="handleTaskAction('reject')">
+                             <uni-icons type="closeempty" size="16" color="#fff"></uni-icons>
+                             拒绝
+                        </button>
+						<button class="action-btn accept" @click="handleTaskAction('agree')">
+                             <uni-icons type="checkmarkempty" size="16" color="#fff"></uni-icons>
+                             接受
+                        </button>
 					</block>
 
 					<!-- msg_type 1: Completed / Give Up -->
 					<block v-if="currentTask.msg_type === 1">
-						<button class="agree-btn" @click="handleTaskAction('complete')">已完成</button>
-						<button class="reject-btn margin-t20" @click="handleTaskAction('giveUp')">放弃任务</button>
+						<button class="action-btn reject" @click="handleTaskAction('giveUp')">
+                            <uni-icons type="closeempty" size="16" color="#fff"></uni-icons>
+                            放弃
+                        </button>
+						<button class="action-btn accept" @click="handleTaskAction('complete')">
+                            <uni-icons type="checkmarkempty" size="16" color="#fff"></uni-icons>
+                            完成
+                        </button>
 					</block>
 
 					<!-- msg_type 2: Confirm / Not Completed -->
 					<block v-if="currentTask.msg_type === 2">
-						<button class="agree-btn" @click="handleTaskAction('confirm')">确认完成</button>
-						<button class="reject-btn margin-t20" @click="handleTaskAction('deny')">任务未完成</button>
+						<button class="action-btn reject" @click="handleTaskAction('deny')">
+                            <uni-icons type="closeempty" size="16" color="#fff"></uni-icons>
+                            拒绝
+                        </button>
+						<button class="action-btn accept" @click="handleTaskAction('confirm')">
+                            <uni-icons type="checkmarkempty" size="16" color="#fff"></uni-icons>
+                            接受
+                        </button>
 					</block>
-
-					<button class="visit-btn margin-t20" @click="toUserHome(currentTask.requester._id)">查看主页</button>
-					<button class="visit-btn margin-t20" @click="viewTaskDetail(currentTask)">查看任务详情</button>
 				</view>
 			</view>
 		</uni-popup>
@@ -193,6 +218,13 @@
 		loadTabData(2)
 		// Initialize counts if needed
 		tabs.value[1].count = Number(getApp().globalData.comments || 0)
+
+		uni.$on('refreshTasks', () => {
+			taskPage.value = 0
+			taskList.value = []
+			taskTotal.value = true
+			loadMoreTasks()
+		})
 	})
 
 	onShow(() => {
@@ -310,8 +342,12 @@
             toUser = fromUserId
             dynamicStatus = -2 
         } else if (action === 'complete') {
-            newMsgType = 2
-            toUser = fromUserId 
+            // Navigate to complete task page
+            const taskId = task.relevance_id && task.relevance_id[0] ? task.relevance_id[0]._id : ''
+            const toUserId = fromUserId
+            closeTaskPopup()
+            toNextPage(`/pages/publish/complete-task?taskId=${taskId}&toUserId=${toUserId}`)
+            return // Stop further execution
         } else if (action === 'giveUp') {
             newMsgType = -2
             toUser = fromUserId
@@ -555,49 +591,102 @@
 	}
 
 	/* Popup Styles */
-	.popup-content {
+	.popup-card {
 		background-color: #fff;
-		width: 600rpx;
+		width: 640rpx;
 		border-radius: 24rpx;
-		padding: 40rpx;
+		padding: 30rpx;
 		overflow: hidden;
 	}
 
-	.popup-header {
+	.card-header {
+		margin-bottom: 30rpx;
+	}
+
+	.user-info {
+		display: flex;
+		align-items: center;
+	}
+
+	.card-avatar {
+		width: 100rpx;
+		height: 100rpx;
+		border-radius: 50%;
+		margin-right: 20rpx;
+		border: 2rpx solid #eee;
+	}
+
+	.user-details {
+		flex: 1;
+	}
+
+	.nickname {
+		font-size: 32rpx;
+		font-weight: bold;
+		color: #333;
+		display: block;
+		margin-bottom: 10rpx;
+	}
+
+	.profile-btn {
+		display: inline-flex;
+		align-items: center;
+		background-color: #3B82F6; /* Blue color */
+		padding: 8rpx 20rpx;
+		border-radius: 30rpx;
+		
+		.btn-text {
+			color: #fff;
+			font-size: 24rpx;
+			margin-left: 8rpx;
+		}
+	}
+
+	.content-bubble {
+		background-color: #F3F4F6;
+		padding: 30rpx;
+		border-radius: 20rpx;
+		border-top-left-radius: 4rpx; /* Bubble effect */
+		margin-bottom: 40rpx;
+		position: relative;
+	}
+
+	.bubble-text {
+		font-size: 30rpx;
+		color: #333;
+		line-height: 1.5;
+	}
+
+	.action-buttons {
 		display: flex;
 		justify-content: space-between;
+		gap: 20rpx;
+	}
+
+	.action-btn {
+		flex: 1;
+		height: 88rpx;
+		border-radius: 12rpx;
+		display: flex;
 		align-items: center;
-		margin-bottom: 40rpx;
-	}
-
-	.popup-avatar {
-		width: 120rpx;
-		height: 120rpx;
-		border-radius: 50%;
-		border: 4rpx solid #fff;
-		box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.1);
-	}
-
-	.agree-btn {
-		background-color: #afc272;
-		color: white;
-		border-radius: 40rpx;
-		width: 80%;
+		justify-content: center;
 		font-size: 30rpx;
+		font-weight: bold;
+		color: #fff;
 		border: none;
+		gap: 10rpx;
+		
+		&.reject {
+			background-color: #EF4444; /* Red */
+		}
+		
+		&.accept {
+			background-color: #3B82F6; /* Blue */
+		}
 		
 		&:active {
 			opacity: 0.9;
 		}
-	}
-	
-	.visit-btn {
-		background-color: #f5f5f5;
-		color: #666;
-		border-radius: 40rpx;
-		width: 80%;
-		font-size: 30rpx;
-		border: none;
 	}
 	
 	.flex-col {

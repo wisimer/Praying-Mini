@@ -61,6 +61,13 @@
 				"navigationBarTitleText": "发布任务",
 				"navigationStyle": "custom"
 			}
+		},
+		{
+			"path": "pages/publish/complete-task",
+			"style": {
+				"navigationBarTitleText": "提交完成结果",
+				"navigationStyle": "custom"
+			}
 		}
 		// {
 		// 	"path": "uni_modules/uni-id-pages/pages/login/login-withoutpwd",
