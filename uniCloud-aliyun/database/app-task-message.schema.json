@@ -41,8 +41,9 @@
       "defaultValue": 0
     },
     "state": {
-      "bsonType": "int",
-      "defaultValue": 0
+      "bsonType": "boolean",
+      "description": "消息是否已处理",
+      "defaultValue": false
     },
     "request_date": {
       "bsonType": "timestamp",

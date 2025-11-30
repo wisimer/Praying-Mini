@@ -326,6 +326,15 @@
 	}
 
 	const openTaskPopup = (item) => {
+        const task = item.task || {}
+        const status = task.article_status !== undefined ? task.article_status : 0
+        const msgType = item.msg_type !== undefined ? item.msg_type : 0
+
+        if (Math.abs(status) > Math.abs(msgType) + 1) {
+            showToast('该消息已处理，不可重复处理')
+            return
+        }
+
 		currentTask.value = item
 		taskPopup.value.open()
 	}
