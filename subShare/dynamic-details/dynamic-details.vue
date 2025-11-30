@@ -1,55 +1,102 @@
 <template>
-	<view>
-		<cuNavbar>
-			<template #content>
-				<view class="font-size36 color-352926 font-weight">详情</view>
-			</template>
+	<view class="detail-container">
+		<cuNavbar :bgColor="'transparent'" :isBack="true">
 		</cuNavbar>
 
-		<view class="padding30">
-			<DynamicCard :user-info="userInfo" :dynamicDetail="dynamicDetail"></DynamicCard>
-		</view>
+    <!-- Header Image -->
+    <view class="header-image-box">
+      <image 
+        mode="aspectFill" 
+        :src="dynamicDetail.imgs && dynamicDetail.imgs.length > 0 ? dynamicDetail.imgs[0] : 'https://mp-182cf5aa-f083-45a9-8d28-e12bee639ce3.cdn.bspapp.com/appBgimgs/share.png'" 
+        class="header-image"
+      ></image>
+    </view>
 
-		<view class=" padding30 bg-FFFFFF">
-			<view class="padding-b30 border-bottom margin-b30 flex justify-between align-center">
-				<view class="color-352926 font-size30 font-weight">评论</view>
-        <view class="flex align-center">
-          <view class="margin-r20 font-size24 color-8C8888" v-if="dynamicDetail.like_count">{{ dynamicDetail.like_count }}</view>
-          <uni-icons type="heart" color="#949494" size="20" @click="like" v-if="!isLike"></uni-icons>
-          <uni-icons type="heart-filled" color="red" size="20" @click="remove" v-else></uni-icons>
+    <view class="content-wrapper">
+      <!-- User Info -->
+      <view class="user-info-section" @click="toNextPage(`/subHome/personal/personal?user_id=${userInfo._id}`)">
+        <image class="user-avatar" :src="userInfo?.avatar_file ? userInfo.avatar_file.url : BASE_URL_AVATAR"></image>
+        <view class="user-name">{{ userInfo.nickname }}</view>
+      </view>
+
+      <!-- Task Content -->
+      <view class="task-content">
+        <text selectable user-select>{{ dynamicDetail.content }}</text>
+      </view>
+
+      <!-- Task Info -->
+      <view class="task-info-card" v-if="dynamicDetail.sort >= 11 && dynamicDetail.sort <= 14">
+        <view class="info-header">任务信息</view>
+        
+        <view class="info-row">
+          <view class="label">任务状态</view>
+          <view class="status-tag" :class="`status-${dynamicDetail.article_status || 0}`">
+            {{ getStatusText(dynamicDetail.article_status) }}
+          </view>
         </view>
-			</view>
-			<CommentList :list="comments" @recover="recover"></CommentList>
-			<Empty title="暂无评论~" v-if="comments.length === 0"></Empty>
-		</view>
+        
+        <view class="info-row">
+          <view class="label">悬赏金额</view>
+          <view class="price-display">
+            <text class="currency">¥</text>
+            <text class="amount">{{ (dynamicDetail.price / 100).toFixed(2) }}</text>
+          </view>
+        </view>
+        
+        <view class="info-row" v-if="dynamicDetail.deadline_date">
+          <view class="label">截止日期</view>
+          <view class="value">{{ formatDate(dynamicDetail.deadline_date, 'YYYY-MM-DD hh:mm') }}</view>
+        </view>
 
-    <!-- Task Details Section -->
-    <view class="padding30 bg-FFFFFF margin-t20" v-if="dynamicDetail.sort >= 11 && dynamicDetail.sort <= 14">
-      <view class="font-size30 font-weight margin-b20">任务信息</view>
-      
-      <view class="flex justify-between margin-b20">
-        <view class="color-8C8888 font-size26">任务状态</view>
-        <view class="status-tag" :class="`status-${dynamicDetail.article_status || 0}`">
-          {{ getStatusText(dynamicDetail.article_status) }}
+        <view class="info-row" v-if="dynamicDetail.publish_date">
+          <view class="label">发布日期</view>
+          <view class="value">{{ formatDate(dynamicDetail.publish_date, 'YYYY-MM-DD hh:mm') }}</view>
+        </view>
+
+        <!-- Action Buttons -->
+        <view class="action-buttons">
+          <view class="action-btn outline" :class="{ active: isLike }" @click="toggleLike">
+            <uni-icons :type="isLike ? 'heart-filled' : 'heart'" :color="isLike ? '#ff0000' : '#333'" size="18"></uni-icons>
+            <text>{{ isLike ? '已收藏' : '收藏' }}</text>
+          </view>
+          
+          <view class="action-btn primary" @click="handleAccept">
+            <text>接单</text>
+          </view>
+          
+          <view class="action-btn outline" @click="openShare">
+            <uni-icons type="redo" color="#333" size="18"></uni-icons>
+            <text>分享</text>
+          </view>
         </view>
       </view>
-      
-      <view class="flex justify-between margin-b20">
-        <view class="color-8C8888 font-size26">悬赏金额</view>
-        <view class="price-display">
-          <text class="currency">¥</text>
-          <text class="amount">{{ (dynamicDetail.price / 100).toFixed(2) }}</text>
-        </view>
-      </view>
-      
-      <view class="flex justify-between margin-b20" v-if="dynamicDetail.deadline_date">
-        <view class="color-8C8888 font-size26">截止日期</view>
-        <view class="font-size26">{{ formatDate(dynamicDetail.deadline_date, 'YYYY-MM-DD hh:mm') }}</view>
+
+      <!-- Comments Section -->
+      <view class="comments-section">
+        <view class="section-title">评论列表</view>
+        <CommentList :list="comments" @recover="recover"></CommentList>
+        <Empty title="暂无评论~" v-if="comments.length === 0"></Empty>
       </view>
     </view>
 
-		<ButtonComment @send="send" :placeholder="placeholder" @clearMsg="clearMsg"></ButtonComment>
+    <!-- Bottom Input Bar -->
+    <view class="bottom-bar">
+      <view class="input-box">
+        <textarea 
+          :value="inputContent"
+          @input="onInput"
+          :placeholder="placeholder" 
+          class="comment-input" 
+          auto-height 
+          :maxlength="200"
+          :cursor-spacing="20"
+          :show-confirm-bar="false"
+        ></textarea>
+      </view>
+      <view class="send-btn" :class="{ disabled: !inputContent.trim() }" @click="handleSend">发送</view>
+    </view>
     
+    <!-- Share Popup -->
     <uni-popup ref="sharePopup" type="bottom">
       <view class="share-popup bg-FFFFFF">
         <view class="padding30 text-center font-size32 font-weight">分享任务</view>
@@ -70,8 +117,6 @@
         <view class="padding30 text-center border-top" @click="$refs.sharePopup.close()">取消</view>
       </view>
     </uni-popup>
-
-    <FixedButton title="分享" @trigger="openShare"></FixedButton>
 	</view>
 </template>
 
@@ -79,17 +124,14 @@
 	import { reactive, ref } from 'vue';
 	import { onLoad, onShareAppMessage } from '@dcloudio/uni-app'
 	import { store } from '@/uni_modules/uni-id-pages/common/store'
-	import { showToast, showLoading } from '@/core/app.js'
+	import { showToast, showLoading, toNextPage } from '@/core/app.js'
 	import { getDynamicListDelAggregate, setLike, removeLike, getLikeDel } from '@/cloud-api/dynamic.js'
 	import { getCommentsList, addComments } from '@/cloud-api/index.js'
 	import { arrayToTree } from '@/utils/tool.js'
   import { formatDate } from '@/utils/date.js'
 	import CommentList from '@/components/comment-list/index.vue'
-	import ButtonComment from '@/components/Button-comment/index.vue'
-	import DynamicCard from '@/components/Dynamic-card/index.vue'
 	import cuNavbar from '@/components/cu-navbar/cu-navbar.vue'
 	import Empty from '@/components/Empty/index.vue'
-  import FixedButton from '@/components/Fixed-button/index.vue'
 	import { BASE_URL_AVATAR } from '@/core/config.js'
 
 	const reply = ref({})
@@ -100,6 +142,7 @@
 	const comments = ref([])
 	const isLike = ref(false)
   const sharePopup = ref(null)
+  const inputContent = ref('')
 
   const getStatusText = (status) => {
     const statusMap = {
@@ -118,6 +161,29 @@
     showToast('海报生成功能开发中')
     sharePopup.value.close()
   }
+
+  const toggleLike = () => {
+    if (isLike.value) {
+      remove()
+    } else {
+      like()
+    }
+  }
+
+  const handleAccept = () => {
+    inputContent.value = "我要接单"
+    handleSend()
+  }
+
+  const onInput = (e) => {
+    inputContent.value = e.detail.value
+  }
+
+  const handleSend = () => {
+    if (!inputContent.value.trim()) return
+    send(inputContent.value)
+    inputContent.value = ''
+  }
   
   onShareAppMessage(() => {
     return {
@@ -128,10 +194,8 @@
   })
 
 	const recover = (item) => {
-
 		reply.value = item
 		placeholder.value = `回复:${item.user_id[0].nickname}`
-		console.log()
 	}
 
 	const clearMsg = () => {
@@ -178,6 +242,7 @@
 					} else {
 						comments.value.push(new_comments)
 					}
+          clearMsg()
 				}).finally(() => {
 					uni.hideLoading()
 				})
@@ -223,6 +288,7 @@
 			} else {
 				comments.value.push(new_comments)
 			}
+      clearMsg()
 		}).catch(err => {
 			showToast('请先登录,再发表评论')
 		}).finally(() => {
@@ -235,6 +301,7 @@
 		showLoading()
 		setLike(relevance_id.value).then(res => {
 			isLike.value = true
+      dynamicDetail.value.like_count = (dynamicDetail.value.like_count || 0) + 1
 		}).finally(() => {
 			uni.hideLoading()
 		})
@@ -244,6 +311,7 @@
 		showLoading()
 		removeLike(relevance_id.value).then(res => {
 			isLike.value = false
+      dynamicDetail.value.like_count = Math.max(0, (dynamicDetail.value.like_count || 0) - 1)
 		}).finally(() => {
 			uni.hideLoading()
 		})
@@ -277,6 +345,213 @@
 </script>
 
 <style lang="scss" scoped>
+  .detail-container {
+    min-height: 100vh;
+    background-color: #f8f9fa;
+    padding-bottom: 120rpx;
+  }
+
+  .header-image-box {
+    width: 100%;
+    aspect-ratio: 16/9;
+    overflow: hidden;
+    
+    .header-image {
+      width: 100%;
+      height: 100%;
+      background-color: #eee;
+    }
+  }
+
+  .content-wrapper {
+    position: relative;
+    margin-top: -40rpx;
+    background-color: #fff;
+    border-radius: 40rpx 40rpx 0 0;
+    padding: 0 30rpx;
+    min-height: 500rpx;
+    z-index: 1;
+  }
+
+  .user-info-section {
+    position: relative;
+    top: -40rpx;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: -20rpx;
+
+    .user-avatar {
+      width: 160rpx;
+      height: 160rpx;
+      border-radius: 50%;
+      border: 6rpx solid #fff;
+      background-color: #fff;
+      box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.1);
+    }
+
+    .user-name {
+      font-size: 36rpx;
+      font-weight: bold;
+      color: #333;
+      margin-top: 16rpx;
+    }
+  }
+
+  .task-content {
+    font-size: 30rpx;
+    color: #333;
+    line-height: 1.6;
+    margin-bottom: 40rpx;
+    white-space: pre-wrap;
+    padding: 0 10rpx;
+  }
+
+  .task-info-card {
+    background-color: #fff;
+    border-radius: 24rpx;
+    padding: 30rpx;
+    box-shadow: 0 2rpx 20rpx rgba(0,0,0,0.03);
+    margin-bottom: 40rpx;
+    border: 1px solid #f0f0f0;
+
+    .info-header {
+      font-size: 32rpx;
+      font-weight: bold;
+      margin-bottom: 30rpx;
+      padding-left: 20rpx;
+      border-left: 8rpx solid #FFD563;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24rpx;
+      padding-bottom: 24rpx;
+      border-bottom: 1px dashed #f0f0f0;
+      
+      &:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+      }
+
+      .label {
+        font-size: 28rpx;
+        color: #666;
+      }
+
+      .value {
+        font-size: 28rpx;
+        color: #333;
+      }
+    }
+  }
+
+  .action-buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 20rpx;
+    margin-top: 40rpx;
+
+    .action-btn {
+      flex: 1;
+      height: 80rpx;
+      border-radius: 12rpx;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28rpx;
+      gap: 8rpx;
+      transition: all 0.2s;
+
+      &:active {
+        opacity: 0.8;
+        transform: scale(0.98);
+      }
+
+      &.primary {
+        background-color: #333;
+        color: #fff;
+        font-weight: 500;
+      }
+
+      &.outline {
+        background-color: #fff;
+        border: 1px solid #ddd;
+        color: #333;
+
+        &.active {
+          border-color: #ff0000;
+          color: #ff0000;
+          background-color: #fff0f0;
+        }
+      }
+    }
+  }
+
+  .comments-section {
+    margin-top: 40rpx;
+    
+    .section-title {
+      font-size: 32rpx;
+      font-weight: bold;
+      margin-bottom: 20rpx;
+      padding-left: 10rpx;
+    }
+  }
+
+  .bottom-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #fff;
+    padding: 20rpx 30rpx;
+    padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
+    box-shadow: 0 -2rpx 10rpx rgba(0,0,0,0.05);
+    display: flex;
+    align-items: flex-end;
+    gap: 20rpx;
+    z-index: 100;
+
+    .input-box {
+      flex: 1;
+      background-color: #f5f5f5;
+      border-radius: 40rpx;
+      padding: 20rpx 30rpx;
+      min-height: 80rpx;
+      display: flex;
+      align-items: center;
+
+      .comment-input {
+        width: 100%;
+        font-size: 28rpx;
+        line-height: 1.4;
+        max-height: 200rpx;
+      }
+    }
+
+    .send-btn {
+      width: 120rpx;
+      height: 80rpx;
+      background-color: #333;
+      color: #fff;
+      border-radius: 40rpx;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28rpx;
+      font-weight: 500;
+      transition: all 0.3s;
+
+      &.disabled {
+        background-color: #ccc;
+        color: #fff;
+      }
+    }
+  }
+
   .price-display {
     color: #FF6B81;
     font-weight: bold;
@@ -288,12 +563,12 @@
   }
   
   .amount {
-    font-size: 32rpx;
+    font-size: 40rpx;
   }
   
   .status-tag {
-    font-size: 22rpx;
-    padding: 4rpx 12rpx;
+    font-size: 24rpx;
+    padding: 6rpx 16rpx;
     border-radius: 8rpx;
   }
   
