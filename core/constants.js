@@ -25,3 +25,9 @@ export const ARTICLE_STATUS = {
   PLATFORM_PASS_SETTLED: 5, // 平台三方审核通过，结算完毕
   PLATFORM_FAIL: -5 // 平台三方审核不通过
 }
+
+// Category IDs
+export const CATEGORY_ID = {
+    WISH: '0',
+    TASK: '1'
+}

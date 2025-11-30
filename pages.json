@@ -75,7 +75,37 @@
 				"navigationBarTitleText": "任务完成确认",
 				"navigationStyle": "custom"
 			}
-		}
+		},
+        {
+            "path": "pages/wode/wish-list/wish-list",
+            "style": {
+                "navigationBarTitleText": "我的愿望列表"
+            }
+        },
+        {
+            "path": "pages/wode/task-published/task-published",
+            "style": {
+                "navigationBarTitleText": "我发布的任务"
+            }
+        },
+        {
+            "path": "pages/wode/task-accepted/task-accepted",
+            "style": {
+                "navigationBarTitleText": "我接的任务"
+            }
+        },
+        {
+            "path": "pages/wode/recharge/recharge",
+            "style": {
+                "navigationBarTitleText": "充值金币"
+            }
+        },
+        {
+            "path": "pages/wode/about/about",
+            "style": {
+                "navigationBarTitleText": "关于"
+            }
+        }
 		// {
 		// 	"path": "uni_modules/uni-id-pages/pages/login/login-withoutpwd",
 		// 	"style": {
