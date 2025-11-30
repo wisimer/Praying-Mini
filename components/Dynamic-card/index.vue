@@ -9,7 +9,7 @@
 					{{userInfo.nickname}}
 				</view>
 				<view class="d-title">
-					{{userInfo.player? userInfo.player[0].achievement_id[0].name:''}}
+					<!-- {{userInfo.player? userInfo.player[0].achievement_id[0].name:''}} -->
 				</view>
 			</view>
       <view class="marginlauto" v-if="dynamicDetail.sort >= 11 && dynamicDetail.sort <= 14">
