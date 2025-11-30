@@ -337,8 +337,7 @@
                 relevance_id: taskId,
                 from_user_id: store.userInfo._id,
                 to_user_id: toUser,
-                msg_type: newMsgType,
-                request_date: Date.now()
+                msg_type: newMsgType
             })
             
             showToast('操作成功')
