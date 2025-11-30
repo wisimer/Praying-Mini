@@ -12,10 +12,22 @@
 					{{userInfo.player? userInfo.player[0].achievement_id[0].name:''}}
 				</view>
 			</view>
+      <view class="marginlauto" v-if="dynamicDetail.sort >= 11 && dynamicDetail.sort <= 14">
+        <view class="status-tag" :class="`status-${dynamicDetail.article_status || 0}`">
+          {{ getStatusText(dynamicDetail.article_status) }}
+        </view>
+      </view>
 		</view>
 		<view @click="isTo">
 			<view class="font-size30 d-dec">
 				<view class="">{{dynamicDetail.content}}</view>
+        
+        <!-- Price display for tasks -->
+        <view v-if="dynamicDetail.price" class="price-display margin-t10">
+          <text class="currency">¥</text>
+          <text class="amount">{{ (dynamicDetail.price / 100).toFixed(2) }}</text>
+        </view>
+
 				<view class="img-box">
 					<image mode="aspectFill" :src="`${img}?x-oss-process=image/resize,p_40`" class="remark-img margin-t20"
 						v-for="(img,index) in dynamicDetail.imgs" :key="index" @click.stop="showPic(img)">
@@ -65,6 +77,15 @@
 		}
 	})
 
+  const getStatusText = (status) => {
+    const statusMap = {
+      0: '待接单',
+      1: '进行中',
+      2: '已完成'
+    }
+    return statusMap[status] || '待接单'
+  }
+
 	const isTo = () => {
 		if (porp.isDetails) {
 			toNextPage(
@@ -105,6 +126,44 @@
 		font-size: 22rpx;
 		color: #AFC272;
 	}
+  
+  .price-display {
+    color: #FF6B81;
+    font-weight: bold;
+  }
+  
+  .currency {
+    font-size: 24rpx;
+    margin-right: 4rpx;
+  }
+  
+  .amount {
+    font-size: 32rpx;
+  }
+  
+  .status-tag {
+    font-size: 22rpx;
+    padding: 4rpx 12rpx;
+    border-radius: 8rpx;
+  }
+  
+  .status-0 {
+    color: #1890FF;
+    background-color: #E6F7FF;
+    border: 1px solid #91D5FF;
+  }
+  
+  .status-1 {
+    color: #FAAD14;
+    background-color: #FFFBE6;
+    border: 1px solid #FFE58F;
+  }
+  
+  .status-2 {
+    color: #52C41A;
+    background-color: #F6FFED;
+    border: 1px solid #B7EB8F;
+  }
 
 	.follow {
 		width: 134rpx;

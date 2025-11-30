@@ -98,7 +98,7 @@ const typeIndex = ref(-1)
 const taskContent = ref('')
 const imageList = ref([])
 const deadline = ref('')
-const price = ref('')
+const price = ref('1')
 const isLoading = ref(false)
 
 const startDate = computed(() => {
@@ -182,7 +182,7 @@ const handlePublish = async () => {
   }
 
   // Price validation
-  if (!price.value || !/^\d+$/.test(price.value) || parseInt(price.value) <= 0) {
+  if (!price.value || !/^\d+$/.test(price.value) || parseInt(price.value) < 0) {
     return showToast('请输入正整数金额')
   }
 

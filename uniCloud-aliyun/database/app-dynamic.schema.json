@@ -36,7 +36,7 @@
     "article_status": {
       "bsonType": "int",
       "title": "文章状态",
-      "description": "文章状态：0 审核中 1 已发布 2 审核驳回",
+      "description": "文章状态：0 审核中 1 已发布 -1 审核驳回 ； 2 任务已接单（进行中） ；3 任务已完成 ；4 任务已失效",
       "defaultValue": 0,
       "enum": [
         {
@@ -48,8 +48,20 @@
           "text": "已发布"
         },
         {
-          "value": 2,
+          "value": -1,
           "text": "审核驳回"
+        },
+        {
+          "value": 2,
+          "text": "任务已接单（进行中"
+        },
+        {
+          "value": 3,
+          "text": "任务已完成"
+        },
+        {
+          "value": 4,
+          "text": "任务已失效"
         }
       ]
     },
