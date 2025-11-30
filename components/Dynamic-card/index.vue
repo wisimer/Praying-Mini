@@ -2,7 +2,7 @@
 	<view class="dynamic-card">
 		<view class="flex align-center">
 			<view class="flex align-center" @click.stop="toNextPage(`/subHome/personal/personal?user_id=${userInfo._id}`)">
-				<image class="d-avatar" :src="userInfo?.avatar_file ? userInfo.avatar_file.url : BASE_URL_AVATAR">
+				<image class="d-avatar" :src="userInfo?.avatar ? userInfo.avatar : BASE_URL_AVATAR">
 				</image>
 
 				<view class="font-size28 color-8C8888 margin-r20">

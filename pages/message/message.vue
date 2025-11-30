@@ -30,14 +30,14 @@
 					<view class="padding32">
 						<view class="task-item margin-b24" v-for="item in taskList" :key="item._id" @click="openTaskPopup(item)">
 							<view class="flex align-center">
-								<image :src="item.requester.avatar" class="avatar-small"></image>
+								<image :src="item.requester.avatar ? item.requester.avatar : 'https://mp-182cf5aa-f083-45a9-8d28-e12bee639ce3.cdn.bspapp.com/appBgimgs/avatar_default.png'" class="avatar-small"></image>
 								<view class="flex-1 margin-l20">
-									<view class="font-size30 font-weight">{{ item.task_name }}</view>
+									<view class="font-size30 font-weight text-cut" style="max-width: 400rpx;">{{ item.task_name }}</view>
 									<view class="font-size24 color-8C8888 margin-t10">
-										请求者: {{ item.requester.nickname }}
+										{{ getMsgTypeDesc(item.msg_type) }} - {{ item.requester.nickname }}
 									</view>
 								</view>
-								<view class="status-tag">待处理</view>
+								<view class="status-tag">{{ getStatusText(item.msg_type) }}</view>
 							</view>
 						</view>
 						<Empty v-if="taskList.length === 0 && !loadingTasks" description="暂无任务消息"></Empty>
@@ -51,7 +51,7 @@
 					<view class="padding32">
 						<view class="c-card margin-b24" v-for="item in commentList" :key="item._id">
 							<view class="flex align-center">
-								<image :src="item.user_id[0].avatar_file.url" class="d-avatar"></image>
+								<image :src="item.user_id[0].avatar" class="d-avatar"></image>
 								<view class="">
 									<view class="font-size28 margin-b12">{{item.user_id[0].nickname}}</view>
 									<view class="font-size24 color-8C8888">{{item.comment_type === 1 ? '评论了你的动态' : '回复了你的评论'}}</view>
@@ -104,14 +104,32 @@
 					<uni-icons type="closeempty" size="24" @click="closeTaskPopup" color="#999"></uni-icons>
 				</view>
 				<view class="popup-body flex-col align-center" v-if="currentTask">
-					<image :src="currentTask.requester.avatar" class="popup-avatar margin-b20" @click="toUserHome(currentTask.requester._id)"></image>
+					<image :src="currentTask.requester.avatar ? currentTask.requester.avatar : 'https://mp-182cf5aa-f083-45a9-8d28-e12bee639ce3.cdn.bspapp.com/appBgimgs/avatar_default.png'" class="popup-avatar margin-b20" @click="toUserHome(currentTask.requester._id)"></image>
 					<view class="font-size32 margin-b10">{{ currentTask.requester.nickname }}</view>
 					<view class="font-size28 color-666 margin-b30 text-center">
-						请求与您共同完成任务：{{ currentTask.task_name }}
+						{{ getPopupDesc(currentTask) }}
 					</view>
 					
-					<button class="agree-btn" @click="agreeTask(currentTask)">同意请求</button>
+					<!-- msg_type 0: Agree / Reject -->
+					<block v-if="currentTask.msg_type === 0">
+						<button class="agree-btn" @click="handleTaskAction('agree')">同意请求</button>
+						<button class="reject-btn margin-t20" @click="handleTaskAction('reject')">拒绝请求</button>
+					</block>
+
+					<!-- msg_type 1: Completed / Give Up -->
+					<block v-if="currentTask.msg_type === 1">
+						<button class="agree-btn" @click="handleTaskAction('complete')">已完成</button>
+						<button class="reject-btn margin-t20" @click="handleTaskAction('giveUp')">放弃任务</button>
+					</block>
+
+					<!-- msg_type 2: Confirm / Not Completed -->
+					<block v-if="currentTask.msg_type === 2">
+						<button class="agree-btn" @click="handleTaskAction('confirm')">确认完成</button>
+						<button class="reject-btn margin-t20" @click="handleTaskAction('deny')">任务未完成</button>
+					</block>
+
 					<button class="visit-btn margin-t20" @click="toUserHome(currentTask.requester._id)">查看主页</button>
+					<button class="visit-btn margin-t20" @click="viewTaskDetail(currentTask)">查看任务详情</button>
 				</view>
 			</view>
 		</uni-popup>
@@ -122,9 +140,10 @@
 <script setup>
 	import { ref, onMounted, computed } from 'vue'
 	import { onLoad, onShow } from '@dcloudio/uni-app'
+	import { store } from '@/uni_modules/uni-id-pages/common/store'
 	import { getMyComments, updateCommentsState } from '@/cloud-api/index.js'
 	import { getLikes } from '@/cloud-api/dynamic.js'
-	import { showLoading, toNextPage } from '@/core/app.js'
+	import { showLoading, showToast, toNextPage } from '@/core/app.js'
 	import { formatDate } from '@/utils/date.js'
 	import Empty from '@/components/Empty/index.vue'
 	import DynamicCard from '@/components/Dynamic-card/index.vue'
@@ -187,42 +206,73 @@
 		if (index === 2 && likeList.value.length === 0) loadMoreLikes()
 	}
 
-	// --- Task Logic (Mocked) ---
+	// --- Task Logic ---
+    const getMsgTypeDesc = (type) => {
+        const map = {
+            0: '发起任务请求',
+            1: '任务进行中',
+            2: '任务完成待确认',
+            3: '任务已完成',
+            '-1': '请求已拒绝',
+            '-2': '任务已放弃',
+            '-3': '任务未认可'
+        }
+        return map[type] || '未知状态'
+    }
+
+    const getStatusText = (type) => {
+        if(type === 0) return '待处理'
+        if(type === 1) return '进行中'
+        if(type === 2) return '待确认'
+        if(type === 3) return '已完成'
+        return '已结束'
+    }
+
+    const getPopupDesc = (task) => {
+        if(task.msg_type === 0) return `请求与您共同完成任务：${task.task_name}`
+        if(task.msg_type === 1) return `任务正在进行中：${task.task_name}`
+        if(task.msg_type === 2) return `对方标记任务已完成，请确认：${task.task_name}`
+        return `任务状态变更：${task.task_name}`
+    }
+
+    const viewTaskDetail = (task) => {
+        if(task.relevance_id && task.relevance_id[0]) {
+            toNextPage(`/subShare/dynamic-details/dynamic-details?id=${task.relevance_id[0]._id}`)
+        }
+    }
+
 	const loadMoreTasks = async () => {
 		if (!taskTotal.value || loadingTasks.value) return
 		loadingTasks.value = true
 		
-		// Mock API call
-		setTimeout(() => {
-			// Mock Data
-			const newTasks = []
-			if (taskPage.value === 0) {
-				newTasks.push({
-					_id: 't1',
-					task_name: '每日喂食',
-					requester: {
-						_id: 'u1',
-						nickname: '小王',
-						avatar: 'https://mp-182cf5aa-f083-45a9-8d28-e12bee639ce3.cdn.bspapp.com/appBgimgs/avatar_default.png'
-					},
-					status: 0
-				}, {
-					_id: 't2',
-					task_name: '陪玩半小时',
-					requester: {
-						_id: 'u2',
-						nickname: '李四',
-						avatar: 'https://mp-182cf5aa-f083-45a9-8d28-e12bee639ce3.cdn.bspapp.com/appBgimgs/avatar_default.png'
-					},
-					status: 0
-				})
-			}
+        const db = uniCloud.database()
+        const taskMsg = db.collection('app-task-message').where(`to_user_id == $cloudEnv_uid`).getTemp()
+        const users = db.collection('uni-id-users').field('_id,nickname,avatar').getTemp()
+        const dynamics = db.collection('app-dynamic').field('_id,content,price,article_status').getTemp()
+
+        try {
+            const res = await db.collection(taskMsg, users, dynamics)
+                .orderBy('request_date', 'desc')
+                .skip(taskPage.value * 10)
+                .limit(10)
+                .get()
+
+            const newTasks = res.result.data.map(item => ({
+                ...item,
+                requester: item.from_user_id && item.from_user_id[0] ? item.from_user_id[0] : {},
+                task: item.relevance_id && item.relevance_id[0] ? item.relevance_id[0] : {},
+                task_name: item.relevance_id && item.relevance_id[0] ? item.relevance_id[0].content : '未知任务'
+            }))
 			
 			taskList.value = [...taskList.value, ...newTasks]
 			if (newTasks.length < 10) taskTotal.value = false
 			taskPage.value++
-			loadingTasks.value = false
-		}, 500)
+        } catch (e) {
+            console.error(e)
+            // showToast('获取任务列表失败')
+        } finally {
+            loadingTasks.value = false
+        }
 	}
 
 	const openTaskPopup = (item) => {
@@ -234,22 +284,83 @@
 		taskPopup.value.close()
 	}
 
-	const agreeTask = (item) => {
-		uni.showToast({ title: '已同意', icon: 'success' })
-		closeTaskPopup()
-		// Logic to remove task or update status
-	}
+    const handleTaskAction = async (action) => {
+        if(!currentTask.value) return
+        
+        const db = uniCloud.database()
+        const task = currentTask.value
+        const taskId = task.relevance_id && task.relevance_id[0] ? task.relevance_id[0]._id : ''
+        const fromUserId = task.from_user_id && task.from_user_id[0] ? task.from_user_id[0]._id : ''
+
+        if (!fromUserId) {
+            showToast('无法获取对应用户信息')
+            return
+        }
+
+        let newMsgType = 0
+        let toUser = ''
+        let dynamicStatus = null
+
+        if (action === 'agree') {
+            newMsgType = 1
+            toUser = fromUserId
+            dynamicStatus = 2 
+        } else if (action === 'reject') {
+            newMsgType = -1
+            toUser = fromUserId
+            dynamicStatus = -2 
+        } else if (action === 'complete') {
+            newMsgType = 2
+            toUser = fromUserId 
+        } else if (action === 'giveUp') {
+            newMsgType = -2
+            toUser = fromUserId
+        } else if (action === 'confirm') {
+            newMsgType = 3
+            toUser = fromUserId
+        } else if (action === 'deny') {
+            newMsgType = -3
+            toUser = fromUserId
+        }
+
+        showLoading()
+        try {
+            // Update dynamic status if needed
+            if (dynamicStatus !== null && taskId) {
+                 await db.collection('app-dynamic').doc(taskId).update({
+                     article_status: dynamicStatus
+                 })
+            }
+
+            // Insert new message
+            await db.collection('app-task-message').add({
+                relevance_id: taskId,
+                from_user_id: store.userInfo._id,
+                to_user_id: toUser,
+                msg_type: newMsgType,
+                request_date: Date.now()
+            })
+            
+            showToast('操作成功')
+            closeTaskPopup()
+            // Refresh list
+            taskPage.value = 0
+            taskList.value = []
+            taskTotal.value = true
+            loadMoreTasks()
+
+        } catch (e) {
+            console.error(e)
+            showToast('操作失败')
+        } finally {
+            uni.hideLoading()
+        }
+    }
 
 	const toUserHome = (userId) => {
-		// Navigate to user home
-		// Assuming there is a user home page, e.g., /subHome/personal/personal?id=...
-		// Since I don't know the exact path, I'll use a generic one or log it.
-		// Based on previous file reads: /subHome/personal/personal seems likely.
-		// Let's verify userList click in old code: toNextPage(`/subHome/chat-room/chat-room...`)
-		// But for user profile, maybe /subWode/wode? Or /subHome/personal/personal
-		// I'll assume /subHome/personal/personal for now if it exists, or just show toast.
-		uni.showToast({ title: '跳转主页: ' + userId, icon: 'none' })
-		// toNextPage(`/subHome/personal/personal?id=${userId}`)
+        if(userId) {
+		    toNextPage(`/subHome/personal/personal?user_id=${userId}`)
+        }
 	}
 
 

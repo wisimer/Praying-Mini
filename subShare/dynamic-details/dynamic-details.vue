@@ -170,9 +170,33 @@
     }
   }
 
-  const handleAccept = () => {
-    inputContent.value = "我要接单"
-    handleSend()
+  const handleAccept = async () => {
+    if (!store.hasLogin) {
+      showToast('请先登录')
+      return
+    }
+    // Check if current user is the author
+    if (userInfo.value._id === store.userInfo._id) {
+      showToast('不能接自己的单哦')
+      return
+    }
+
+    showLoading()
+    const db = uniCloud.database()
+    try {
+      await db.collection('app-task-message').add({
+        relevance_id: dynamicDetail.value._id,
+        to_user_id: userInfo.value._id,
+        from_user_id: store.userInfo._id,
+        msg_type: 0
+      })
+      showToast('请求已发送')
+    } catch (e) {
+      console.error(e)
+      showToast('请求发送失败')
+    } finally {
+      uni.hideLoading()
+    }
   }
 
   const onInput = (e) => {

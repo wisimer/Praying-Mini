@@ -1,0 +1,56 @@
+{
+  "bsonType": "object",
+  "required": [
+    "from_user_id",
+    "to_user_id",
+    "relevance_id",
+    "msg_type",
+    "state"
+  ],
+  "permission": {
+    "read": true,
+    "create": "auth.uid != null",
+    "update": "auth.uid != null",
+    "delete": "doc.from_user_id == auth.uid"
+  },
+  "properties": {
+    "_id": {
+      "description": "存储文档 ID（文章 ID），系统自动生成"
+    },
+    "relevance_id": {
+      "bsonType": "string",
+      "description": "原始任务id",
+      "foreignKey": "app-dynamic._id"
+    },
+    "from_user_id": {
+      "bsonType": "string",
+      "description": "消息发出者",
+      "foreignKey": "uni-id-users._id",
+      "forceDefaultValue": {
+        "$env": "uid"
+      }
+    },
+    "to_user_id": {
+      "bsonType": "string",
+      "description": "消息接收者",
+      "foreignKey": "uni-id-users._id"
+    },
+    "msg_type": {
+      "bsonType": "int",
+      "description": "0 发起请求； 1 同意请求 ； -1 拒绝请求 ； 2 完成通知 ；-2 未完成通过 ；  3 确认完成通知 ；-3 确认未完成通知 ； 4 平台三方审核通过，结算通知 ； -4 平台三方审核未通过，通知",
+      "defaultValue": 0
+    },
+    "state": {
+      "bsonType": "int",
+      "defaultValue": 0
+    },
+    "request_date": {
+      "bsonType": "timestamp",
+      "description": "请求发起时间",
+      "forceDefaultValue": {
+        "$env": "now"
+      }
+    }
+  },
+  "version": "0.0.1"
+}
