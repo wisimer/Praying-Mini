@@ -139,7 +139,7 @@
 
 <script setup>
 	import { ref, onMounted, computed } from 'vue'
-	import { onLoad, onShow } from '@dcloudio/uni-app'
+	import { onLoad, onShow, onPullDownRefresh } from '@dcloudio/uni-app'
 	import { store } from '@/uni_modules/uni-id-pages/common/store'
 	import { getMyComments, updateCommentsState } from '@/cloud-api/index.js'
 	import { getLikes } from '@/cloud-api/dynamic.js'
@@ -365,9 +365,9 @@
 
 	// --- Comment Logic ---
 	const loadMoreComments = () => {
-		if (!commentTotal.value || loadingComments.value) return
+		if (!commentTotal.value || loadingComments.value) return Promise.resolve()
 		loadingComments.value = true
-		getMyComments(commentPage.value).then(res => {
+		return getMyComments(commentPage.value).then(res => {
 			commentList.value = [...commentList.value, ...res.data]
 			if (res.data.length === 0) {
 				commentTotal.value = false
@@ -384,9 +384,9 @@
 
 	// --- Like/Collect Logic ---
 	const loadMoreLikes = () => {
-		if (!likeTotal.value || loadingLikes.value) return
+		if (!likeTotal.value || loadingLikes.value) return Promise.resolve()
 		loadingLikes.value = true
-		getLikes(likePage.value).then(result => {
+		return getLikes(likePage.value).then(result => {
 			if (result.data.length === 0) {
 				likeTotal.value = false
 			}
@@ -406,6 +406,29 @@
 		})
 	}
 
+	onPullDownRefresh(async () => {
+		const index = currentTab.value
+		if (index === 0) {
+			taskPage.value = 0
+			taskList.value = []
+			taskTotal.value = true
+			loadingTasks.value = false
+			await loadMoreTasks()
+		} else if (index === 1) {
+			commentPage.value = 0
+			commentList.value = []
+			commentTotal.value = true
+			loadingComments.value = false
+			await loadMoreComments()
+		} else if (index === 2) {
+			likePage.value = 0
+			likeList.value = []
+			likeTotal.value = true
+			loadingLikes.value = false
+			await loadMoreLikes()
+		}
+		uni.stopPullDownRefresh()
+	})
 </script>
 
 <style lang="scss" scoped>

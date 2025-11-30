@@ -40,7 +40,7 @@
 
 <script setup>
 import { ref, onMounted, watch, computed } from 'vue'
-import { onShow, onHide, onReachBottom } from '@dcloudio/uni-app'
+import { onShow, onHide, onReachBottom, onPullDownRefresh } from '@dcloudio/uni-app'
 import TopNav from '@/components/TopNav.vue'
 import TabBar from '@/components/TabBar.vue'
 import WishCard from '@/components/WishCard.vue'
@@ -249,6 +249,12 @@ onMounted(() => {
 
 onReachBottom(() => {
   loadData()
+})
+
+onPullDownRefresh(() => {
+  loadData(true).finally(() => {
+    uni.stopPullDownRefresh()
+  })
 })
 </script>
 

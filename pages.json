@@ -1,13 +1,20 @@
 {
 	"pages": [{
-			"path": "pages/home/home"
+			"path": "pages/home/home",
+			"style": {
+				"enablePullDownRefresh": true
+			}
 		}, {
 			"path": "pages/share/share",
 			"style": {
-				"onReachBottomDistance": 100
+				"onReachBottomDistance": 100,
+				"enablePullDownRefresh": true
 			}
 		}, {
-			"path": "pages/message/message"
+			"path": "pages/message/message",
+			"style": {
+				"enablePullDownRefresh": true
+			}
 
 		}, {
 			"path": "pages/wode/wode",

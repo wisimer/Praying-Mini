@@ -21,7 +21,7 @@
 
 <script setup>
 	import { ref } from 'vue'
-	import { onLoad, onReachBottom, onShow } from '@dcloudio/uni-app'
+	import { onLoad, onReachBottom, onShow, onPullDownRefresh } from '@dcloudio/uni-app'
 	import { toNextPage } from '@/core/app.js'
 	import { getDynamicListAggregate } from '@/cloud-api/dynamic.js'
 	import DynamicCard from '@/components/Dynamic-card/index.vue'
@@ -69,7 +69,7 @@
 
 
 	const init = () => {
-		getDynamicListAggregate({
+		return getDynamicListAggregate({
 			pageNum: pageNum.value,
 			state: menuIndex.value
 		}).then(result => {
@@ -93,6 +93,15 @@
 			pageNum.value += 1
 			init()
 		}
+	})
+
+	onPullDownRefresh(() => {
+		pageNum.value = 0
+		isQuery.value = true
+		shares.value = []
+		init().finally(() => {
+			uni.stopPullDownRefresh()
+		})
 	})
 </script>
 
