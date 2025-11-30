@@ -150,9 +150,9 @@
                             <uni-icons type="closeempty" size="16" color="#fff"></uni-icons>
                             拒绝
                         </button>
-						<button class="action-btn accept" @click="handleTaskAction('confirm')">
-                            <uni-icons type="checkmarkempty" size="16" color="#fff"></uni-icons>
-                            接受
+						<button class="action-btn accept" @click="handleCheckDetail(currentTask)">
+                            <uni-icons type="eye" size="16" color="#fff"></uni-icons>
+                            查看详情
                         </button>
 					</block>
 				</view>
@@ -225,6 +225,11 @@
 			taskTotal.value = true
 			loadMoreTasks()
 		})
+		uni.$on('handleTaskCheckAction', (data) => {
+			if (data && data.action) {
+				handleTaskAction(data.action)
+			}
+		})
 	})
 
 	onShow(() => {
@@ -270,6 +275,16 @@
     const viewTaskDetail = (task) => {
         if(task.relevance_id && task.relevance_id[0]) {
             toNextPage(`/subShare/dynamic-details/dynamic-details?id=${task.relevance_id[0]._id}`)
+        }
+    }
+
+    const handleCheckDetail = (task) => {
+        const taskId = task.relevance_id && task.relevance_id[0] ? task.relevance_id[0]._id : ''
+        if (taskId) {
+            // closeTaskPopup() // Keep popup open or close? Probably close to navigate
+            // Actually, we can keep the currentTask in state, navigate, and when back, if handled, refresh.
+            // But for now, just navigate.
+            toNextPage(`/pages/publish/task-check?taskId=${taskId}`)
         }
     }
 

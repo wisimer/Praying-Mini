@@ -28,6 +28,36 @@
       <view class="task-info-card" v-if="dynamicDetail.sort >= 11 && dynamicDetail.sort <= 14">
         <view class="info-header">任务信息</view>
         
+        <!-- Progress Bar -->
+        <view class="progress-container">
+          <view class="progress-steps">
+            <view class="step-item" :class="{ active: currentStep >= 0, completed: currentStep > 0 }">
+              <view class="step-circle"></view>
+              <text class="step-label">已发布</text>
+            </view>
+            <view class="step-line" :class="{ active: currentStep >= 1 }"></view>
+            <view class="step-item" :class="{ active: currentStep >= 1, completed: currentStep > 1 }">
+              <view class="step-circle"></view>
+              <text class="step-label">已接单</text>
+            </view>
+            <view class="step-line" :class="{ active: currentStep >= 2 }"></view>
+            <view class="step-item" :class="{ active: currentStep >= 2, completed: currentStep > 2 }">
+              <view class="step-circle"></view>
+              <text class="step-label">已完成</text>
+            </view>
+            <view class="step-line" :class="{ active: currentStep >= 3 }"></view>
+            <view class="step-item" :class="{ active: currentStep >= 3, completed: currentStep > 3 }">
+              <view class="step-circle"></view>
+              <text class="step-label">已确认</text>
+            </view>
+            <view class="step-line" :class="{ active: currentStep >= 4 }"></view>
+            <view class="step-item" :class="{ active: currentStep >= 4, completed: currentStep > 4 }">
+              <view class="step-circle"></view>
+              <text class="step-label">已结算</text>
+            </view>
+          </view>
+        </view>
+
         <view class="info-row">
           <view class="label">任务状态</view>
           <view class="status-tag" :class="`status-${dynamicDetail.article_status || 0}`">
@@ -121,7 +151,7 @@
 </template>
 
 <script setup>
-	import { reactive, ref } from 'vue';
+	import { reactive, ref, computed } from 'vue';
 	import { onLoad, onShareAppMessage } from '@dcloudio/uni-app'
 	import { store } from '@/uni_modules/uni-id-pages/common/store'
 	import { showToast, showLoading, toNextPage } from '@/core/app.js'
@@ -143,6 +173,26 @@
 	const isLike = ref(false)
   const sharePopup = ref(null)
   const inputContent = ref('')
+
+  const currentStep = computed(() => {
+    const status = dynamicDetail.value.article_status || 0
+    // Map article_status to progress step
+    // 0: Published/Pending (Step 0)
+    // 1: In Progress (Step 1)
+    // 2: Completed/Pending Confirmation (Step 2)
+    // 3: Confirmed/Settled (Step 3/4) - Assuming 3 is final for now, let's map 3 to 4 if "settled" logic exists, otherwise 3.
+    
+    // Based on message.vue:
+    // 0: Request (Step 0)
+    // 1: In Progress (Step 1)
+    // 2: Completed (Step 2)
+    // 3: Confirmed (Step 3)
+    
+    // If we consider "Settled" as a separate step, we might need status 4.
+    // For now let's assume status 3 covers both Confirm and Settle, or map 3 -> 4 directly if confirmed means settled.
+    if (status === 3) return 4 
+    return status
+  })
 
   const getStatusText = (status) => {
     const statusMap = {
@@ -612,6 +662,73 @@
     color: #52C41A;
     background-color: #F6FFED;
     border: 1px solid #B7EB8F;
+  }
+
+  .progress-container {
+    margin-bottom: 40rpx;
+    padding: 0 10rpx;
+    
+    .progress-steps {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      position: relative;
+    }
+    
+    .step-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 2;
+      position: relative;
+      flex: 0 0 auto;
+      
+      .step-circle {
+        width: 24rpx;
+        height: 24rpx;
+        border-radius: 50%;
+        background-color: #fff;
+        border: 4rpx solid #D9D9D9;
+        margin-bottom: 12rpx;
+        transition: all 0.3s;
+      }
+      
+      .step-label {
+        font-size: 22rpx;
+        color: #999;
+        white-space: nowrap;
+      }
+      
+      &.active {
+        .step-circle {
+          border-color: #FFD563;
+        }
+        .step-label {
+          color: #333;
+        }
+      }
+      
+      &.completed {
+        .step-circle {
+          background-color: #FFD563;
+          border-color: #FFD563;
+        }
+      }
+    }
+    
+    .step-line {
+      flex: 1;
+      height: 4rpx;
+      background-color: #E8E8E8;
+      margin-top: 12rpx;
+      margin-left: -10rpx;
+      margin-right: -10rpx;
+      z-index: 1;
+      
+      &.active {
+        background-color: #FFD563;
+      }
+    }
   }
 
   .share-popup {
