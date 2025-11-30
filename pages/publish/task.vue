@@ -200,7 +200,9 @@ const handlePublish = async () => {
     }
 
     await addDynamic(taskData)
-
+    
+    // 触发上一页数据刷新
+    uni.$emit('saveRecord')
     
     showToast('发布成功')
     
