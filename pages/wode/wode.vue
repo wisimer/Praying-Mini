@@ -11,11 +11,11 @@
       <view class="stats-row">
         <view class="stat-item">
           <image src="/static/icon/wish-coin.png" class="icon-small"></image>
-          <text>愿力值 {{ recordNumber }}</text>
+          <text>愿力值 {{ can }}</text>
         </view>
         <view class="stat-item">
           <image src="/static/icon/gold-coin.png" class="icon-small"></image>
-          <text>金币 {{ totalMoney }}</text>
+          <text>金币 {{ coin }}</text>
         </view>
       </view>
     </view>
@@ -92,27 +92,20 @@ import { toNextPage, showModal, showToast, showLoading } from '@/core/app.js'
 import { BASE_URL_AVATAR } from '@/core/config.js'
 import { getWodePage } from '@/cloud-api/index.js'
 
-const totalMoney = ref(0)
-const recordNumber = ref(0)
+const can = ref(0)
+const coin = ref(0)
 
 onShow(() => {
   if (store.hasLogin) {
     initData()
-    initTotalMoney()
   }
 })
 
 const initData = () => {
   getWodePage().then(datalist => {
-    // Assuming datalist[2] contains record count as per previous implementation
-    recordNumber.value = datalist[2]?.count || 0
-  }).catch(console.error)
-}
-
-const initTotalMoney = () => {
-  const calculateMoney = uniCloud.importObject('calculate-money', { customUI: true })
-  calculateMoney.getTotalMoney().then(res => {
-    totalMoney.value = res.totalMoney
+    const playerData = datalist[1].data || {}
+    can.value = playerData.can || 0
+    coin.value = playerData.coin || 0
   }).catch(console.error)
 }
 
