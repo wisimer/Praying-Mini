@@ -51,6 +51,7 @@
 
 <script setup>
 import { ref } from 'vue'
+import { MSG_TYPE, ARTICLE_STATUS } from '@/core/constants.js'
 import { onLoad } from '@dcloudio/uni-app'
 import { showToast, showLoading, asyncUploadFile } from '@/core/app.js'
 import { store } from '@/uni_modules/uni-id-pages/common/store.js'
@@ -126,7 +127,7 @@ const handleSubmit = async () => {
     // It seems there is 'fullfill_content'.
     
     await db.collection('app-dynamic').doc(taskId.value).update({
-        article_status: 2, // 任务完成待确认
+        article_status: ARTICLE_STATUS.EXECUTED_WAIT_VERIFY, // 任务完成待确认
         fullfill_content: taskContent.value,
         fullfill_imgs: imageList.value
     })
@@ -136,7 +137,7 @@ const handleSubmit = async () => {
         relevance_id: taskId.value,
         from_user_id: store.userInfo._id,
         to_user_id: toUserId.value,
-        msg_type: 2, // 任务完成待确认
+        msg_type: MSG_TYPE.COMPLETE_NOTIFY, // 任务完成待确认
     })
     
     uni.$emit('refreshTasks')

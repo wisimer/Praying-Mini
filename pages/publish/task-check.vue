@@ -30,11 +30,11 @@
     </div>
 
     <div class="footer-action">
-      <button class="action-btn reject" @click="handleAction(-3)">
+      <button class="action-btn reject" @click="handleAction(MSG_TYPE.CONFIRM_INCOMPLETE)">
         <uni-icons type="closeempty" size="20" color="#fff"></uni-icons>
         拒绝完成
       </button>
-      <button class="action-btn accept" @click="handleAction(3)">
+      <button class="action-btn accept" @click="handleAction(MSG_TYPE.CONFIRM_COMPLETE)">
         <uni-icons type="checkmarkempty" size="20" color="#fff"></uni-icons>
         确认完成
       </button>
@@ -44,6 +44,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { MSG_TYPE, ARTICLE_STATUS } from '@/core/constants.js'
 import { onLoad } from '@dcloudio/uni-app'
 import { showToast, showLoading } from '@/core/app.js'
 import { store } from '@/uni_modules/uni-id-pages/common/store.js'
@@ -110,9 +111,14 @@ const handleAction = async (action) => {
 
     showLoading()
         try {
+            let status = ARTICLE_STATUS.VERIFY_PASS_WAIT_PLATFORM
+            if (action === MSG_TYPE.CONFIRM_INCOMPLETE) {
+                status = ARTICLE_STATUS.VERIFY_FAIL_WAIT_PLATFORM
+            }
+
             // Update dynamic status if needed
             await db.collection('app-dynamic').doc(taskId.value).update({
-                     article_status: 4 // 验证通过
+                     article_status: status 
                  })
 
             // Insert new message

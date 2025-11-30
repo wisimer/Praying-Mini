@@ -54,6 +54,7 @@
 
 <script setup>
 	import { computed } from 'vue'
+	import { MSG_TYPE, ARTICLE_STATUS } from '@/core/constants.js'
 	import { BASE_URL_AVATAR } from '@/core/config.js'
 	import { toNextPage, showLoading } from '@/core/app.js'
 	import { formatDate } from '@/utils/date.js'
@@ -79,9 +80,17 @@
 
   const getStatusText = (status) => {
     const statusMap = {
-      0: '待接单',
-      1: '进行中',
-      2: '已完成'
+      [ARTICLE_STATUS.AUDITING]: '审核中',
+      [ARTICLE_STATUS.PUBLISHED]: '待接单',
+      [ARTICLE_STATUS.AUDIT_REJECT]: '审核驳回',
+      [ARTICLE_STATUS.APPROVED_EXECUTING]: '进行中',
+      [ARTICLE_STATUS.REJECTED]: '已拒绝',
+      [ARTICLE_STATUS.EXECUTED_WAIT_VERIFY]: '已完成',
+      [ARTICLE_STATUS.FAILED_TIMEOUT]: '已失败',
+      [ARTICLE_STATUS.VERIFY_PASS_WAIT_PLATFORM]: '待审核',
+      [ARTICLE_STATUS.VERIFY_FAIL_WAIT_PLATFORM]: '验证失败',
+      [ARTICLE_STATUS.PLATFORM_PASS_SETTLED]: '已结算',
+      [ARTICLE_STATUS.PLATFORM_FAIL]: '审核失败'
     }
     return statusMap[status] || '待接单'
   }
@@ -147,22 +156,32 @@
     border-radius: 8rpx;
   }
   
-  .status-0 {
+  /* Auditing (0), Published (1) */
+  .status-0, .status-1 {
     color: #1890FF;
     background-color: #E6F7FF;
     border: 1px solid #91D5FF;
   }
   
-  .status-1 {
+  /* Approved Executing (2) */
+  .status-2 {
     color: #FAAD14;
     background-color: #FFFBE6;
     border: 1px solid #FFE58F;
   }
   
-  .status-2 {
+  /* Completed (3), Verified (4), Settled (5) */
+  .status-3, .status-4, .status-5 {
     color: #52C41A;
     background-color: #F6FFED;
     border: 1px solid #B7EB8F;
+  }
+
+  /* Failures (-1, -2, -3, -4, -5) */
+  .status--1, .status--2, .status--3, .status--4, .status--5 {
+     color: #FF4D4F;
+     background-color: #FFF1F0;
+     border: 1px solid #FFA39E;
   }
 
 	.follow {

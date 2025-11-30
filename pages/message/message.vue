@@ -163,6 +163,7 @@
 </template>
 
 <script setup>
+	import { MSG_TYPE, ARTICLE_STATUS } from '@/core/constants.js'
 	import { ref, onMounted, computed } from 'vue'
 	import { onLoad, onShow, onPullDownRefresh } from '@dcloudio/uni-app'
 	import { store } from '@/uni_modules/uni-id-pages/common/store'
@@ -246,29 +247,31 @@
 	// --- Task Logic ---
     const getMsgTypeDesc = (type) => {
         const map = {
-            0: '发起任务请求',
-            1: '任务进行中',
-            2: '任务完成待确认',
-            3: '任务已完成',
-            '-1': '请求已拒绝',
-            '-2': '任务已放弃',
-            '-3': '任务未认可'
+            [MSG_TYPE.REQUEST]: '发起任务请求',
+            [MSG_TYPE.AGREE]: '任务进行中',
+            [MSG_TYPE.COMPLETE_NOTIFY]: '任务完成待确认',
+            [MSG_TYPE.CONFIRM_COMPLETE]: '任务已完成',
+            [MSG_TYPE.REJECT]: '请求已拒绝',
+            [MSG_TYPE.INCOMPLETE_NOTIFY]: '任务已放弃',
+            [MSG_TYPE.CONFIRM_INCOMPLETE]: '任务未认可',
+            [MSG_TYPE.PLATFORM_APPROVE]: '结算通知',
+            [MSG_TYPE.PLATFORM_REJECT]: '审核未通过'
         }
         return map[type] || '未知状态'
     }
 
     const getStatusText = (type) => {
-        if(type === 0) return '待处理'
-        if(type === 1) return '进行中'
-        if(type === 2) return '待确认'
-        if(type === 3) return '已完成'
+        if(type === MSG_TYPE.REQUEST) return '待处理'
+        if(type === MSG_TYPE.AGREE) return '进行中'
+        if(type === MSG_TYPE.COMPLETE_NOTIFY) return '待确认'
+        if(type === MSG_TYPE.CONFIRM_COMPLETE) return '已完成'
         return '已结束'
     }
 
     const getPopupDesc = (task) => {
-        if(task.msg_type === 0) return `请求与您共同完成任务：${task.task_name}`
-        if(task.msg_type === 1) return `任务正在进行中：${task.task_name}`
-        if(task.msg_type === 2) return `对方标记任务已完成，请确认：${task.task_name}`
+        if(task.msg_type === MSG_TYPE.REQUEST) return `请求与您共同完成任务：${task.task_name}`
+        if(task.msg_type === MSG_TYPE.AGREE) return `任务正在进行中：${task.task_name}`
+        if(task.msg_type === MSG_TYPE.COMPLETE_NOTIFY) return `对方标记任务已完成，请确认：${task.task_name}`
         return `任务状态变更：${task.task_name}`
     }
 
@@ -344,18 +347,18 @@
             return
         }
 
-        let newMsgType = 0
+        let newMsgType = MSG_TYPE.REQUEST
         let toUser = ''
         let dynamicStatus = null
 
         if (action === 'agree') {
-            newMsgType = 1
+            newMsgType = MSG_TYPE.AGREE
             toUser = fromUserId
-            dynamicStatus = 2 
+            dynamicStatus = ARTICLE_STATUS.APPROVED_EXECUTING 
         } else if (action === 'reject') {
-            newMsgType = -1
+            newMsgType = MSG_TYPE.REJECT
             toUser = fromUserId
-            dynamicStatus = -2 
+            dynamicStatus = ARTICLE_STATUS.REJECTED 
         } else if (action === 'complete') {
             // Navigate to complete task page
             const taskId = task.relevance_id && task.relevance_id[0] ? task.relevance_id[0]._id : ''
@@ -364,13 +367,13 @@
             toNextPage(`/pages/publish/complete-task?taskId=${taskId}&toUserId=${toUserId}`)
             return // Stop further execution
         } else if (action === 'giveUp') {
-            newMsgType = -2
+            newMsgType = MSG_TYPE.INCOMPLETE_NOTIFY
             toUser = fromUserId
         } else if (action === 'confirm') {
-            newMsgType = 3
+            newMsgType = MSG_TYPE.CONFIRM_COMPLETE
             toUser = fromUserId
         } else if (action === 'deny') {
-            newMsgType = -3
+            newMsgType = MSG_TYPE.CONFIRM_INCOMPLETE
             toUser = fromUserId
         }
 

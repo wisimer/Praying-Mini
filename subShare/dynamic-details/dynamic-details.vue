@@ -152,6 +152,7 @@
 
 <script setup>
 	import { reactive, ref, computed } from 'vue';
+	import { MSG_TYPE, ARTICLE_STATUS } from '@/core/constants.js'
 	import { onLoad, onShareAppMessage } from '@dcloudio/uni-app'
 	import { store } from '@/uni_modules/uni-id-pages/common/store'
 	import { showToast, showLoading, toNextPage } from '@/core/app.js'
@@ -176,29 +177,29 @@
 
   const currentStep = computed(() => {
     const status = dynamicDetail.value.article_status || 0
-    // Map article_status to progress step
-    // 0: Published/Pending (Step 0)
-    // 1: In Progress (Step 1)
-    // 2: Completed/Pending Confirmation (Step 2)
-    // 3: Confirmed/Settled (Step 3/4) - Assuming 3 is final for now, let's map 3 to 4 if "settled" logic exists, otherwise 3.
     
-    // Based on message.vue:
-    // 0: Request (Step 0)
-    // 1: In Progress (Step 1)
-    // 2: Completed (Step 2)
-    // 3: Confirmed (Step 3)
+    if (status >= ARTICLE_STATUS.PLATFORM_PASS_SETTLED) return 4
+    if (status >= ARTICLE_STATUS.VERIFY_PASS_WAIT_PLATFORM) return 3
+    if (status >= ARTICLE_STATUS.EXECUTED_WAIT_VERIFY) return 2
+    if (status >= ARTICLE_STATUS.APPROVED_EXECUTING) return 1
+    if (status >= ARTICLE_STATUS.PUBLISHED) return 0
     
-    // If we consider "Settled" as a separate step, we might need status 4.
-    // For now let's assume status 3 covers both Confirm and Settle, or map 3 -> 4 directly if confirmed means settled.
-    if (status === 3) return 4 
-    return status
+    return -1
   })
 
   const getStatusText = (status) => {
     const statusMap = {
-      0: '待接单',
-      1: '进行中',
-      2: '已完成'
+      [ARTICLE_STATUS.AUDITING]: '审核中',
+      [ARTICLE_STATUS.PUBLISHED]: '待接单',
+      [ARTICLE_STATUS.AUDIT_REJECT]: '审核驳回',
+      [ARTICLE_STATUS.APPROVED_EXECUTING]: '进行中',
+      [ARTICLE_STATUS.REJECTED]: '已拒绝',
+      [ARTICLE_STATUS.EXECUTED_WAIT_VERIFY]: '已完成',
+      [ARTICLE_STATUS.FAILED_TIMEOUT]: '已失败',
+      [ARTICLE_STATUS.VERIFY_PASS_WAIT_PLATFORM]: '待审核',
+      [ARTICLE_STATUS.VERIFY_FAIL_WAIT_PLATFORM]: '验证失败',
+      [ARTICLE_STATUS.PLATFORM_PASS_SETTLED]: '已结算',
+      [ARTICLE_STATUS.PLATFORM_FAIL]: '审核失败'
     }
     return statusMap[status] || '待接单'
   }
@@ -238,7 +239,7 @@
         relevance_id: dynamicDetail.value._id,
         to_user_id: userInfo.value._id,
         from_user_id: store.userInfo._id,
-        msg_type: 0
+        msg_type: MSG_TYPE.REQUEST
       })
       showToast('请求已发送')
     } catch (e) {
@@ -646,22 +647,32 @@
     border-radius: 8rpx;
   }
   
-  .status-0 {
+  /* Auditing (0), Published (1) */
+  .status-0, .status-1 {
     color: #1890FF;
     background-color: #E6F7FF;
     border: 1px solid #91D5FF;
   }
   
-  .status-1 {
+  /* Approved Executing (2) */
+  .status-2 {
     color: #FAAD14;
     background-color: #FFFBE6;
     border: 1px solid #FFE58F;
   }
   
-  .status-2 {
+  /* Completed (3), Verified (4), Settled (5) */
+  .status-3, .status-4, .status-5 {
     color: #52C41A;
     background-color: #F6FFED;
     border: 1px solid #B7EB8F;
+  }
+
+  /* Failures (-1, -2, -3, -4, -5) */
+  .status--1, .status--2, .status--3, .status--4, .status--5 {
+     color: #FF4D4F;
+     background-color: #FFF1F0;
+     border: 1px solid #FFA39E;
   }
 
   .progress-container {
