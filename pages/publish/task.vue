@@ -32,7 +32,7 @@
 
       <!-- Images -->
       <div class="form-item">
-        <div class="label">上传图片 ({{ imageList.length }}/9)</div>
+        <div class="label">上传图片 ({{ imageList.length }}/1)</div>
         <div class="image-grid">
           <div 
             class="image-item" 
@@ -72,7 +72,8 @@
             type="number" 
             v-model="price" 
             class="price-input" 
-            placeholder="0.00"
+            placeholder="0"
+            @input="onPriceInput"
           />
         </div>
       </div>
@@ -89,6 +90,8 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { addDynamic } from '@/cloud-api/dynamic.js'
+import { showToast, showLoading, asyncUploadFile } from '@/core/app.js'
 
 const taskTypes = ['日常委托', '跑腿代购', '技能服务', '其他']
 const typeIndex = ref(-1)
@@ -99,13 +102,13 @@ const price = ref('')
 const isLoading = ref(false)
 
 const startDate = computed(() => {
-  const date = new Date()
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  const tomorrow = new Date()
+  tomorrow.setDate(tomorrow.getDate() + 1)
+  const year = tomorrow.getFullYear()
+  const month = (tomorrow.getMonth() + 1).toString().padStart(2, '0')
+  const day = tomorrow.getDate().toString().padStart(2, '0')
+  return `${year}-${month}-${day}`
 })
-
-const goBack = () => {
-  uni.navigateBack()
-}
 
 const bindTypeChange = (e) => {
   typeIndex.value = e.detail.value
@@ -116,12 +119,38 @@ const bindDateChange = (e) => {
 }
 
 const chooseImage = () => {
-  uni.chooseImage({
-    count: 9 - imageList.value.length,
-    success: (res) => {
-      imageList.value = [...imageList.value, ...res.tempFilePaths]
+  if (imageList.value.length >= 1) {
+    return showToast('最多只能上传一张图片')
+  }
+  asyncUploadFile(1).then(results => {
+    if (results && results.length > 0) {
+      imageList.value = [results[0].fileID]
     }
   })
+}
+
+const deleteImage = (index) => {
+  imageList.value.splice(index, 1)
+}
+
+const onPriceInput = (e) => {
+  // 移除任何非数字字符
+  let val = e.detail.value.replace(/[^\d]/g, '')
+  
+  // 确保是正整数
+  if (val.startsWith('0')) {
+    val = val.replace(/^0+/, '')
+  }
+  
+  // 如果被修改了，需要重新赋值
+  if (val !== e.detail.value) {
+    // 使用nextTick确保视图更新
+    setTimeout(() => {
+      price.value = val
+    }, 0)
+  } else {
+    price.value = val
+  }
 }
 
 const previewImage = (index) => {
@@ -131,36 +160,68 @@ const previewImage = (index) => {
   })
 }
 
-const deleteImage = (index) => {
-  imageList.value.splice(index, 1)
+const goBack = () => {
+  uni.navigateBack()
 }
 
-const handlePublish = () => {
-  if (typeIndex.value === -1) {
-    return uni.showToast({ title: '请选择任务类型', icon: 'none' })
+const handlePublish = async () => {
+  if (isLoading.value) return
+
+  // Validation
+  if (typeIndex.value < 0) return showToast('请选择任务类型')
+  if (!taskContent.value.trim()) return showToast('请输入任务需求描述')
+  // if (imageList.value.length === 0) return showToast('请上传图片') // 图片不再是必填项
+  if (!deadline.value) return showToast('请选择截止日期')
+  
+  // Date validation: must be strictly after today
+  const selectedDate = new Date(deadline.value)
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  if (selectedDate <= today) {
+    return showToast('截止日期必须选择今天之后的日期')
   }
-  if (!taskContent.value.trim()) {
-    return uni.showToast({ title: '请填写任务内容', icon: 'none' })
-  }
-  if (!deadline.value) {
-    return uni.showToast({ title: '请选择截止日期', icon: 'none' })
-  }
-  if (!price.value) {
-    return uni.showToast({ title: '请填写金额', icon: 'none' })
+
+  // Price validation
+  if (!price.value || !/^\d+$/.test(price.value) || parseInt(price.value) <= 0) {
+    return showToast('请输入正整数金额')
   }
 
   isLoading.value = true
-  
-  setTimeout(() => {
-    isLoading.value = false
-    uni.showToast({
-      title: '发布成功',
-      icon: 'success'
-    })
+  showLoading('发布中...')
+
+  try {
+    const taskData = {
+      sort: parseInt(typeIndex.value) + 11, // Map 0-3 to 11-14
+      content: taskContent.value,
+      imgs: imageList.value.length > 0 ? imageList.value[0] : '', // Store single image URL or empty string
+      deadline_date: selectedDate.getTime(), // Save as timestamp
+      price: parseInt(price.value) * 100, // Convert to cents, ensure integer
+      publish_date: Date.now()
+    }
+
+    await addDynamic(taskData)
+
+    
+    showToast('发布成功')
+    
+    // Clear form
+    typeIndex.value = -1
+    taskContent.value = ''
+    imageList.value = []
+    deadline.value = ''
+    price.value = ''
+    
     setTimeout(() => {
       uni.navigateBack()
     }, 1500)
-  }, 1500)
+  } catch (err) {
+    console.error(err)
+    const msg = typeof err === 'string' ? err : (err.message || '未知错误')
+    showToast('发布失败: ' + msg)
+  } finally {
+    isLoading.value = false
+    uni.hideLoading()
+  }
 }
 </script>
 
