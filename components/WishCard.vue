@@ -5,7 +5,7 @@
       <div class="poster-overlay"></div>
       <div class="card-title" :style="textStyle">{{ data.content || data.title }}</div>
     </div>
-    <div class="content-wrapper" v-else>
+    <div class="content-wrapper" :style="contentWrapperStyle" v-else>
        <div class="card-title" :style="textStyle">{{ data.content || data.title }}</div>
     </div>
     
@@ -47,16 +47,27 @@ const emit = defineEmits(['click', 'like', 'collect'])
 const cardStyle = computed(() => {
   const style = {}
   const cs = props.data.content_style
-  if (!cs) return style
+  // Move background logic to contentWrapperStyle or keep here if applied to whole card?
+  // If applied here, children backgrounds might cover it.
+  // Keeping it here for now, but we need to make sure content-wrapper doesn't have opaque background unless necessary.
+  return style
+})
+
+const contentWrapperStyle = computed(() => {
+  const style = {}
+  // Default gradient background
+  style.background = 'linear-gradient(135deg, #fff 0%, #f9faff 100%)'
   
-  if (cs.bgType === 'color' && cs.bgValue) {
-    style.backgroundColor = cs.bgValue
-  } else if (cs.bgType === 'image' && cs.bgValue) {
-    style.backgroundImage = `url(${cs.bgValue})`
-    style.backgroundSize = 'cover'
-    style.backgroundPosition = 'center'
+  const cs = props.data.content_style
+  if (cs) {
+    if (cs.bgType === 'color' && cs.bgValue) {
+      style.background = cs.bgValue
+    } else if (cs.bgType === 'image' && cs.bgValue) {
+      style.backgroundImage = `url("${cs.bgValue}")`
+      style.backgroundSize = 'cover'
+      style.backgroundPosition = 'center'
+    }
   }
-  
   return style
 })
 
@@ -141,7 +152,8 @@ const handleClick = () => {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    background: linear-gradient(135deg, #fff 0%, #f9faff 100%); /* Subtle gradient */
+    /* Removed fixed gradient to allow dynamic background */
+    /* background: linear-gradient(135deg, #fff 0%, #f9faff 100%); */
     
     .card-title {
       font-size: 18px;

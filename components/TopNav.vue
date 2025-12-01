@@ -1,15 +1,10 @@
 <template>
   <div class="top-nav">
-    <div class="nav-left">
-      <div class="logo">W</div>
-    </div>
+
     <div class="nav-center">
       <span class="title">愿望清单</span>
     </div>
-    <div class="nav-right">
-      <uni-icons type="search" size="24" color="#fff" class="icon"></uni-icons>
-      <uni-icons type="notification" size="24" color="#fff" class="icon"></uni-icons>
-    </div>
+
   </div>
 </template>
 

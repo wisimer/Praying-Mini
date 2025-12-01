@@ -275,7 +275,7 @@ onPullDownRefresh(() => {
   top: 0;
   left: 0;
   width: 100%;
-  height: 350px;
+  height: 100vh;
   background: linear-gradient(180deg, #6FCFFB 0%, #B59DFF 100%);
   z-index: 0;
   opacity: 0.9;
@@ -285,7 +285,7 @@ onPullDownRefresh(() => {
   position: sticky;
   top: 44px; /* Height of TopNav */
   z-index: 90;
-  margin-top: 10px;
+  margin-top: 20rpx;
   padding: 0 16px;
 }
 
