@@ -1,5 +1,8 @@
 <template>
   <div class="home-container">
+    <!-- Background Gradient -->
+    <div class="home-bg"></div>
+    
     <TopNav />
     
     <div class="sticky-header">
@@ -264,22 +267,38 @@ onPullDownRefresh(() => {
   background-color: #f8f9fa;
   display: flex;
   flex-direction: column;
+  position: relative;
+}
+
+.home-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 350px;
+  background: linear-gradient(180deg, #6FCFFB 0%, #B59DFF 100%);
+  z-index: 0;
+  opacity: 0.9;
 }
 
 .sticky-header {
   position: sticky;
   top: 44px; /* Height of TopNav */
   z-index: 90;
+  margin-top: 10px;
+  padding: 0 16px;
 }
 
 .content-area {
   flex: 1;
   padding: 16px;
+  z-index: 1;
 }
 
 .feed-list {
   display: flex;
   flex-direction: column;
+  gap: 20px;
 }
 
 .loading-state {

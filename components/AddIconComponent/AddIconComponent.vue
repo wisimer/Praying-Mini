@@ -137,40 +137,41 @@ const navigateTo = (toUrl) => {
 }
 
 .addicon {
-  width: 80rpx;
-  height: 80rpx;
-  background-color: #AFC272;
-  border-radius: 50%;
+  width: 90rpx; /* Slightly larger */
+  height: 90rpx;
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); /* Yellow/Orange Gradient */
+  border-radius: 45rpx; /* Circle */
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 10px rgba(175, 194, 114, 0.4);
-  transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  box-shadow: 0 8px 20px rgba(255, 165, 0, 0.4); /* Orange shadow */
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
   z-index: 1001;
   position: relative;
 
   &.is-active {
-    transform: rotate(45deg);
-    background-color: #FF6B81;
+    transform: rotate(45deg) scale(1.1);
+    background: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 100%); /* Pink Gradient */
+    box-shadow: 0 8px 20px rgba(255, 107, 129, 0.4);
   }
 
   &:active {
-    transform: scale(0.95) rotate(45deg);
+    transform: scale(0.95);
   }
 }
 
 .icon {
-  width: 26rpx;
-  height: 26rpx;
+  width: 32rpx; /* Larger icon */
+  height: 32rpx;
 }
 
 .menu-items {
   position: absolute;
-  bottom: 90rpx;
+  bottom: 110rpx;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 16rpx;
+  gap: 24rpx; /* More space */
   pointer-events: none;
   opacity: 0;
   z-index: 1002;
@@ -189,35 +190,37 @@ const navigateTo = (toUrl) => {
 .menu-item {
   display: flex;
   align-items: center;
-  gap: 12rpx;
+  gap: 16rpx;
   transform: translateY(20rpx) scale(0.8);
   opacity: 0;
   transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
   
   .menu-label {
-    background-color: rgba(255, 255, 255, 0.9);
-    padding: 8rpx 16rpx;
-    border-radius: 8rpx;
-    font-size: 24rpx;
+    background-color: rgba(255, 255, 255, 0.95);
+    padding: 10rpx 24rpx;
+    border-radius: 20rpx; /* Pill shape */
+    font-size: 26rpx;
     color: #333;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    font-weight: 500;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    font-weight: 600;
+    backdrop-filter: blur(5px);
   }
   
   .menu-btn {
-    width: 70rpx;
-    height: 70rpx;
+    width: 80rpx;
+    height: 80rpx;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 30rpx;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+    font-size: 36rpx;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     background-color: #fff;
+    transition: transform 0.2s;
     
-    &.wish-btn { color: #FFD700; background-color: #FEF9E7; }
-    &.fulfill-btn { color: #FF69B4; background-color: #FFF0F5; }
-    &.task-btn { color: #4682B4; background-color: #F0F8FF; }
+    &.wish-btn { color: #FFD700; background-color: #fff; border: 2px solid #FFF9C4; }
+    &.fulfill-btn { color: #FF69B4; background-color: #fff; border: 2px solid #FCE4EC; }
+    &.task-btn { color: #4682B4; background-color: #fff; border: 2px solid #E3F2FD; }
     
     &:active {
       transform: scale(0.9);
@@ -232,13 +235,14 @@ const navigateTo = (toUrl) => {
   right: 0;
   bottom: 0;
   z-index: 990;
-  /* Transparent overlay to capture clicks outside */
+  background-color: rgba(255, 255, 255, 0.6); /* Light overlay instead of transparent */
+  backdrop-filter: blur(2px);
 }
 
 .loading-spinner {
-  width: 30rpx;
-  height: 30rpx;
-  border: 3rpx solid #ffffff;
+  width: 36rpx;
+  height: 36rpx;
+  border: 4rpx solid #ffffff;
   border-top-color: transparent;
   border-radius: 50%;
   animation: spin 1s linear infinite;
@@ -250,7 +254,8 @@ const navigateTo = (toUrl) => {
 }
 
 .addicon.is-loading {
-  background-color: #ccc; 
+  background: #ccc; 
   pointer-events: none;
+  box-shadow: none;
 }
 </style>

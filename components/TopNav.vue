@@ -7,8 +7,8 @@
       <span class="title">愿望清单</span>
     </div>
     <div class="nav-right">
-      <uni-icons type="search" size="24" color="#333" class="icon"></uni-icons>
-      <uni-icons type="notification" size="24" color="#333" class="icon"></uni-icons>
+      <uni-icons type="search" size="24" color="#fff" class="icon"></uni-icons>
+      <uni-icons type="notification" size="24" color="#fff" class="icon"></uni-icons>
     </div>
   </div>
 </template>
@@ -26,18 +26,20 @@
   align-items: center;
   height: 44px;
   padding: 0 16px;
-  background-color: #fff;
+  background-color: rgba(111, 207, 251, 0.95); /* Sky Blue with slight transparency */
+  backdrop-filter: blur(10px);
   position: sticky;
   top: 0;
   z-index: 100;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  /* box-shadow removed */
 
   .nav-left {
     width: 80px;
     .logo {
       width: 32px;
       height: 32px;
-      background-color: #FF6B81;
+      background-color: rgba(255,255,255,0.2); /* Frosted glass feel */
+      backdrop-filter: blur(4px);
       border-radius: 50%;
       color: white;
       display: flex;
@@ -45,6 +47,7 @@
       justify-content: center;
       font-weight: bold;
       font-size: 18px;
+      border: 1px solid rgba(255,255,255,0.3);
     }
   }
 
@@ -52,9 +55,10 @@
     flex: 1;
     text-align: center;
     .title {
-      font-size: 18px;
-      font-weight: bold;
-      color: #333;
+      font-size: 20px; /* Larger */
+      font-weight: 800; /* Bold */
+      color: #fff; /* White */
+      letter-spacing: 1px;
     }
   }
 

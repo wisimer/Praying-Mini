@@ -35,13 +35,17 @@ const selectTab = (index) => {
 <style lang="scss" scoped>
 .tab-bar {
   display: flex;
-  height: 44px;
-  background-color: #fff;
-  border-bottom: 1px solid #f5f5f5;
-  padding: 0 16px;
+  height: 50px;
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 25px;
+  padding: 4px;
+  box-shadow: 0 8px 20px rgba(111, 207, 251, 0.15); /* Light blue shadow */
+  justify-content: space-around;
+  align-items: center;
 
   .tab-item {
-    margin-right: 24px;
+    flex: 1;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -49,27 +53,30 @@ const selectTab = (index) => {
     position: relative;
     cursor: pointer;
     height: 100%;
+    border-radius: 21px;
+    transition: all 0.3s ease;
 
     .tab-text {
       font-size: 15px;
-      color: #999;
+      color: #888;
+      font-weight: 500;
       transition: color 0.3s;
+      z-index: 1;
     }
 
     &.active {
+      background-color: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      
       .tab-text {
-        color: #333;
-        font-weight: 600;
+        color: #6FCFFB; /* Primary Blue */
+        font-weight: 700;
       }
     }
 
+    /* Removed the bottom line indicator, using pill background instead */
     .indicator {
-      position: absolute;
-      bottom: 0;
-      width: 20px;
-      height: 3px;
-      background-color: #FF6B81;
-      border-radius: 2px;
+      display: none; 
     }
   }
 }

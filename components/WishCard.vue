@@ -88,17 +88,18 @@ const handleClick = () => {
 <style lang="scss" scoped>
 .wish-card {
   background-color: #fff;
-  border-radius: 12px;
+  border-radius: 24px; /* Larger radius */
   overflow: hidden;
-  margin-bottom: 16px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  margin-bottom: 20px;
+  box-shadow: 0 4px 20px rgba(111, 207, 251, 0.08); /* Very soft blue shadow */
+  border: 1px solid rgba(255,255,255,0.5);
 
   .poster-wrapper {
     position: relative;
     width: 100%;
     height: 0;
-    padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
-    background-color: #f0f0f0;
+    padding-bottom: 60%; /* Slightly taller */
+    background-color: #f0f4f8;
 
     .poster-image {
       position: absolute;
@@ -113,65 +114,71 @@ const handleClick = () => {
       bottom: 0;
       left: 0;
       width: 100%;
-      height: 50%;
-      background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+      height: 60%;
+      background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
     }
 
     .card-title {
       position: absolute;
-      bottom: 12px;
-      left: 12px;
-      right: 12px;
+      bottom: 16px;
+      left: 16px;
+      right: 16px;
       color: #fff;
-      font-size: 16px;
-      font-weight: 600;
+      font-size: 18px;
+      font-weight: 700;
       line-height: 1.4;
       display: -webkit-box;
       -webkit-box-orient: vertical;
       -webkit-line-clamp: 2;
       overflow: hidden;
-      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+      text-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
   }
 
   .content-wrapper {
-    padding: 20px;
-    min-height: 100px;
+    padding: 24px;
+    min-height: 120px;
     display: flex;
     flex-direction: column;
     justify-content: center;
+    background: linear-gradient(135deg, #fff 0%, #f9faff 100%); /* Subtle gradient */
     
     .card-title {
-      font-size: 16px;
-      font-weight: 600;
+      font-size: 18px;
+      font-weight: 700;
       line-height: 1.5;
-      margin-bottom: 8px;
+      margin-bottom: 12px;
       word-break: break-all;
+      color: #333;
     }
     
     .ai-message {
-      font-size: 12px;
+      font-size: 13px;
       opacity: 0.8;
       font-style: italic;
+      color: #666;
     }
   }
 
   .card-footer {
-    padding: 12px;
+    padding: 16px 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    background-color: #fff;
 
     .user-info {
       display: flex;
       align-items: center;
       
       .avatar {
-        width: 32px;
-        height: 32px;
+        width: 36px;
+        height: 36px;
         border-radius: 50%;
-        margin-right: 8px;
-        background-color: #eee;
+        margin-right: 10px;
+        background-color: #f0f0f0;
+        border: 2px solid #fff;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.05);
       }
 
       .info-col {
@@ -179,14 +186,15 @@ const handleClick = () => {
         flex-direction: column;
         
         .nickname {
-          font-size: 12px;
-          color: #333;
-          font-weight: 500;
+          font-size: 14px;
+          color: #444;
+          font-weight: 600;
         }
         
         .time {
-          font-size: 10px;
+          font-size: 11px;
           color: #999;
+          margin-top: 2px;
         }
       }
     }
@@ -198,12 +206,16 @@ const handleClick = () => {
       .action-btn {
         display: flex;
         align-items: center;
-        gap: 4px;
+        gap: 6px;
         cursor: pointer;
+        background-color: #f5f7fa;
+        padding: 6px 12px;
+        border-radius: 20px; /* Pill shape buttons */
 
         .count {
           font-size: 12px;
-          color: #999;
+          color: #666;
+          font-weight: 500;
           
           &.active {
             color: #FF6B81;
