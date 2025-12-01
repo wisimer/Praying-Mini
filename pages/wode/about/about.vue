@@ -1,13 +1,13 @@
 <template>
   <view class="page-container">
-    <view class="custom-header">
+    <view class="custom-header" :style="headerStyle">
       <view class="header-left" @click="goBack">
         <uni-icons type="left" size="24" color="#333"></uni-icons>
       </view>
       <view class="header-title">关于我们</view>
       <view class="header-right"></view>
     </view>
-    <view class="header-spacer"></view>
+    <view class="header-spacer" :style="spacerStyle"></view>
 
     <view class="logo-section">
       <image src="/static/logo.png" class="logo"></image>
@@ -36,6 +36,34 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
+
+const headerStyle = ref({})
+const spacerStyle = ref({})
+
+onLoad(() => {
+  // #ifdef MP-WEIXIN
+  try {
+    const menuButton = uni.getMenuButtonBoundingClientRect()
+    const sysInfo = uni.getSystemInfoSync()
+    const statusBarHeight = sysInfo.statusBarHeight
+    const navBarContentHeight = (menuButton.top - statusBarHeight) * 2 + menuButton.height
+    const totalHeight = statusBarHeight + navBarContentHeight
+    
+    headerStyle.value = {
+      height: `${totalHeight}px`,
+      paddingTop: `${statusBarHeight}px`
+    }
+    spacerStyle.value = {
+      height: `${totalHeight}px`
+    }
+  } catch (e) {
+    console.error('Header calculation failed:', e)
+  }
+  // #endif
+})
+
 const goBack = () => {
   uni.navigateBack()
 }

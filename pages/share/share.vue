@@ -168,7 +168,7 @@
 
   .menu {
     font-size: 30rpx;
-    color: #fff;
+    color: #727272;
     padding: 10rpx 20rpx;
     border-radius: 30rpx;
     transition: all 0.3s;

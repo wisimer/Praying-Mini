@@ -3,8 +3,8 @@
     <!-- Background Gradient -->
     <div class="page-bg"></div>
 
-		<view class="hread-box">
-			<view class="hread">
+		<view class="hread-box" :style="headerHeight ? { height: headerHeight + 'px' } : {}">
+			<view class="hread" :style="headerHeight ? { height: headerHeight + 'px', paddingTop: headerPaddingTop + 'px' } : {}">
 				<view class="tab-bar">
 					<view 
 						class="tab-item" 
@@ -26,6 +26,7 @@
 			:current="currentTab" 
 			@change="onSwiperChange"
 			duration="300"
+			:style="headerHeight ? { height: `calc(100vh - ${headerHeight}px)` } : {}"
 		>
 			<!-- 任务 Tab -->
 			<swiper-item>
@@ -213,8 +214,24 @@
 	const taskPopup = ref(null)
 	const currentTask = ref(null)
 
+    // Header Height Logic for MP-WEIXIN
+    const headerHeight = ref(0)
+    const headerPaddingTop = ref(0)
+
 	// Init
 	onLoad(() => {
+        // #ifdef MP-WEIXIN
+        // Calculate dynamic header height for WeChat Mini Program
+        try {
+            const menuButton = uni.getMenuButtonBoundingClientRect()
+            const top = menuButton.bottom + 12 // Capsule bottom + spacing
+            headerPaddingTop.value = top
+            headerHeight.value = top + 46 // Top + Tab Bar Content Height (approx)
+        } catch (e) {
+            console.error('Header calculation failed:', e)
+        }
+        // #endif
+
 		loadTabData(0)
 		loadTabData(1)
 		loadTabData(2)

@@ -1,13 +1,13 @@
 <template>
   <view class="page-container">
-    <view class="custom-header">
+    <view class="custom-header" :style="headerStyle">
       <view class="header-left" @click="goBack">
         <uni-icons type="left" size="24" color="#333"></uni-icons>
       </view>
       <view class="header-title">我发布的任务</view>
       <view class="header-right"></view>
     </view>
-    <view class="header-spacer"></view>
+    <view class="header-spacer" :style="spacerStyle"></view>
 
     <!-- List Component -->
     <view class="list-container">
@@ -54,8 +54,30 @@ const list = ref([])
 const page = ref(1)
 const pageSize = 10
 const loadStatus = ref('more')
+const headerStyle = ref({})
+const spacerStyle = ref({})
 
 onLoad(() => {
+  // #ifdef MP-WEIXIN
+  try {
+    const menuButton = uni.getMenuButtonBoundingClientRect()
+    const sysInfo = uni.getSystemInfoSync()
+    const statusBarHeight = sysInfo.statusBarHeight
+    const navBarContentHeight = (menuButton.top - statusBarHeight) * 2 + menuButton.height
+    const totalHeight = statusBarHeight + navBarContentHeight
+    
+    headerStyle.value = {
+      height: `${totalHeight}px`,
+      paddingTop: `${statusBarHeight}px`
+    }
+    spacerStyle.value = {
+      height: `${totalHeight}px`
+    }
+  } catch (e) {
+    console.error('Header calculation failed:', e)
+  }
+  // #endif
+
   loadData(true)
 })
 
