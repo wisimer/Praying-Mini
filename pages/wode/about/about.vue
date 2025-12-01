@@ -1,5 +1,14 @@
 <template>
   <view class="page-container">
+    <view class="custom-header">
+      <view class="header-left" @click="goBack">
+        <uni-icons type="left" size="24" color="#333"></uni-icons>
+      </view>
+      <view class="header-title">关于我们</view>
+      <view class="header-right"></view>
+    </view>
+    <view class="header-spacer"></view>
+
     <view class="logo-section">
       <image src="/static/logo.png" class="logo"></image>
       <text class="app-name">Praying</text>
@@ -27,6 +36,9 @@
 </template>
 
 <script setup>
+const goBack = () => {
+  uni.navigateBack()
+}
 </script>
 
 <style lang="scss" scoped>
@@ -36,6 +48,32 @@
   padding: 40rpx;
   display: flex;
   flex-direction: column;
+}
+
+.custom-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 44px;
+  padding-top: var(--status-bar-height);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 30rpx;
+  padding-right: 30rpx;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  z-index: 100;
+  box-sizing: border-box;
+}
+.header-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+.header-spacer {
+  height: calc(44px + var(--status-bar-height));
 }
 
 .logo-section {

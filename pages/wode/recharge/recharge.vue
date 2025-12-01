@@ -1,5 +1,14 @@
 <template>
   <view class="page-container">
+    <view class="custom-header">
+      <view class="header-left" @click="goBack">
+        <uni-icons type="left" size="24" color="#333"></uni-icons>
+      </view>
+      <view class="header-title">充值金币</view>
+      <view class="header-right"></view>
+    </view>
+    <view class="header-spacer"></view>
+
     <view class="balance-card">
       <text class="label">当前金币余额</text>
       <text class="amount">{{ totalMoney }}</text>
@@ -30,6 +39,10 @@
 import { ref } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { showLoading, showToast } from '@/core/app.js'
+
+const goBack = () => {
+  uni.navigateBack()
+}
 
 const totalMoney = ref(0)
 const options = ref([
@@ -79,6 +92,32 @@ const handlePay = async (item) => {
   min-height: 100vh;
   background-color: #f5f7fa;
   padding: 30rpx;
+}
+
+.custom-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 44px;
+  padding-top: var(--status-bar-height);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 30rpx;
+  padding-right: 30rpx;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  z-index: 100;
+  box-sizing: border-box;
+}
+.header-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+.header-spacer {
+  height: calc(44px + var(--status-bar-height));
 }
 
 .balance-card {

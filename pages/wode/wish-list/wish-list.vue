@@ -1,5 +1,14 @@
 <template>
   <view class="page-container">
+    <view class="custom-header">
+      <view class="header-left" @click="goBack">
+        <uni-icons type="left" size="24" color="#333"></uni-icons>
+      </view>
+      <view class="header-title">我的愿望</view>
+      <view class="header-right"></view>
+    </view>
+    <view class="header-spacer"></view>
+
     <!-- List Component -->
     <view class="list-container">
       <view class="list-item" v-for="item in list" :key="item._id" @click="toDetail(item)">
@@ -40,6 +49,10 @@ import { store } from '@/uni_modules/uni-id-pages/common/store'
 import { formatDate } from '@/utils/date.js'
 import { ARTICLE_STATUS, CATEGORY_ID } from '@/core/constants.js'
 import { toNextPage, showModal, showToast, showLoading } from '@/core/app.js'
+
+const goBack = () => {
+  uni.navigateBack()
+}
 
 const list = ref([])
 const page = ref(1)
@@ -164,6 +177,32 @@ const handleDelete = (item) => {
   min-height: 100vh;
   background-color: #f5f7fa;
   padding: 20rpx;
+}
+
+.custom-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 44px;
+  padding-top: var(--status-bar-height);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 30rpx;
+  padding-right: 30rpx;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  z-index: 100;
+  box-sizing: border-box;
+}
+.header-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+.header-spacer {
+  height: calc(44px + var(--status-bar-height));
 }
 
 .list-item {
