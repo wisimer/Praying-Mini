@@ -1,6 +1,9 @@
 <template>
 	<view class="detail-container">
-		<cuNavbar :bgColor="'transparent'" :isBack="true">
+    <!-- Background Gradient -->
+    <div class="page-bg"></div>
+
+		<cuNavbar :bgColor="'rgba(0,0,0,0)'" :isBack="true">
 		</cuNavbar>
 
     <!-- Header Image -->
@@ -10,6 +13,7 @@
         :src="dynamicDetail.imgs && dynamicDetail.imgs.length > 0 ? dynamicDetail.imgs[0] : 'https://mp-182cf5aa-f083-45a9-8d28-e12bee639ce3.cdn.bspapp.com/appBgimgs/share.png'" 
         class="header-image"
       ></image>
+      <div class="header-overlay"></div>
     </view>
 
     <view class="content-wrapper">
@@ -422,26 +426,50 @@
 <style lang="scss" scoped>
   .detail-container {
     min-height: 100vh;
-    background-color: #f8f9fa;
+    background-color: #f5f7fa;
     padding-bottom: 120rpx;
+    position: relative;
+  }
+
+  .page-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background: linear-gradient(180deg, #6FCFFB 0%, #B59DFF 100%);
+    z-index: 0;
+    opacity: 0.8;
   }
 
   .header-image-box {
     width: 100%;
     aspect-ratio: 16/9;
     overflow: hidden;
+    position: relative;
+    z-index: 0;
     
     .header-image {
       width: 100%;
       height: 100%;
       background-color: #eee;
     }
+
+    .header-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(to bottom, rgba(0,0,0,0) 60%, rgba(255,255,255,0.8) 100%);
+    }
   }
 
   .content-wrapper {
     position: relative;
     margin-top: -40rpx;
-    background-color: #fff;
+    background-color: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
     border-radius: 40rpx 40rpx 0 0;
     padding: 0 30rpx;
     min-height: 500rpx;
@@ -467,7 +495,7 @@
 
     .user-name {
       font-size: 36rpx;
-      font-weight: bold;
+      font-weight: 800;
       color: #333;
       margin-top: 16rpx;
     }
@@ -479,23 +507,26 @@
     line-height: 1.6;
     margin-bottom: 40rpx;
     white-space: pre-wrap;
-    padding: 0 10rpx;
+    padding: 20rpx;
+    background: rgba(255,255,255,0.5);
+    border-radius: 20rpx;
   }
 
   .task-info-card {
     background-color: #fff;
     border-radius: 24rpx;
     padding: 30rpx;
-    box-shadow: 0 2rpx 20rpx rgba(0,0,0,0.03);
+    box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.05);
     margin-bottom: 40rpx;
-    border: 1px solid #f0f0f0;
+    border: 2rpx solid rgba(0,0,0,0.02);
 
     .info-header {
       font-size: 32rpx;
-      font-weight: bold;
+      font-weight: 800;
       margin-bottom: 30rpx;
       padding-left: 20rpx;
-      border-left: 8rpx solid #FFD563;
+      border-left: 8rpx solid #FFD700; /* Yellow */
+      color: #333;
     }
 
     .info-row {
@@ -514,11 +545,13 @@
       .label {
         font-size: 28rpx;
         color: #666;
+        font-weight: 500;
       }
 
       .value {
         font-size: 28rpx;
         color: #333;
+        font-weight: 600;
       }
     }
   }
@@ -532,34 +565,36 @@
     .action-btn {
       flex: 1;
       height: 80rpx;
-      border-radius: 12rpx;
+      border-radius: 40rpx; /* Pill shape */
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 28rpx;
       gap: 8rpx;
       transition: all 0.2s;
+      font-weight: 600;
 
       &:active {
-        opacity: 0.8;
+        opacity: 0.9;
         transform: scale(0.98);
       }
 
       &.primary {
-        background-color: #333;
+        background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); /* Yellow/Orange */
         color: #fff;
-        font-weight: 500;
+        box-shadow: 0 6rpx 16rpx rgba(255, 165, 0, 0.3);
       }
 
       &.outline {
         background-color: #fff;
-        border: 1px solid #ddd;
-        color: #333;
+        border: 2rpx solid #eee;
+        color: #666;
+        box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.05);
 
         &.active {
-          border-color: #ff0000;
-          color: #ff0000;
-          background-color: #fff0f0;
+          border-color: #FF6B81;
+          color: #FF6B81;
+          background-color: #FFF0F5;
         }
       }
     }
@@ -567,12 +602,17 @@
 
   .comments-section {
     margin-top: 40rpx;
+    background-color: #fff;
+    padding: 30rpx;
+    border-radius: 24rpx;
+    box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.05);
     
     .section-title {
       font-size: 32rpx;
-      font-weight: bold;
+      font-weight: 800;
       margin-bottom: 20rpx;
       padding-left: 10rpx;
+      color: #333;
     }
   }
 
@@ -581,10 +621,11 @@
     bottom: 0;
     left: 0;
     right: 0;
-    background-color: #fff;
+    background-color: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
     padding: 20rpx 30rpx;
     padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
-    box-shadow: 0 -2rpx 10rpx rgba(0,0,0,0.05);
+    box-shadow: 0 -4rpx 20rpx rgba(0,0,0,0.05);
     display: flex;
     align-items: flex-end;
     gap: 20rpx;
@@ -610,19 +651,21 @@
     .send-btn {
       width: 120rpx;
       height: 80rpx;
-      background-color: #333;
+      background: linear-gradient(135deg, #6FCFFB 0%, #B59DFF 100%);
       color: #fff;
       border-radius: 40rpx;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 28rpx;
-      font-weight: 500;
+      font-weight: 600;
       transition: all 0.3s;
+      box-shadow: 0 4rpx 12rpx rgba(181, 157, 255, 0.3);
 
       &.disabled {
-        background-color: #ccc;
+        background: #ccc;
         color: #fff;
+        box-shadow: none;
       }
     }
   }
@@ -712,17 +755,18 @@
       
       &.active {
         .step-circle {
-          border-color: #FFD563;
+          border-color: #FFD700;
         }
         .step-label {
           color: #333;
+          font-weight: 600;
         }
       }
       
       &.completed {
         .step-circle {
-          background-color: #FFD563;
-          border-color: #FFD563;
+          background-color: #FFD700;
+          border-color: #FFD700;
         }
       }
     }
@@ -737,7 +781,7 @@
       z-index: 1;
       
       &.active {
-        background-color: #FFD563;
+        background-color: #FFD700;
       }
     }
   }

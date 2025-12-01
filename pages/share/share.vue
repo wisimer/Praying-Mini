@@ -1,15 +1,21 @@
 <template>
-	<view>
+	<view class="share-page">
+    <!-- Background Gradient -->
+    <div class="page-bg"></div>
+
 		<view class="hread-box">
 			<view class="hread">
-				<view class="menu" :class="index === menuIndex ? ' menu-ac' : ''" v-for="(item,index) in menus" :key="item.id"
-					@click="changeMenu(index)">
-					{{item.name}}
-				</view>
+				<view class="menu-scroll">
+          <view class="menu" :class="index === menuIndex ? ' menu-ac' : ''" v-for="(item,index) in menus" :key="item.id"
+            @click="changeMenu(index)">
+            {{item.name}}
+          </view>
+        </view>
 			</view>
 		</view>
-		<view class="padding32" style="padding-top: 0;">
-			<view class="margin-b24" v-for="item in shares" :key="item.id">
+    
+		<view class="content-area">
+			<view class="card-wrapper" v-for="item in shares" :key="item.id">
 				<DynamicCard :user-info="item.user_id[0]" :dynamic-detail="item" :isDetails="true"></DynamicCard>
 			</view>
 			<Empty v-if="shares.length === 0"></Empty>
@@ -106,45 +112,88 @@
 </script>
 
 <style lang="scss" scoped>
-	.hread-box {
-		height: 352rpx;
-	}
+.share-page {
+  min-height: 100vh;
+  background-color: #f5f7fa;
+  position: relative;
+}
 
-	.hread {
-		width: 750rpx;
-		height: 352rpx;
-		background-image: url('https://mp-182cf5aa-f083-45a9-8d28-e12bee639ce3.cdn.bspapp.com/appBgimgs/chongquan.png');
-		background-size: 100% 100%;
-		padding: 40rpx 30rpx;
-		display: flex;
-		align-items: flex-end;
-		justify-content: space-between;
-		position: fixed;
-		top: 0;
-		left: 0;
-		right: 0;
-		z-index: 9;
+.page-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: linear-gradient(180deg, #6FCFFB 0%, #B59DFF 100%);
+  z-index: 0;
+  opacity: 0.8;
+}
 
-		.menu {
-			font-size: 32rpx;
-			color: #8C8888;
-		}
+.hread-box {
+  height: 120rpx;
+  padding-top: env(safe-area-inset-top);
+  position: relative;
+  z-index: 10;
+}
 
-		.menu-ac {
-			color: #000000;
-			position: relative;
-		}
+.hread {
+  width: 100%;
+  padding: 20rpx 30rpx;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 99;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  padding-top: calc(20rpx + env(safe-area-inset-top));
+  
+  .menu-scroll {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    overflow-x: auto;
+    white-space: nowrap;
+    
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
 
-		.menu-ac::after {
-			content: ' ';
-			width: 60rpx;
-			height: 12rpx;
-			background-image: url('../../static/icon/zhishiqi.png');
-			background-size: 100% 100%;
-			position: absolute;
-			left: 50%;
-			transform: translateX(-50%);
-			bottom: -15rpx;
-		}
-	}
+  .menu {
+    font-size: 30rpx;
+    color: #fff;
+    padding: 10rpx 20rpx;
+    border-radius: 30rpx;
+    transition: all 0.3s;
+    font-weight: 500;
+    opacity: 0.8;
+  }
+
+  .menu-ac {
+    color: #333;
+    background-color: #fff;
+    font-weight: bold;
+    opacity: 1;
+    box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.1);
+  }
+}
+
+.content-area {
+  padding: 32rpx;
+  padding-top: calc(50rpx + env(safe-area-inset-top));
+  position: relative;
+  z-index: 1;
+  
+  .card-wrapper {
+    margin-bottom: 24rpx;
+    border-radius: 24rpx;
+    box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.05);
+    transition: transform 0.2s;
+    
+    &:active {
+      transform: scale(0.99);
+    }
+  }
+}
 </style>
