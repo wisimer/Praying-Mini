@@ -2,9 +2,7 @@
   <div class="home-container">
     <!-- Background Gradient -->
     <div class="home-bg"></div>
-    
-    <TopNav />
-    
+        
     <div class="sticky-header">
       <TabBar 
         :tabs="['热门愿望卡', '最新完成']" 
