@@ -131,6 +131,9 @@
 
 .hread-box {
   height: 120rpx;
+  /* #ifdef MP-WEIXIN */
+  height: 180rpx;
+  /* #endif */
   padding-top: env(safe-area-inset-top);
   position: relative;
   z-index: 10;
@@ -147,6 +150,9 @@
   background: rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(10px);
   padding-top: calc(20rpx + env(safe-area-inset-top));
+  /* #ifdef MP-WEIXIN */
+  padding-top: calc(80rpx + env(safe-area-inset-top));
+  /* #endif */
   
   .menu-scroll {
     display: flex;

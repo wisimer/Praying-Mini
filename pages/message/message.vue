@@ -24,7 +24,7 @@
 		<swiper 
 			class="content-swiper" 
 			:current="currentTab" 
-			@change="onSwiperChange"
+            :disable-touch="true"
 			duration="300"
 		>
 			<!-- 任务 Tab -->
@@ -184,13 +184,21 @@
 	])
 
 	// Swiper Change Handler
-	const onSwiperChange = (e) => {
-		currentTab.value = e.detail.current
-		loadTabData(currentTab.value)
-	}
+	// const onSwiperChange = (e) => {
+	// 	currentTab.value = e.detail.current
+	// 	loadTabData(currentTab.value)
+	// }
 
+    let switchTimer = null
 	const switchTab = (index) => {
-		currentTab.value = index
+        if (currentTab.value === index) return
+        
+        if (switchTimer) clearTimeout(switchTimer)
+        
+        switchTimer = setTimeout(() => {
+            currentTab.value = index
+            loadTabData(index)
+        }, 300)
 	}
 
 	// Data & Loading States
@@ -517,6 +525,9 @@
 
 	.hread-box {
 		height: 160rpx;
+        /* #ifdef MP-WEIXIN */
+        height: 220rpx;
+        /* #endif */
 		flex-shrink: 0;
         position: relative;
         z-index: 10;
@@ -538,6 +549,9 @@
         background: rgba(255, 255, 255, 0.2);
         backdrop-filter: blur(10px);
         padding-top: calc(40rpx + env(safe-area-inset-top));
+        /* #ifdef MP-WEIXIN */
+        padding-top: calc(100rpx + env(safe-area-inset-top));
+        /* #endif */
 	}
 
 	.tab-bar {

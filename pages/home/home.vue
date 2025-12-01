@@ -5,7 +5,7 @@
         
     <div class="sticky-header">
       <TabBar 
-        :tabs="['热门愿望卡', '最新完成']" 
+        :tabs="['许愿卡', '还原卡']" 
         v-model="currentTab" 
       />
     </div>
@@ -68,6 +68,10 @@ const displayWishList = computed(() => {
     ...item,
     isLiked: !!userLikes.value[item.id]
   }))
+})
+
+watch(currentTab, () => {
+  loadData(true)
 })
 
 watch(() => store.hasLogin, (newVal) => {
@@ -194,7 +198,9 @@ const loadData = async (reload = false) => {
     const res = await getHomeWishList({ 
       pageNum: pageNum.value, 
       pageSize,
-      checkLikeStatus: false 
+      checkLikeStatus: false,
+      sort: 0,
+      fullfilled: currentTab.value === 1
     })
     
     if (res.data && res.data.length < pageSize) {
@@ -280,11 +286,15 @@ onPullDownRefresh(() => {
 }
 
 .sticky-header {
-  position: sticky;
-  top: 44px; /* Height of TopNav */
+  position: relative;
   z-index: 90;
   margin-top: 20rpx;
-  padding: 0 16px;
+  /* #ifdef MP-WEIXIN */
+  margin-top: 0;
+  padding-top: calc(80rpx + env(safe-area-inset-top));
+  /* #endif */
+  padding-left: 16px;
+  padding-right: 16px;
 }
 
 .content-area {

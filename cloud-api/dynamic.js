@@ -197,10 +197,15 @@ export async function getHomeWishList(option) {
 	const pageNum = option.pageNum || 0
 	const pageSize = option.pageSize || 20
 	
+	const matchObj = {
+		sort: option.sort !== undefined ? option.sort : 0
+	}
+	if (option.fullfilled !== undefined) {
+		matchObj.fullfilled = option.fullfilled
+	}
+
 	let agg = db.collection('app-dynamic').aggregate()
-		.match({
-			sort: 0
-		})	
+		.match(matchObj)	
 		.lookup({
 			from: 'uni-id-users',
 			let: {
