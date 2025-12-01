@@ -1,5 +1,8 @@
 <template>
   <view class="page-container">
+    <!-- Background Gradient -->
+    <div class="page-bg"></div>
+
     <!-- User Info Header -->
     <view class="header-section">
       <image 
@@ -26,26 +29,32 @@
       <view class="menu-group">
         <view class="menu-item" @click="toNextPage('/pages/wode/wish-list/wish-list')">
           <view class="item-left">
-            <uni-icons type="list" size="20" color="#409EFF"></uni-icons>
+            <view class="icon-box blue">
+              <uni-icons type="list" size="20" color="#fff"></uni-icons>
+            </view>
             <text class="item-text">我的愿望列表</text>
           </view>
-          <uni-icons type="right" size="16" color="#999"></uni-icons>
+          <uni-icons type="right" size="16" color="#ccc"></uni-icons>
         </view>
         
         <view class="menu-item" @click="toNextPage('/pages/wode/task-published/task-published')">
           <view class="item-left">
-            <uni-icons type="paperplane" size="20" color="#409EFF"></uni-icons>
+            <view class="icon-box purple">
+              <uni-icons type="paperplane" size="20" color="#fff"></uni-icons>
+            </view>
             <text class="item-text">我发布的任务</text>
           </view>
-          <uni-icons type="right" size="16" color="#999"></uni-icons>
+          <uni-icons type="right" size="16" color="#ccc"></uni-icons>
         </view>
         
         <view class="menu-item" @click="toNextPage('/pages/wode/task-accepted/task-accepted')">
           <view class="item-left">
-            <uni-icons type="checkbox" size="20" color="#409EFF"></uni-icons>
+            <view class="icon-box green">
+              <uni-icons type="checkbox" size="20" color="#fff"></uni-icons>
+            </view>
             <text class="item-text">我接的任务</text>
           </view>
-          <uni-icons type="right" size="16" color="#999"></uni-icons>
+          <uni-icons type="right" size="16" color="#ccc"></uni-icons>
         </view>
       </view>
 
@@ -53,26 +62,32 @@
       <view class="menu-group">
         <view class="menu-item" @click="toNextPage('/pages/wode/recharge/recharge')">
           <view class="item-left">
-            <uni-icons type="wallet" size="20" color="#E6A23C"></uni-icons>
+            <view class="icon-box orange">
+              <uni-icons type="wallet" size="20" color="#fff"></uni-icons>
+            </view>
             <text class="item-text">充值金币</text>
           </view>
-          <uni-icons type="right" size="16" color="#999"></uni-icons>
+          <uni-icons type="right" size="16" color="#ccc"></uni-icons>
         </view>
         
         <button class="menu-item contact-btn" open-type="contact" @click="handleContact">
           <view class="item-left">
-            <uni-icons type="help" size="20" color="#409EFF"></uni-icons>
+            <view class="icon-box pink">
+              <uni-icons type="help" size="20" color="#fff"></uni-icons>
+            </view>
             <text class="item-text">帮助与客服</text>
           </view>
-          <uni-icons type="right" size="16" color="#999"></uni-icons>
+          <uni-icons type="right" size="16" color="#ccc"></uni-icons>
         </button>
         
         <view class="menu-item" @click="toNextPage('/pages/wode/about/about')">
           <view class="item-left">
-            <uni-icons type="info" size="20" color="#409EFF"></uni-icons>
+            <view class="icon-box gray">
+              <uni-icons type="info" size="20" color="#fff"></uni-icons>
+            </view>
             <text class="item-text">关于</text>
           </view>
-          <uni-icons type="right" size="16" color="#999"></uni-icons>
+          <uni-icons type="right" size="16" color="#ccc"></uni-icons>
         </view>
       </view>
     </view>
@@ -138,45 +153,66 @@ const handleLogout = () => {
   min-height: 100vh;
   background-color: #f5f7fa;
   padding-bottom: 40rpx;
+  position: relative;
+}
+
+.page-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: linear-gradient(180deg, #6FCFFB 0%, #B59DFF 100%);
+  z-index: 0;
+  opacity: 0.8;
 }
 
 .header-section {
-  background-color: #fff;
   padding: 60rpx 0;
+  padding-top: calc(80rpx + env(safe-area-inset-top));
   display: flex;
   flex-direction: column;
   align-items: center;
   margin-bottom: 20rpx;
+  position: relative;
+  z-index: 1;
   
   .avatar {
-    width: 120rpx;
-    height: 120rpx;
+    width: 140rpx;
+    height: 140rpx;
     border-radius: 50%;
-    margin-bottom: 20rpx;
-    border: 2rpx solid #eee;
+    margin-bottom: 24rpx;
+    border: 6rpx solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 8rpx 20rpx rgba(0,0,0,0.1);
   }
   
   .nickname {
-    font-size: 32rpx;
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 20rpx;
+    font-size: 36rpx;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 24rpx;
+    text-shadow: 0 2rpx 4rpx rgba(0,0,0,0.1);
   }
   
   .stats-row {
     display: flex;
-    gap: 40rpx;
+    gap: 30rpx;
     
     .stat-item {
       display: flex;
       align-items: center;
-      gap: 10rpx;
-      font-size: 28rpx;
-      color: #666;
+      gap: 12rpx;
+      font-size: 26rpx;
+      color: #333;
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 10rpx 30rpx;
+      border-radius: 30rpx;
+      font-weight: 600;
+      box-shadow: 0 4rpx 10rpx rgba(0,0,0,0.05);
       
       .icon-small {
-        width: 32rpx;
-        height: 32rpx;
+        width: 36rpx;
+        height: 36rpx;
       }
     }
   }
@@ -184,21 +220,29 @@ const handleLogout = () => {
 
 .menu-list {
   padding: 0 30rpx;
+  position: relative;
+  z-index: 1;
   
   .menu-group {
     background-color: #fff;
-    border-radius: 16rpx;
-    margin-bottom: 20rpx;
+    border-radius: 24rpx;
+    margin-bottom: 24rpx;
     overflow: hidden;
+    box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.05);
   }
   
   .menu-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 30rpx;
+    padding: 32rpx;
     background-color: #fff;
-    border-bottom: 1rpx solid #f5f5f5;
+    border-bottom: 1rpx solid #f9f9f9;
+    transition: background-color 0.2s;
+    
+    &:active {
+      background-color: #f9f9f9;
+    }
     
     &:last-child {
       border-bottom: none;
@@ -218,11 +262,28 @@ const handleLogout = () => {
     .item-left {
       display: flex;
       align-items: center;
-      gap: 20rpx;
+      gap: 24rpx;
+      
+      .icon-box {
+        width: 72rpx;
+        height: 72rpx;
+        border-radius: 20rpx;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        
+        &.blue { background: linear-gradient(135deg, #6FCFFB 0%, #409EFF 100%); }
+        &.purple { background: linear-gradient(135deg, #B59DFF 0%, #8E44AD 100%); }
+        &.green { background: linear-gradient(135deg, #81FBB8 0%, #28C76F 100%); }
+        &.orange { background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); }
+        &.pink { background: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 100%); }
+        &.gray { background: linear-gradient(135deg, #E0E0E0 0%, #BDBDBD 100%); }
+      }
       
       .item-text {
         font-size: 30rpx;
         color: #333;
+        font-weight: 500;
       }
     }
   }
@@ -230,14 +291,29 @@ const handleLogout = () => {
 
 .logout-section {
   padding: 40rpx 30rpx;
+  position: relative;
+  z-index: 1;
   
   .logout-btn {
-    background-color: #fff;
+    background-color: rgba(255, 255, 255, 0.8);
     color: #ff4d4f;
-    font-size: 30rpx;
-    border-radius: 16rpx;
+    font-size: 32rpx;
+    font-weight: 600;
+    border-radius: 24rpx;
+    height: 96rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(5px);
+    box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.05);
+    
     &::after {
       border: none;
+    }
+    
+    &:active {
+      background-color: rgba(255, 255, 255, 0.9);
+      transform: scale(0.99);
     }
   }
 }

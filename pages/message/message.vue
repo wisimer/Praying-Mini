@@ -1,5 +1,8 @@
 <template>
 	<view class="page-container">
+    <!-- Background Gradient -->
+    <div class="page-bg"></div>
+
 		<view class="hread-box">
 			<view class="hread">
 				<view class="tab-bar">
@@ -11,7 +14,7 @@
 						@click="switchTab(index)"
 					>
 						<text>{{ tab.name }}</text>
-						<view class="active-line" v-if="currentTab === index"></view>
+						<view class="active-indicator" v-if="currentTab === index"></view>
 						<view class="badge" v-if="tab.count > 0">{{ tab.count }}</view>
 					</view>
 				</view>
@@ -32,7 +35,7 @@
 							<view class="flex align-center">
 								<image :src="item.requester.avatar ? item.requester.avatar : 'https://mp-182cf5aa-f083-45a9-8d28-e12bee639ce3.cdn.bspapp.com/appBgimgs/avatar_default.png'" class="avatar-small"></image>
 								<view class="flex-1 margin-l20">
-									<view class="font-size30 font-weight text-cut" style="max-width: 400rpx;">{{ item.task_name }}</view>
+									<view class="font-size30 font-weight-bold text-cut" style="max-width: 400rpx; color: #333;">{{ item.task_name }}</view>
 									<view class="font-size24 color-8C8888 margin-t10">
 										{{ getMsgTypeDesc(item.msg_type) }} - {{ item.requester.nickname }}
 									</view>
@@ -53,7 +56,7 @@
 							<view class="flex align-center">
 								<image :src="item.user_id[0].avatar" class="d-avatar"></image>
 								<view class="">
-									<view class="font-size28 margin-b12">{{item.user_id[0].nickname}}</view>
+									<view class="font-size28 margin-b12 font-weight-bold">{{item.user_id[0].nickname}}</view>
 									<view class="font-size24 color-8C8888">{{item.comment_type === 1 ? '评论了你的动态' : '回复了你的评论'}}</view>
 								</view>
 							</view>
@@ -61,15 +64,13 @@
 								{{item.comment_content}}
 							</view>
 							<view class="flex align-center margin-t20 font-size22">
-								<view class="font-size28">
+								<view class="font-size24 color-999">
 									{{formatDate(item.comment_date,'YYYY-MM-DD hh:mm')}}
 								</view>
 								<view class="marginlauto flex align-center">
-									<view class="font-size28 margin-l10 flex align-center" @click="toDel(item)">
+									<view class="reply-btn" @click="toDel(item)">
 										<uni-icons type="chat" size="14" color="#8C8888"></uni-icons>
-										<view style="margin-left: 5rpx;">
-											回复
-										</view>
+										<text class="margin-l10">回复</text>
 									</view>
 								</view>
 							</view>
@@ -83,7 +84,7 @@
 			<swiper-item>
 				<scroll-view scroll-y class="scroll-content" @scrolltolower="loadMoreLikes">
 					<view class="padding32">
-						<view class="margin-b24" v-for="item in likeList" :key="item._id">
+						<view class="margin-b24 card-wrapper" v-for="item in likeList" :key="item._id">
 							<DynamicCard 
 								:user-info="item.dynamicInfo[0].userInfo[0]" 
 								:dynamic-detail="item.dynamicInfo[0]"
@@ -499,19 +500,32 @@
 		height: 100vh;
 		display: flex;
 		flex-direction: column;
-		background-color: #F8F8F8;
+		background-color: #f5f7fa;
+        position: relative;
 	}
 
+    .page-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        background: linear-gradient(180deg, #6FCFFB 0%, #B59DFF 100%);
+        z-index: 0;
+        opacity: 0.8;
+    }
+
 	.hread-box {
-		height: 352rpx;
+		height: 160rpx;
 		flex-shrink: 0;
+        position: relative;
+        z-index: 10;
+        padding-top: env(safe-area-inset-top);
 	}
 
 	.hread {
-		width: 750rpx;
-		height: 352rpx;
-		background-image: url('https://mp-182cf5aa-f083-45a9-8d28-e12bee639ce3.cdn.bspapp.com/appBgimgs/xiaoxi.png');
-		background-size: 100% 100%;
+		width: 100%;
+		height: 160rpx;
 		padding: 0 30rpx;
 		display: flex;
 		align-items: flex-end;
@@ -521,6 +535,9 @@
 		left: 0;
 		right: 0;
 		z-index: 9;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        padding-top: calc(40rpx + env(safe-area-inset-top));
 	}
 
 	.tab-bar {
@@ -534,44 +551,48 @@
 		position: relative;
 		padding: 20rpx 40rpx;
 		font-size: 30rpx;
-		color: #352926;
-		opacity: 0.7;
+		color: #fff;
+		opacity: 0.8;
 		transition: all 0.3s;
 
 		&.active {
-			font-weight: bold;
+			font-weight: 800;
 			opacity: 1;
 			font-size: 34rpx;
+            color: #333;
 		}
 
-		.active-line {
+		.active-indicator {
 			position: absolute;
 			bottom: 10rpx;
 			left: 50%;
 			transform: translateX(-50%);
 			width: 40rpx;
-			height: 6rpx;
-			background-color: #352926;
-			border-radius: 3rpx;
+			height: 8rpx;
+			background-color: #FFD700; /* Yellow accent */
+			border-radius: 4rpx;
 		}
 		
 		.badge {
 			position: absolute;
 			top: 10rpx;
 			right: 10rpx;
-			background-color: #FF4D4F;
+			background: linear-gradient(135deg, #FF6B81 0%, #FF8E9E 100%);
 			color: white;
 			font-size: 20rpx;
-			padding: 0 8rpx;
+			padding: 0 10rpx;
 			border-radius: 20rpx;
 			min-width: 30rpx;
 			text-align: center;
+            box-shadow: 0 2rpx 6rpx rgba(255, 107, 129, 0.3);
 		}
 	}
 
 	.content-swiper {
 		flex: 1;
-		height: calc(100vh - 352rpx);
+		height: calc(100vh - 160rpx);
+        position: relative;
+        z-index: 1;
 	}
 
 	.scroll-content {
@@ -584,46 +605,66 @@
 
 	/* Reuse styles */
 	.d-avatar {
-		width: 76rpx;
-		height: 76rpx;
+		width: 88rpx;
+		height: 88rpx;
 		border-radius: 50%;
-		margin-right: 12rpx;
+		margin-right: 20rpx;
+        border: 2rpx solid #eee;
 	}
 
 	.d-dec {
-		padding: 26rpx 0;
-		border-bottom: 1px solid #F3F3F3;
+		padding: 20rpx 0;
+        color: #555;
+        line-height: 1.6;
 	}
 
 	/* Task Item Styles */
-	.task-item {
+	.task-item, .c-card, .card-wrapper {
 		background: #fff;
-		padding: 30rpx;
-		border-radius: 20rpx;
-		box-shadow: 0 2rpx 10rpx rgba(0,0,0,0.05);
+		padding: 32rpx;
+		border-radius: 24rpx;
+		box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.05);
+        margin-bottom: 24rpx;
+        transition: transform 0.2s;
 	}
+    
+    .task-item:active, .c-card:active {
+        transform: scale(0.99);
+    }
 	
 	.avatar-small {
-		width: 80rpx;
-		height: 80rpx;
+		width: 88rpx;
+		height: 88rpx;
 		border-radius: 50%;
+        border: 2rpx solid #f0f0f0;
 	}
 
 	.status-tag {
-		background: #E5EDCB;
-		color: #5F6B41;
-		padding: 6rpx 20rpx;
+		background: #E6F7FF;
+		color: #1890FF;
+		padding: 8rpx 20rpx;
 		border-radius: 30rpx;
 		font-size: 24rpx;
+        font-weight: 600;
 	}
+
+    .reply-btn {
+        display: flex;
+        align-items: center;
+        padding: 8rpx 20rpx;
+        background-color: #f5f7fa;
+        border-radius: 20rpx;
+        color: #666;
+    }
 
 	/* Popup Styles */
 	.popup-card {
 		background-color: #fff;
 		width: 640rpx;
-		border-radius: 24rpx;
-		padding: 30rpx;
+		border-radius: 32rpx;
+		padding: 40rpx;
 		overflow: hidden;
+        box-shadow: 0 8rpx 32rpx rgba(0,0,0,0.1);
 	}
 
 	.card-header {
@@ -636,11 +677,12 @@
 	}
 
 	.card-avatar {
-		width: 100rpx;
-		height: 100rpx;
+		width: 120rpx;
+		height: 120rpx;
 		border-radius: 50%;
-		margin-right: 20rpx;
-		border: 2rpx solid #eee;
+		margin-right: 24rpx;
+		border: 4rpx solid #fff;
+        box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.1);
 	}
 
 	.user-details {
@@ -648,71 +690,80 @@
 	}
 
 	.nickname {
-		font-size: 32rpx;
-		font-weight: bold;
+		font-size: 36rpx;
+		font-weight: 800;
 		color: #333;
 		display: block;
-		margin-bottom: 10rpx;
+		margin-bottom: 12rpx;
 	}
 
 	.profile-btn {
 		display: inline-flex;
 		align-items: center;
-		background-color: #3B82F6; /* Blue color */
-		padding: 8rpx 20rpx;
+		background: linear-gradient(135deg, #6FCFFB 0%, #B59DFF 100%);
+		padding: 10rpx 24rpx;
 		border-radius: 30rpx;
+        box-shadow: 0 4rpx 10rpx rgba(181, 157, 255, 0.3);
 		
 		.btn-text {
 			color: #fff;
 			font-size: 24rpx;
 			margin-left: 8rpx;
+            font-weight: 600;
 		}
 	}
 
 	.content-bubble {
-		background-color: #F3F4F6;
-		padding: 30rpx;
-		border-radius: 20rpx;
-		border-top-left-radius: 4rpx; /* Bubble effect */
+		background-color: #F9FAFB;
+		padding: 32rpx;
+		border-radius: 24rpx;
+        border: 2rpx solid #f0f0f0;
 		margin-bottom: 40rpx;
 		position: relative;
 	}
 
 	.bubble-text {
 		font-size: 30rpx;
-		color: #333;
-		line-height: 1.5;
+		color: #555;
+		line-height: 1.6;
 	}
 
 	.action-buttons {
 		display: flex;
 		justify-content: space-between;
-		gap: 20rpx;
+		gap: 24rpx;
 	}
 
 	.action-btn {
 		flex: 1;
-		height: 88rpx;
-		border-radius: 12rpx;
+		height: 96rpx;
+		border-radius: 48rpx; /* Pill shape */
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		font-size: 30rpx;
-		font-weight: bold;
+		font-size: 32rpx;
+		font-weight: 800;
 		color: #fff;
 		border: none;
-		gap: 10rpx;
+		gap: 12rpx;
+        transition: all 0.2s;
+        box-shadow: 0 6rpx 16rpx rgba(0,0,0,0.1);
 		
 		&.reject {
-			background-color: #EF4444; /* Red */
+			background: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 100%); /* Pink */
+            color: #fff;
+            box-shadow: 0 6rpx 16rpx rgba(255, 154, 158, 0.3);
 		}
 		
 		&.accept {
-			background-color: #3B82F6; /* Blue */
+			background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); /* Yellow/Orange */
+            color: #fff;
+            box-shadow: 0 6rpx 16rpx rgba(255, 165, 0, 0.3);
 		}
 		
 		&:active {
-			opacity: 0.9;
+			transform: scale(0.98);
+            opacity: 0.95;
 		}
 	}
 	
@@ -724,4 +775,16 @@
 	.text-center {
 		text-align: center;
 	}
+    
+    .font-weight-bold {
+        font-weight: bold;
+    }
+    
+    .color-999 {
+        color: #999;
+    }
+    
+    .color-333 {
+        color: #333;
+    }
 </style>
