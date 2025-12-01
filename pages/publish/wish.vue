@@ -1,8 +1,11 @@
 <template>
   <view class="wish-page">
+    <!-- Background Gradient -->
+    <div class="page-bg"></div>
+
     <!-- Navigation -->
     <view class="nav-header">
-      <uni-icons type="back" size="24" @click="goBack"></uni-icons>
+      <uni-icons type="back" size="24" color="#fff" @click="goBack"></uni-icons>
       <text class="title">许愿</text>
       <view class="placeholder"></view>
     </view>
@@ -370,6 +373,18 @@ const closeResult = () => {
   display: flex;
   flex-direction: column;
   background-color: #f5f5f5;
+  position: relative;
+}
+
+.page-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: linear-gradient(180deg, #6FCFFB 0%, #B59DFF 100%);
+  z-index: 0;
+  opacity: 0.9;
 }
 
 .nav-header {
@@ -379,9 +394,18 @@ const closeResult = () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: #fff;
+  background-color: rgba(111, 207, 251, 0.95);
+  backdrop-filter: blur(10px);
+  position: sticky;
+  top: 0;
   z-index: 100;
-  .title { font-size: 18px; font-weight: bold; }
+  
+  .title { 
+    font-size: 20px; 
+    font-weight: 800; 
+    color: #fff; 
+    letter-spacing: 1px;
+  }
   .placeholder { width: 24px; }
 }
 
@@ -393,6 +417,7 @@ const closeResult = () => {
   align-items: center;
   justify-content: center;
   padding: 40px 20px;
+  z-index: 1;
   
   .bg-layer {
     position: absolute;
@@ -424,12 +449,13 @@ const closeResult = () => {
 }
 
 .tools-panel {
-  background-color: #fff;
-  border-radius: 20px 20px 0 0;
-  box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+  background-color: rgba(255, 255, 255, 0.95);
+  border-radius: 24px 24px 0 0; /* Larger radius */
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
   padding-bottom: 20px;
   transition: transform 0.3s ease;
   z-index: 90;
+  backdrop-filter: blur(10px);
   
   &.collapsed {
     transform: translateY(100%);
@@ -437,38 +463,39 @@ const closeResult = () => {
   
   .tool-tabs {
     display: flex;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
     
     .tab-item {
       flex: 1;
-      height: 44px;
+      height: 50px;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 6px;
-      font-size: 14px;
+      font-size: 15px;
       color: #666;
       position: relative;
       
       &.active {
         color: #FF6B81;
-        font-weight: 500;
+        font-weight: 600;
         
         &::after {
           content: '';
           position: absolute;
           bottom: 0;
-          width: 30px;
-          height: 2px;
+          width: 24px;
+          height: 3px;
           background: #FF6B81;
+          border-radius: 2px;
         }
       }
     }
   }
   
   .tool-content {
-    height: 140px; // Fixed height for settings area
-    padding: 16px;
+    height: 150px; // Fixed height for settings area
+    padding: 20px;
     box-sizing: border-box;
   }
 }
@@ -476,19 +503,22 @@ const closeResult = () => {
 .setting-group {
   .mode-selector {
     display: flex;
-    gap: 10px;
-    margin-bottom: 16px;
+    gap: 12px;
+    margin-bottom: 20px;
     
     .mode-btn {
-      padding: 6px 16px;
-      background: #f5f5f5;
-      border-radius: 16px;
-      font-size: 12px;
+      padding: 8px 20px;
+      background: #f5f7fa;
+      border-radius: 20px; /* Pill */
+      font-size: 13px;
       color: #666;
+      font-weight: 500;
+      transition: all 0.2s;
       
       &.active {
         background: #FF6B81;
         color: #fff;
+        box-shadow: 0 4px 10px rgba(255, 107, 129, 0.3);
       }
     }
   }
@@ -499,15 +529,16 @@ const closeResult = () => {
     
     .preset-list {
       display: flex;
-      gap: 12px;
+      gap: 16px;
       padding-right: 20px;
       
       .preset-item {
-        width: 40px;
-        height: 40px;
-        border-radius: 8px;
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
         border: 2px solid transparent;
         display: inline-block;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
         
         &.active {
           border-color: #FF6B81;
@@ -519,30 +550,32 @@ const closeResult = () => {
   
   .image-uploader {
     height: 80px;
-    border: 1px dashed #ccc;
-    border-radius: 8px;
+    border: 2px dashed #ddd;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: #999;
     font-size: 14px;
+    background-color: #fafafa;
   }
   
   .control-row {
     display: flex;
     align-items: center;
-    margin-bottom: 16px;
+    margin-bottom: 20px;
     
     &.vertical {
       flex-direction: column;
       align-items: flex-start;
-      gap: 8px;
+      gap: 12px;
     }
     
     .label {
-      width: 40px;
+      width: 50px;
       font-size: 14px;
-      color: #666;
+      color: #333;
+      font-weight: 500;
     }
     
     .slider {
@@ -552,39 +585,42 @@ const closeResult = () => {
     .value {
       width: 40px;
       text-align: right;
-      font-size: 12px;
-      color: #999;
+      font-size: 13px;
+      color: #666;
     }
     
     .color-item {
-      width: 30px;
-      height: 30px;
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
       border: 2px solid #fff;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
       display: inline-block;
       
       &.active {
         transform: scale(1.2);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        border-color: #FF6B81;
       }
     }
   }
 }
 
 .action-bar {
-  padding: 10px 20px;
-  padding-bottom: calc(10px + env(safe-area-inset-bottom));
-  background: #fff;
-  border-top: 1px solid #f0f0f0;
+  padding: 20px 30px;
+  padding-bottom: calc(20px + env(safe-area-inset-bottom));
+  background: rgba(255, 255, 255, 0.9);
+  border-top: none;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+  backdrop-filter: blur(10px);
   
   .wish-btn {
     height: 60px;
-    border-radius: 8px;
-    background: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 100%);
+    border-radius: 30px;
+    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); /* Yellow/Orange */
     color: #fff;
-    font-size: 18px;
-    font-weight: bold;
+    font-size: 20px;
+    font-weight: 800;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -592,12 +628,15 @@ const closeResult = () => {
     transition: all 0.3s ease;
     overflow: hidden;
     position: relative;
+    box-shadow: 0 8px 20px rgba(255, 165, 0, 0.3);
     
     &.shrink {
       width: 60px;
       border-radius: 30px;
       margin: 0 auto; // Center it
       padding: 0;
+      background: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 100%); /* Pink for animation */
+      box-shadow: 0 8px 20px rgba(255, 107, 129, 0.4);
     }
     
     &:active {

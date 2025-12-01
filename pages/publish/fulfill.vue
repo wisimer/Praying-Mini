@@ -1,7 +1,10 @@
 <template>
   <view class="fulfill-page">
+    <!-- Background Gradient -->
+    <div class="page-bg"></div>
+
     <view class="nav-header">
-      <uni-icons type="back" size="24" @click="goBack"></uni-icons>
+      <uni-icons type="back" size="24" color="#fff" @click="goBack"></uni-icons>
       <text class="title">我要还愿</text>
       <view class="placeholder"></view>
     </view>
@@ -55,6 +58,7 @@
             placeholder="写下你的还愿感言，感谢神恩..."
             :maxlength="200"
             :disabled="!selectedWishId"
+            placeholder-style="color: #ccc"
           ></textarea>
           <text class="char-count">{{ fulfillContent.length }}/200</text>
         </view>
@@ -177,6 +181,18 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   background-color: #f9f9f9;
+  position: relative;
+}
+
+.page-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: linear-gradient(180deg, #6FCFFB 0%, #B59DFF 100%);
+  z-index: 0;
+  opacity: 0.9;
 }
 
 .nav-header {
@@ -186,9 +202,18 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: #fff;
+  background-color: rgba(111, 207, 251, 0.95);
+  backdrop-filter: blur(10px);
+  position: sticky;
+  top: 0;
   z-index: 100;
-  .title { font-size: 18px; font-weight: bold; color: #333; }
+  
+  .title { 
+    font-size: 20px; 
+    font-weight: 800; 
+    color: #fff; 
+    letter-spacing: 1px;
+  }
   .placeholder { width: 24px; }
 }
 
@@ -196,6 +221,7 @@ onMounted(() => {
   flex: 1;
   padding: 20px;
   box-sizing: border-box;
+  z-index: 1;
 }
 
 .section-header {
@@ -203,12 +229,25 @@ onMounted(() => {
   .section-title {
     font-size: 18px;
     font-weight: bold;
-    color: #333;
+    color: #fff; /* White on gradient */
     margin-right: 8px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    display: inline-flex;
+    align-items: center;
+    
+    &::before {
+      content: '';
+      display: block;
+      width: 4px;
+      height: 18px;
+      background-color: #FFD700;
+      margin-right: 8px;
+      border-radius: 2px;
+    }
   }
   .section-subtitle {
     font-size: 12px;
-    color: #999;
+    color: rgba(255,255,255,0.8);
   }
 }
 
@@ -224,19 +263,21 @@ onMounted(() => {
 }
 
 .wish-item {
-  background: #fff;
-  padding: 16px;
-  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 20px;
+  border-radius: 20px; /* Larger radius */
   display: flex;
   align-items: center;
   justify-content: space-between;
   border: 2px solid transparent;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  backdrop-filter: blur(5px);
   
   &.active {
     border-color: #FF6B81;
-    background-color: #fff5f6;
+    background-color: #fff;
+    box-shadow: 0 8px 20px rgba(255, 107, 129, 0.15);
   }
   
   .wish-content-wrapper {
@@ -246,10 +287,11 @@ onMounted(() => {
     flex-direction: column;
     
     .wish-content {
-      font-size: 15px;
+      font-size: 16px;
       color: #333;
-      margin-bottom: 6px;
-      line-height: 1.4;
+      margin-bottom: 8px;
+      line-height: 1.5;
+      font-weight: 500;
       display: -webkit-box;
       -webkit-box-orient: vertical;
       -webkit-line-clamp: 2;
@@ -263,17 +305,18 @@ onMounted(() => {
   }
   
   .radio-circle {
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
     border: 2px solid #ddd;
     display: flex;
     align-items: center;
     justify-content: center;
+    background-color: #fff;
     
     .radio-inner {
-      width: 10px;
-      height: 10px;
+      width: 14px;
+      height: 14px;
       border-radius: 50%;
       background-color: #FF6B81;
     }
@@ -290,7 +333,7 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   padding: 40px 0;
-  color: #999;
+  color: rgba(255,255,255,0.8);
   font-size: 14px;
   
   .rotating {
@@ -302,7 +345,7 @@ onMounted(() => {
     width: 120px;
     height: 120px;
     margin-bottom: 10px;
-    opacity: 0.5;
+    opacity: 0.8;
   }
 }
 
@@ -319,52 +362,58 @@ onMounted(() => {
   }
   
   .textarea-wrapper {
-    background: #fff;
-    border-radius: 12px;
-    padding: 16px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    padding: 20px;
     position: relative;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    backdrop-filter: blur(5px);
     
     .fulfill-input {
       width: 100%;
-      height: 120px;
-      font-size: 15px;
-      line-height: 1.5;
+      height: 140px;
+      font-size: 16px;
+      line-height: 1.6;
       color: #333;
     }
     
     .char-count {
       position: absolute;
-      bottom: 12px;
-      right: 16px;
-      font-size: 12px;
-      color: #ccc;
+      bottom: 16px;
+      right: 20px;
+      font-size: 13px;
+      color: #999;
     }
   }
 }
 
 .action-bar {
-  padding: 16px 20px;
-  padding-bottom: calc(16px + env(safe-area-inset-bottom));
-  background: #fff;
-  border-top: 1px solid #f0f0f0;
+  padding: 20px 30px;
+  padding-bottom: calc(20px + env(safe-area-inset-bottom));
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  border-top: none;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+  z-index: 100;
   
   .fulfill-btn {
-    height: 50px;
-    border-radius: 25px;
-    background: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 100%);
+    height: 56px;
+    border-radius: 30px;
+    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
     color: #fff;
-    font-size: 16px;
-    font-weight: bold;
+    font-size: 18px;
+    font-weight: 800;
     display: flex;
     align-items: center;
     justify-content: center;
     border: none;
     transition: all 0.3s;
+    box-shadow: 0 8px 20px rgba(255, 165, 0, 0.3);
     
     &.disabled {
       opacity: 0.6;
       background: #ccc;
+      box-shadow: none;
     }
     
     &:active:not(.disabled) {

@@ -1,7 +1,10 @@
 <template>
   <div class="check-container">
+    <!-- Background Gradient -->
+    <div class="page-bg"></div>
+
     <div class="nav-header">
-      <uni-icons type="back" size="24" @click="goBack"></uni-icons>
+      <uni-icons type="back" size="24" color="#fff" @click="goBack"></uni-icons>
       <span class="title">任务完成确认</span>
       <div class="placeholder"></div>
     </div>
@@ -149,6 +152,18 @@ const handleAction = async (action) => {
   background-color: #f8f9fa;
   display: flex;
   flex-direction: column;
+  position: relative;
+}
+
+.page-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: linear-gradient(180deg, #6FCFFB 0%, #B59DFF 100%);
+  z-index: 0;
+  opacity: 0.9;
 }
 
 .nav-header {
@@ -158,11 +173,17 @@ const handleAction = async (action) => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: #fff;
+  background-color: rgba(111, 207, 251, 0.95);
+  backdrop-filter: blur(10px);
+  position: sticky;
+  top: 0;
+  z-index: 100;
   
   .title {
-    font-size: 18px;
-    font-weight: bold;
+    font-size: 20px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: 1px;
   }
   
   .placeholder {
@@ -174,43 +195,60 @@ const handleAction = async (action) => {
   flex: 1;
   padding: 20px;
   padding-bottom: 100px;
+  z-index: 1;
 }
 
 .section-title {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: bold;
-  color: #333;
+  color: #fff; /* White on gradient */
   margin-bottom: 12px;
   margin-top: 20px;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
   
   &:first-child {
     margin-top: 0;
   }
+  
+  &::before {
+    content: '';
+    display: block;
+    width: 4px;
+    height: 18px;
+    background-color: #FFD700;
+    margin-right: 8px;
+    border-radius: 2px;
+  }
 }
 
 .text-content {
-  background-color: #fff;
-  padding: 16px;
-  border-radius: 12px;
-  font-size: 15px;
+  background-color: rgba(255, 255, 255, 0.95);
+  padding: 20px;
+  border-radius: 20px; /* Larger radius */
+  font-size: 16px;
   line-height: 1.6;
   color: #333;
   min-height: 100px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  backdrop-filter: blur(5px);
 }
 
 .image-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 12px;
   
   .image-item {
-    width: calc((100% - 20px) / 3);
+    width: calc((100% - 24px) / 3);
     height: 0;
-    padding-bottom: calc((100% - 20px) / 3);
+    padding-bottom: calc((100% - 24px) / 3);
     position: relative;
-    border-radius: 8px;
+    border-radius: 16px; /* Rounded */
     overflow: hidden;
-    background-color: #fff;
+    background-color: rgba(255,255,255,0.5);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     
     .thumb {
       position: absolute;
@@ -225,44 +263,51 @@ const handleAction = async (action) => {
 .loading-state {
   text-align: center;
   padding: 40px;
-  color: #999;
+  color: rgba(255,255,255,0.8);
 }
 
 .footer-action {
-  padding: 20px;
+  padding: 20px 30px;
   padding-bottom: calc(20px + env(safe-area-inset-bottom));
-  background-color: #fff;
+  background-color: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
   position: fixed;
   bottom: 0;
   left: 0;
   width: 100%;
-  box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
   display: flex;
   gap: 20px;
+  z-index: 100;
   
   .action-btn {
     flex: 1;
-    height: 50px;
-    border-radius: 25px;
+    height: 56px;
+    border-radius: 30px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 16px;
-    font-weight: bold;
+    font-weight: 800;
     color: #fff;
     border: none;
     gap: 8px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    transition: transform 0.2s;
     
     &.reject {
-      background-color: #EF4444;
+      background: linear-gradient(135deg, #FF6B81 0%, #FF8E9E 100%); /* Soft Red/Pink */
+      box-shadow: 0 8px 20px rgba(255, 107, 129, 0.3);
     }
     
     &.accept {
-      background-color: #3B82F6;
+      background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); /* Yellow/Orange */
+      box-shadow: 0 8px 20px rgba(255, 165, 0, 0.3);
     }
     
     &:active {
-      opacity: 0.9;
+      opacity: 0.95;
+      transform: scale(0.98);
     }
   }
 }

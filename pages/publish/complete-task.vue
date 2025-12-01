@@ -1,7 +1,10 @@
 <template>
   <div class="publish-container">
+    <!-- Background Gradient -->
+    <div class="page-bg"></div>
+
     <div class="nav-header">
-      <uni-icons type="back" size="24" @click="goBack"></uni-icons>
+      <uni-icons type="back" size="24" color="#fff" @click="goBack"></uni-icons>
       <span class="title">提交完成结果</span>
       <div class="placeholder"></div>
     </div>
@@ -14,6 +17,7 @@
           v-model="taskContent" 
           placeholder="请详细描述任务完成情况..." 
           maxlength="500"
+          placeholder-style="color: #ccc"
         ></textarea>
         <div class="word-count">{{ taskContent.length }}/500</div>
       </div>
@@ -34,7 +38,7 @@
             </div>
           </div>
           <div class="upload-btn" @click="chooseImage" v-if="imageList.length < 9">
-            <uni-icons type="camera-filled" size="30" color="#ccc"></uni-icons>
+            <uni-icons type="camera-filled" size="30" color="#999"></uni-icons>
           </div>
         </div>
       </div>
@@ -163,6 +167,18 @@ const handleSubmit = async () => {
   background-color: #f8f9fa;
   display: flex;
   flex-direction: column;
+  position: relative;
+}
+
+.page-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: linear-gradient(180deg, #6FCFFB 0%, #B59DFF 100%);
+  z-index: 0;
+  opacity: 0.9;
 }
 
 .nav-header {
@@ -172,11 +188,17 @@ const handleSubmit = async () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: #fff;
+  background-color: rgba(111, 207, 251, 0.95);
+  backdrop-filter: blur(10px);
+  position: sticky;
+  top: 0;
+  z-index: 100;
   
   .title {
-    font-size: 18px;
-    font-weight: bold;
+    font-size: 20px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: 1px;
   }
   
   .placeholder {
@@ -187,51 +209,70 @@ const handleSubmit = async () => {
 .form-content {
   flex: 1;
   padding: 20px;
+  z-index: 1;
   
   .form-item {
-    margin-bottom: 20px;
+    margin-bottom: 24px;
     
     .label {
-      font-size: 14px;
-      color: #333;
-      margin-bottom: 8px;
-      font-weight: 500;
+      font-size: 15px;
+      color: #fff;
+      margin-bottom: 10px;
+      font-weight: 600;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+      display: flex;
+      align-items: center;
+      
+      &::before {
+        content: '';
+        display: block;
+        width: 4px;
+        height: 16px;
+        background-color: #FFD700;
+        margin-right: 8px;
+        border-radius: 2px;
+      }
     }
   }
   
   .input-group {
-    background-color: #fff;
-    border-radius: 12px;
-    padding: 16px;
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    backdrop-filter: blur(5px);
     
     .task-input {
       width: 100%;
-      height: 150px;
-      font-size: 15px;
-      line-height: 1.5;
+      height: 180px;
+      font-size: 16px;
+      line-height: 1.6;
       border: none;
       outline: none;
+      color: #333;
     }
     
     .word-count {
       text-align: right;
       color: #999;
-      font-size: 12px;
+      font-size: 13px;
+      margin-top: 8px;
     }
   }
   
   .image-grid {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 12px;
     
     .image-item {
-      width: calc((100% - 20px) / 3);
+      width: calc((100% - 24px) / 3);
       height: 0;
-      padding-bottom: calc((100% - 20px) / 3);
+      padding-bottom: calc((100% - 24px) / 3);
       position: relative;
-      border-radius: 8px;
+      border-radius: 16px;
       overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
       
       .thumb {
         position: absolute;
@@ -243,29 +284,31 @@ const handleSubmit = async () => {
       
       .delete-btn {
         position: absolute;
-        top: 4px;
-        right: 4px;
-        background-color: rgba(0,0,0,0.5);
+        top: 6px;
+        right: 6px;
+        background-color: rgba(255, 107, 129, 0.9);
         border-radius: 50%;
-        width: 20px;
-        height: 20px;
+        width: 24px;
+        height: 24px;
         display: flex;
         align-items: center;
         justify-content: center;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
       }
     }
     
     .upload-btn {
-      width: calc((100% - 20px) / 3);
+      width: calc((100% - 24px) / 3);
       height: 0;
-      padding-bottom: calc((100% - 20px) / 3);
-      background-color: #fff;
-      border-radius: 8px;
+      padding-bottom: calc((100% - 24px) / 3);
+      background-color: rgba(255, 255, 255, 0.6);
+      border-radius: 16px;
       display: flex;
       align-items: center;
       justify-content: center;
-      border: 1px dashed #ccc;
+      border: 2px dashed #fff;
       position: relative;
+      backdrop-filter: blur(5px);
       
       .uni-icons {
         position: absolute;
@@ -278,33 +321,40 @@ const handleSubmit = async () => {
 }
 
 .footer-action {
-  padding: 20px;
+  padding: 20px 30px;
   padding-bottom: calc(20px + env(safe-area-inset-bottom));
-  background-color: #fff;
+  background-color: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
   position: fixed;
   bottom: 0;
   left: 0;
   width: 100%;
-  box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+  z-index: 100;
   
   .submit-btn {
-    background-color: #333;
+    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
     color: #fff;
-    border-radius: 25px;
-    height: 50px;
+    border-radius: 30px;
+    height: 56px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 18px;
-    font-weight: bold;
+    font-weight: 800;
     border: none;
+    box-shadow: 0 8px 20px rgba(255, 165, 0, 0.3);
+    transition: transform 0.2s;
     
     &:active {
-      opacity: 0.9;
+      transform: scale(0.98);
+      opacity: 0.95;
     }
     
     &:disabled {
       opacity: 0.7;
+      background: #ccc;
+      box-shadow: none;
     }
   }
 }
