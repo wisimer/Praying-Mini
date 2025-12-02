@@ -12,12 +12,52 @@
 			<view class="userInfo flex align-center ">
 				<image class="avatar" :src="userInfo.avatar_file ? userInfo.avatar_file.url : BASE_URL_AVATAR"></image>
 				<view class="margin-l20">
-					<view class="font-size30 margin-b16 color-352926 font-weight"> {{userInfo.nickname || '清愿者'}} </view>
+					<view class="font-size30 margin-b16 color-352926 font-weight"> {{userInfo.nickname || '毛星人'}} </view>
 					<view class="flex">
-						<view class="chenghao"> {{ palyer.achievement_id[0].name || '清愿者' }} </view>
+						<view class="chenghao"> {{ palyer.achievement_id[0].name || '初级铲屎官' }} </view>
+					</view>
+				</view>
+				<!-- <image class="siliao" v-if="store.userInfo._id !== userInfo._id"
+					src="https://mp-182cf5aa-f083-45a9-8d28-e12bee639ce3.cdn.bspapp.com/appBgimgs/siliao.png" @click="toMessage">
+				</image> -->
+				<view class="follow marginlauto" :class="isFollow ? 'follow-s':''" v-if="store.userInfo._id !== userInfo._id"
+					@click="toFollow">
+					{{isFollow?'已关注':'关注'}}
+				</view>
+			</view>
+
+			<view class="userInfo flex" style="padding: 0 30rpx;">
+				<view class="margin-r40 flex align-center">
+					<text class="margin-r10 font-size22 color-8C8888">关注</text>
+					<text class="font-size26 font-weight">{{myFollow}}</text>
+				</view>
+				<view class="margin-r40  flex align-center">
+					<text class="margin-r10 font-size22 color-8C8888">粉丝</text>
+					<text class="font-size26 font-weight">{{fans}}</text>
+				</view>
+			</view>
+
+			<view class="userInfo flex align-center justify-between">
+				<view class="">
+					<view class="margin-b30 flex align-center">
+						<image class="dengji"
+							src="https://mp-182cf5aa-f083-45a9-8d28-e12bee639ce3.cdn.bspapp.com/appBgimgs/dengji.png" mode="">
+						</image>
+						<view class="color-775047 font-size36 font-weight">
+							Lv.{{palyer.level || 1}}
+						</view>
+					</view>
+					<view class="flex justify-between">
+						<view class="stats-item flex align-center padding-lr10 font-size26" v-for="item in stats" :key="item.id">
+							<image class="icon" :src="item.icon"></image>
+							<view class="marginlauto margin-r10">
+								{{item.value}}
+							</view>
+						</view>
 					</view>
 				</view>
 
+				<image :src="palyer.pet_modal_id[0].url" class="model"></image>
 			</view>
 
 			<view class="content">
@@ -27,8 +67,36 @@
 						{{item.name}}
 					</view>
 				</view>
-			
-				<template >
+				<template v-if="menuIndex === 1">
+					<view class="flex justify-between align-center margin-b20">
+						<view class="font-size32 font-weight">成就墙</view>
+					</view>
+					<view class="chengjiu margin-b40" v-if="achievements.length > 0">
+						<view class="flex flex-direction align-center" v-for="item in achievements" :key="item._id">
+							<image class="c-img" :src="item.achievement_id[0].icon" mode="">
+							</image>
+							<text class="font-size22 font-weight">{{item.achievement_id[0].name}}</text>
+						</view>
+					</view>
+					<view class="tiaozhan" v-if="achievements.length === 0">
+						<Empty></Empty>
+					</view>
+					<view class="flex justify-between align-center margin-b20">
+						<view class="font-size32 font-weight">月挑战</view>
+					</view>
+					<view class="chengjiu margin-b40" v-if="challenges.length > 0">
+						<view class="flex flex-direction align-center" v-for="item in challenges" :key="item._id">
+							<image class="tiaozhan-img" :src="item.challenge_id[0].award_icon">
+							</image>
+							<text class="font-size22 font-weight">{{item.challenge_id[0].month}}</text>
+						</view>
+					</view>
+					<view class="tiaozhan" v-if="challenges.length === 0">
+						<Empty></Empty>
+					</view>
+				</template>
+
+				<template v-else>
 					<view class="flex margin-b30" v-for="(item,index) in dynamicList" :key="item._id" @click="toDel(item)">
 						<view class="flex flex-direction align-center">
 							<view class="print"></view>
@@ -95,8 +163,11 @@
 	const pageNum = ref(0)
 	const dynamicCount = ref(0)
 
-	const menus = ref([ {
+	const menus = ref([{
 		id: 1,
+		name: '成就'
+	}, {
+		id: 2,
 		name: '动态'
 	}])
 
@@ -150,9 +221,7 @@
 				return val
 			})
 			dynamicList.value = [...dynamicList.value, ...arr]
-		}).finally(() => {
-			uni.hideLoading()
-		}) 
+		})
 	}
 
 
@@ -176,13 +245,23 @@
 		
 		if (store.userInfo._id == user_id) {
 			menus.value = [{
-				id: 1,
+				id: 2,
 				name: '动态'
 			}]
-			menuIndex.value = 1
+			menuIndex.value = 2
 		}
 		showLoading()
 		userID.value = user_id
+		getPlayerInfo(user_id).then(res => {
+			userInfo.value = res.dataList[0].data
+			achievements.value = res.dataList[1].data
+			palyer.value = res.dataList[2].data
+			challenges.value = res.dataList[3].data
+			setPalyer(palyer.value)
+		}).finally(() => {
+			uni.hideLoading()
+		})
+
 		initDynamic()
 		// initFollow(user_id)
 	})
@@ -245,8 +324,8 @@
 <style lang="scss" scoped>
 	.hread {
 		width: 750rpx;
-		height: 312rpx;
-		background-color: #dce5bf;
+		height: 812rpx;
+		background-image: url('https://mp-182cf5aa-f083-45a9-8d28-e12bee639ce3.cdn.bspapp.com/appBgimgs/zhuyebg.png');
 		background-size: 100% 100%;
 		box-sizing: border-box;
 	}
