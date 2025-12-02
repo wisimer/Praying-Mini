@@ -22,14 +22,11 @@
 
 			<view class="content">
 				<view class="flex justify-center margin-b40">
-					<view class="menu" :class="item.id === menuIndex ? ' menu-ac' : ''" v-for="(item,index) in menus"
-						:key="item.id" @click="changeMenu(item.id)">
-						{{item.name}}
+					<view class="menu  menu-ac" >
+						动态
 					</view>
 				</view>
-			
-				<template >
-					<view class="flex margin-b30" v-for="(item,index) in dynamicList" :key="item._id" @click="toDel(item)">
+			<view class="flex margin-b30" v-for="(item,index) in dynamicList" :key="item._id" @click="toDel(item)">
 						<view class="flex flex-direction align-center">
 							<view class="print"></view>
 							<view class="line" v-if="index<dynamicList.length-1"></view>
@@ -60,8 +57,6 @@
 							</view>
 						</view>
 					</view>
-					<Empty v-if="dynamicList.length === 0"></Empty>
-				</template>
 			</view>
 		</view>
 
@@ -150,9 +145,8 @@
 				return val
 			})
 			dynamicList.value = [...dynamicList.value, ...arr]
-		}).finally(() => {
-			uni.hideLoading()
-		}) 
+			
+		})
 	}
 
 
@@ -183,6 +177,15 @@
 		}
 		showLoading()
 		userID.value = user_id
+		getPlayerInfo(user_id).then(res => {
+			userInfo.value = res.dataList[0].data
+			achievements.value = res.dataList[1].data
+			palyer.value = res.dataList[2].data
+			challenges.value = res.dataList[3].data
+			setPalyer(palyer.value)
+		}).finally(() => {
+			uni.hideLoading()
+		})
 		initDynamic()
 		// initFollow(user_id)
 	})
