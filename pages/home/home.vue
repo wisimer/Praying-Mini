@@ -22,9 +22,7 @@
           @like="handleLike(item)"
         />
       </div>
-      <div class="loading-state" v-if="loading">
-        Loading...
-      </div>
+      <Loading :visible="loading" />
       <div class="empty-state" v-if="!loading && displayWishList.length === 0">
         暂无数据
       </div>
@@ -47,6 +45,7 @@ import TabBar from '@/components/TabBar.vue'
 import WishCard from '@/components/WishCard.vue'
 import WishCardDetail from '@/components/WishCardDetail.vue'
 import AddIconComponent from '@/components/AddIconComponent/AddIconComponent.vue'
+import Loading from '@/components/Loading/index.vue'
 import { getHomeWishList, setLike, removeLike } from '@/cloud-api/dynamic.js'
 import { store } from '@/uni_modules/uni-id-pages/common/store.js'
 
@@ -307,11 +306,5 @@ onPullDownRefresh(() => {
   display: flex;
   flex-direction: column;
   gap: 20px;
-}
-
-.loading-state {
-  text-align: center;
-  padding: 40px;
-  color: #999;
 }
 </style>

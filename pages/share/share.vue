@@ -18,7 +18,8 @@
 			<view class="card-wrapper" v-for="item in shares" :key="item.id">
 				<DynamicCard :user-info="item.user_id[0]" :dynamic-detail="item" :isDetails="true"></DynamicCard>
 			</view>
-			<Empty v-if="shares.length === 0"></Empty>
+      <Loading :visible="loading" />
+			<Empty v-if="!loading && shares.length === 0"></Empty>
 		</view>
 
     <AddIconComponent style="margin-right: 24rpx;"/>
@@ -33,6 +34,7 @@
 	import DynamicCard from '@/components/Dynamic-card/index.vue'
 	import Empty from '@/components/Empty/index.vue'
 	import AddIconComponent from '@/components/AddIconComponent/AddIconComponent.vue'
+  import Loading from '@/components/Loading/index.vue'
 
   onShow(() => {
     // uni.hideTabBar()
@@ -64,6 +66,7 @@
 	const shares = ref([])
 	const pageNum = ref(0)
 	const isQuery = ref(true)
+  const loading = ref(false)
 
 	const changeMenu = (index) => {
 		menuIndex.value = index
@@ -75,6 +78,7 @@
 
 
 	const init = () => {
+    loading.value = true
 		return getDynamicListAggregate({
 			pageNum: pageNum.value,
 			state: menuIndex.value
@@ -87,7 +91,9 @@
 				return val
 			})
 			shares.value = [...shares.value, ...arr]
-		})
+		}).finally(() => {
+      loading.value = false
+    })
 	}
 
 	onLoad(() => {
