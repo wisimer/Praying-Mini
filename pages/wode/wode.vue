@@ -23,20 +23,6 @@
       </view>
     </view>
 
-    <!-- Login Popup -->
-    <uni-popup ref="loginPopup" type="center" :is-mask-click="true">
-      <view class="login-box">
-        <view class="login-title">欢迎登录</view>
-        <view class="input-group">
-          <input class="login-input" type="text" v-model="loginForm.username" placeholder="请输入用户名" />
-        </view>
-        <view class="input-group">
-          <input class="login-input" type="password" v-model="loginForm.password" placeholder="请输入密码" />
-        </view>
-        <button class="login-submit-btn" @click="handleLogin" :loading="isLoggingIn">登录</button>
-      </view>
-    </uni-popup>
-
     <!-- Menu List -->
     <view class="menu-list">
       <!-- Group 1: Tasks & Wishes -->
@@ -114,7 +100,7 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref } from 'vue'
 import { onLoad, onShow } from '@dcloudio/uni-app'
 import { store, mutations } from '@/uni_modules/uni-id-pages/common/store'
 import { toNextPage, showModal, showToast, showLoading } from '@/core/app.js'
@@ -123,12 +109,6 @@ import { getWodePage } from '@/cloud-api/index.js'
 
 const can = ref(0)
 const coin = ref(0)
-const loginPopup = ref(null)
-const isLoggingIn = ref(false)
-const loginForm = reactive({
-  username: '',
-  password: ''
-})
 
 onShow(() => {
   if (store.hasLogin) {
@@ -148,41 +128,9 @@ const handleAvatarClick = () => {
   if (store.hasLogin) {
     toNextPage('/uni_modules/uni-id-pages/pages/userinfo/userinfo')
   } else {
-    loginPopup.value.open()
-  }
-}
-
-const handleLogin = async () => {
-  if (!loginForm.username || !loginForm.password) {
-    return showToast('请输入用户名和密码')
-  }
-  
-  isLoggingIn.value = true
-  const uniIdCo = uniCloud.importObject("uni-id-co")
-  
-  try {
-    const res = await uniIdCo.login({
-      username: loginForm.username,
-      password: loginForm.password
+    uni.navigateTo({
+      url: '/uni_modules/uni-id-pages/pages/login/login-withpwd'
     })
-    
-    if (res.errCode) {
-      showToast(res.errMsg || '登录失败')
-    } else {
-      // Login success
-      mutations.loginSuccess(res)
-      showToast('登录成功')
-      loginPopup.value.close()
-      initData()
-      // Clear form
-      loginForm.username = ''
-      loginForm.password = ''
-    }
-  } catch (e) {
-    console.error(e)
-    showToast(e.message || '登录失败')
-  } finally {
-    isLoggingIn.value = false
   }
 }
 
@@ -207,49 +155,6 @@ const handleLogout = () => {
 </script>
 
 <style lang="scss" scoped>
-.login-box {
-  width: 600rpx;
-  background-color: #fff;
-  border-radius: 24rpx;
-  padding: 40rpx;
-  
-  .login-title {
-    font-size: 36rpx;
-    font-weight: bold;
-    text-align: center;
-    margin-bottom: 40rpx;
-    color: #333;
-  }
-  
-  .input-group {
-    margin-bottom: 30rpx;
-    
-    .login-input {
-      height: 88rpx;
-      background-color: #f5f7fa;
-      border-radius: 12rpx;
-      padding: 0 30rpx;
-      font-size: 28rpx;
-    }
-  }
-  
-  .login-submit-btn {
-    background: linear-gradient(135deg, #6FCFFB 0%, #B59DFF 100%);
-    color: #fff;
-    font-size: 32rpx;
-    height: 88rpx;
-    border-radius: 44rpx;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: 40rpx;
-    
-    &::after {
-      border: none;
-    }
-  }
-}
-
 .page-container {
   min-height: 100vh;
   background-color: #f5f7fa;
