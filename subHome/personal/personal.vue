@@ -242,6 +242,7 @@
 	}
 
 	onLoad(({ user_id }) => {
+		
 		if (store.userInfo._id == user_id) {
 			menus.value = [{
 				id: 2,

@@ -97,6 +97,7 @@ export const showModal = (optios) => {
 
 export const toNextPage = (url) => {
 	if (!url) return showToast('请输入URL地址')
+		
 	uni.navigateTo({
 		url: url
 	})

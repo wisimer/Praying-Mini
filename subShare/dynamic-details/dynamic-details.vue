@@ -22,10 +22,10 @@
 
     <view class="content-wrapper" v-if="!loading">
       <!-- User Info -->
-      <view class="user-info-section" @click="toNextPage(`/subHome/personal/personal?user_id=${userInfo._id}`)">
-        <image class="user-avatar" :src="userInfo?.avatar_file ? userInfo.avatar_file.url : BASE_URL_AVATAR"></image>
-        <view class="user-name">{{ userInfo.nickname }}</view>
-      </view>
+    <view class="user-info-section" @click="toUserProfile(userInfo._id)" :class="{'clickable': userInfo._id}">
+      <image class="user-avatar" :src="userInfo?.avatar_file ? userInfo.avatar_file.url : BASE_URL_AVATAR"></image>
+      <view class="user-name">{{ userInfo.nickname }}</view>
+    </view>
 
       <!-- Task Content -->
       <view class="task-content">
@@ -418,6 +418,13 @@
 	}
 
 
+  const toUserProfile = (userId) => {
+    if (!userId) {
+      return showToast('用户ID无效')
+    }
+    toNextPage(`/subHome/personal/personal?user_id=${userId}`)
+  }
+
 	onLoad(({ id }) => {
 		// showLoading()
     loading.value = true
@@ -529,6 +536,12 @@
       font-weight: 800;
       color: #333;
       margin-top: 16rpx;
+    }
+    
+    &.clickable:active {
+      opacity: 0.8;
+      transform: scale(0.98);
+      transition: all 0.2s;
     }
   }
 

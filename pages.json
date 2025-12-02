@@ -381,10 +381,15 @@
 			"subMessage/follow/follow",
 			"subMessage/collection/collection",
 			"subWode/pet-manage/pet-manage",
-			"subHome/personal/personal",
+			// "subHome/personal/personal",
 			"subWode/achievements/achievements",
 			"subWode/leave-message/leave-message",
-			"subWode/challenge-success/challenge-success"
+			"subWode/challenge-success/challenge-success",
+			"wode/wish-list/wish-list",
+			"wode/task-published/task-published",
+			"wode/recharge/recharge",
+			"wode/task-accepted/task-accepted",
+			"message/message"
 		],
 		"resToLogin": false
 	}
