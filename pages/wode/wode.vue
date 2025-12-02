@@ -161,7 +161,7 @@ const handleLogout = () => {
   top: 0;
   left: 0;
   width: 100%;
-  height: 100vh;
+  height: 420rpx;
   background: linear-gradient(180deg, #6FCFFB 0%, #B59DFF 100%);
   z-index: 0;
   opacity: 0.8;

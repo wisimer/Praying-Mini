@@ -280,7 +280,7 @@ onPullDownRefresh(() => {
   left: 0;
   width: 100%;
   height: 100vh;
-  background: linear-gradient(180deg, #6FCFFB 0%, #B59DFF 100%);
+  background: #f6f6f6;
   z-index: 0;
   opacity: 0.9;
 }

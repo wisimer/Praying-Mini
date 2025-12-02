@@ -124,7 +124,7 @@
   left: 0;
   width: 100%;
   height: 100vh;
-  background: linear-gradient(180deg, #6FCFFB 0%, #B59DFF 100%);
+  background: #f6f6f6;
   z-index: 0;
   opacity: 0.8;
 }
@@ -187,7 +187,7 @@
 
 .content-area {
   padding: 32rpx;
-  padding-top: calc(50rpx + env(safe-area-inset-top));
+  padding-top: calc(30rpx + env(safe-area-inset-top));
   position: relative;
   z-index: 1;
   
