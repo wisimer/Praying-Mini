@@ -3,11 +3,11 @@
     <!-- Background Gradient -->
     <div class="page-bg"></div>
 
-		<cuNavbar :bgColor="'rgba(0,0,0,0)'" :isBack="true">
+		<cuNavbar :bgColor="'rgba(0,0,0,0)'" :isBack="true" :isPlaceholder="false">
 		</cuNavbar>
 
     <!-- Header Image -->
-    <view class="header-image-box">
+    <view class="header-image-box" @click="previewHeaderImage">
       <image 
         mode="aspectFill" 
         :src="dynamicDetail.imgs && dynamicDetail.imgs.length > 0 ? dynamicDetail.imgs[0] : 'https://mp-182cf5aa-f083-45a9-8d28-e12bee639ce3.cdn.bspapp.com/appBgimgs/share.png'" 
@@ -178,6 +178,21 @@
 	const isLike = ref(false)
   const sharePopup = ref(null)
   const inputContent = ref('')
+
+  const previewHeaderImage = () => {
+    if (dynamicDetail.value.imgs && dynamicDetail.value.imgs.length > 0) {
+      uni.previewImage({
+        current: 0,
+        urls: dynamicDetail.value.imgs
+      })
+    } else {
+      const defaultImg = 'https://mp-182cf5aa-f083-45a9-8d28-e12bee639ce3.cdn.bspapp.com/appBgimgs/share.png'
+      uni.previewImage({
+        current: 0,
+        urls: [defaultImg]
+      })
+    }
+  }
 
   const currentStep = computed(() => {
     const status = dynamicDetail.value.article_status || 0
@@ -447,7 +462,7 @@
     aspect-ratio: 16/9;
     overflow: hidden;
     position: relative;
-    z-index: 0;
+    z-index: 000;
     
     .header-image {
       width: 100%;
@@ -472,6 +487,7 @@
     backdrop-filter: blur(10px);
     border-radius: 40rpx 40rpx 0 0;
     padding: 0 30rpx;
+	padding-bottom: 80rpx;
     min-height: 500rpx;
     z-index: 1;
   }
@@ -602,6 +618,7 @@
 
   .comments-section {
     margin-top: 40rpx;
+	margin-bottom: 40rpx;
     background-color: #fff;
     padding: 30rpx;
     border-radius: 24rpx;

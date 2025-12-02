@@ -1,6 +1,6 @@
 <template>
 	<view>
-		<view class="cu-custom" :style="[{height:CustomBar + 'px',}]">
+		<view class="cu-custom" :style="[{height: isPlaceholder ? CustomBar + 'px' : '0'}]">
 			<view class="cu-bar" :class="fixed ? 'fixed' : ''" :style="style+`background-color:${bgColor}`">
 				<slot name="left">
 					<view class="action">
@@ -32,6 +32,10 @@
 			type: Boolean,
 			default: true
 		},
+    isPlaceholder: {
+      type: Boolean,
+      default: true
+    }
 	})
 
 	const StatusBar = ref(0)
