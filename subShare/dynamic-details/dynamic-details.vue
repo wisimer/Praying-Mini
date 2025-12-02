@@ -239,6 +239,11 @@
   }
 
   const toggleLike = () => {
+    if (!store.hasLogin) {
+      showToast('请先登录')
+      return
+    }
+
     if (isLike.value) {
       remove()
     } else {
@@ -280,6 +285,10 @@
   }
 
   const handleSend = () => {
+        if (!store.hasLogin) {
+      showToast('请先登录')
+      return
+    }
     if (!inputContent.value.trim()) return
     send(inputContent.value)
     inputContent.value = ''
