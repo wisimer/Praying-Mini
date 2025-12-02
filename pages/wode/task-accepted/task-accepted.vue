@@ -99,11 +99,11 @@ const loadData = async (refresh = false) => {
   const dbCmd = db.command
   
   try {
-    // Query: app-dynamic != 0 (Task) AND fullfill_user_id = current user
+    // Query: app-dynamic != 0 (Task) AND user_id = current user
     const res = await db.collection('app-dynamic')
       .where({
-        fullfill_user_id: store.userInfo._id,
-        category_id: dbCmd.neq(CATEGORY_ID.WISH) 
+        user_id: store.userInfo._id,
+        sort: dbCmd.neq(CATEGORY_ID.WISH) 
       })
       .orderBy('publish_date', 'desc')
       .skip((page.value - 1) * pageSize)

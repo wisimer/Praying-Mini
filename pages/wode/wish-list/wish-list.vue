@@ -112,7 +112,7 @@ const loadData = async (refresh = false) => {
     const res = await db.collection('app-dynamic')
       .where({
         user_id: store.userInfo._id,
-        category_id: CATEGORY_ID.WISH
+        sort: CATEGORY_ID.WISH
       })
       .orderBy('publish_date', 'desc')
       .skip((page.value - 1) * pageSize)

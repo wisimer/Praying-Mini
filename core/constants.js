@@ -28,6 +28,5 @@ export const ARTICLE_STATUS = {
 
 // Category IDs
 export const CATEGORY_ID = {
-    WISH: '0',
-    TASK: '1'
+    WISH: 0
 }
