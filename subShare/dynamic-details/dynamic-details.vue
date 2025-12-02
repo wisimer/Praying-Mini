@@ -7,7 +7,7 @@
 		</cuNavbar>
 
     <!-- Header Image -->
-    <view class="header-image-box" @click="previewHeaderImage">
+    <view class="header-image-box" @click="previewHeaderImage" v-if="!loading">
       <image 
         mode="aspectFill" 
         :src="dynamicDetail.imgs && dynamicDetail.imgs.length > 0 ? dynamicDetail.imgs[0] : 'https://mp-182cf5aa-f083-45a9-8d28-e12bee639ce3.cdn.bspapp.com/appBgimgs/share.png'" 
@@ -15,8 +15,12 @@
       ></image>
       <div class="header-overlay"></div>
     </view>
+    
+    <view class="loading-box" v-if="loading">
+       <Loading :visible="loading" />
+    </view>
 
-    <view class="content-wrapper">
+    <view class="content-wrapper" v-if="!loading">
       <!-- User Info -->
       <view class="user-info-section" @click="toNextPage(`/subHome/personal/personal?user_id=${userInfo._id}`)">
         <image class="user-avatar" :src="userInfo?.avatar_file ? userInfo.avatar_file.url : BASE_URL_AVATAR"></image>
@@ -168,6 +172,7 @@
 	import cuNavbar from '@/components/cu-navbar/cu-navbar.vue'
 	import Empty from '@/components/Empty/index.vue'
 	import { BASE_URL_AVATAR } from '@/core/config.js'
+  import Loading from '@/components/Loading/index.vue'
 
 	const reply = ref({})
 	const placeholder = ref('说点啥~')
@@ -178,6 +183,7 @@
 	const isLike = ref(false)
   const sharePopup = ref(null)
   const inputContent = ref('')
+  const loading = ref(true)
 
   const previewHeaderImage = () => {
     if (dynamicDetail.value.imgs && dynamicDetail.value.imgs.length > 0) {
@@ -413,7 +419,8 @@
 
 
 	onLoad(({ id }) => {
-		showLoading()
+		// showLoading()
+    loading.value = true
 		relevance_id.value = id
 		getDynamicListDelAggregate(id).then(result => {
 			const obj = result.data[0]
@@ -421,7 +428,8 @@
 			dynamicDetail.value = obj
 			userInfo.value = obj.user_id[0]
 		}).finally(() => {
-			uni.hideLoading()
+			// uni.hideLoading()
+      loading.value = false
 		})
 
 		getCommentsList(id).then(res => {
@@ -444,6 +452,13 @@
     background-color: #f5f7fa;
     padding-bottom: 120rpx;
     position: relative;
+  }
+
+  .loading-box {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
   }
 
   .page-bg {
