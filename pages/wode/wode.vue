@@ -133,17 +133,11 @@ const handleContact = () => {
 
 const handleLogout = () => {
   showModal({
-    content: '确定要退出登录吗？',
-    success: (res) => {
-      if (res.confirm) {
-        showLoading('退出中...')
-        mutations.logout()
-        uni.hideLoading()
-        uni.reLaunch({
-          url: '/uni_modules/uni-id-pages/pages/login/login-withpwd'
-        })
-      }
-    }
+    content: '确定要退出登录吗？'
+  }).then(async () => {
+    showLoading('退出中...')
+    await mutations.logout()
+    uni.hideLoading()
   })
 }
 </script>
