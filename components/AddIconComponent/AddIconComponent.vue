@@ -16,7 +16,7 @@
     </view>
 
     <view class="addicon" @click.stop="toggleMenu" :class="{ 'is-active': isExpanded, 'is-loading': isLoading }">
-      <image v-if="!isLoading" class="icon" src="https://mp-182cf5aa-f083-45a9-8d28-e12bee639ce3.cdn.bspapp.com/appBgimgs/addicon.png"></image>
+      <image v-if="!isLoading" class="icon" src="https://mp-182cf5aa-f083-45a9-8d28-e12bee639ce3.cdn.bspapp.com/appBgimgs/addicon.png" mode="aspectFit"></image>
       <view v-else class="loading-spinner"></view>
     </view>
     
@@ -139,6 +139,9 @@ const navigateTo = (toUrl) => {
 .addicon {
   width: 90rpx; /* Slightly larger */
   height: 90rpx;
+  min-width: 90rpx;
+  min-height: 90rpx;
+  flex-shrink: 0;
   background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); /* Yellow/Orange Gradient */
   border-radius: 45rpx; /* Circle */
   display: flex;
@@ -204,11 +207,15 @@ const navigateTo = (toUrl) => {
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     font-weight: 600;
     backdrop-filter: blur(5px);
+    white-space: nowrap;
   }
   
   .menu-btn {
     width: 80rpx;
     height: 80rpx;
+    min-width: 80rpx;
+    min-height: 80rpx;
+    flex-shrink: 0;
     border-radius: 50%;
     display: flex;
     align-items: center;
