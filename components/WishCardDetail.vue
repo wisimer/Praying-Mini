@@ -409,7 +409,28 @@ const handleSave = async () => {
     if (isImageBg.value && bgValue.value) {
         try {
             const bgImg = await getImageInfo(bgValue.value)
-            ctx.drawImage(bgImg.path, 0, 0, W, canvasHeight.value)
+            // 计算保持宽高比并居中裁剪
+            const imgW = bgImg.width
+            const imgH = bgImg.height
+            const canvasW = W
+            const canvasH = canvasHeight.value
+            const imgRatio = imgW / imgH
+            const canvasRatio = canvasW / canvasH
+            let drawW, drawH, drawX, drawY
+            if (imgRatio > canvasRatio) {
+                // 图片更宽，按高缩放并居中裁剪
+                drawH = canvasH
+                drawW = imgW * (canvasH / imgH)
+                drawX = (canvasW - drawW) / 2
+                drawY = 0
+            } else {
+                // 图片更高，按宽缩放并居中裁剪
+                drawW = canvasW
+                drawH = imgH * (canvasW / imgW)
+                drawX = 0
+                drawY = (canvasH - drawH) / 2
+            }
+            ctx.drawImage(bgImg.path, drawX, drawY, drawW, drawH)
         } catch (e) {
             ctx.setFillStyle('#fffbe8')
             ctx.fillRect(0, 0, W, canvasHeight.value)
@@ -462,42 +483,49 @@ const handleSave = async () => {
         )
     }
 
-    // --- 3. Footer ---
-    currentY += 20
-    const footerH = 160
-    ctx.setFillStyle('#ffffff')
-    ctx.fillRect(0, currentY, W, footerH)
+    // --- 3. 左下角 Logo + 名称 ---
+    const logoSize = 60                    // logo 尺寸
+    const textStr = '愿力岛'                // 品牌名
+    const textFontSize = 15                // 品牌名字号
+    const spacing = 6                     // logo 与文字间距
+    const marginBottom = 30                // 距离底部留白
 
+    ctx.setFontSize(textFontSize)
+    const textMetrics = ctx.measureText(textStr)
+    const textW = textMetrics.width
+    const textH = textFontSize             // 文字高度近似字号
+
+    // 计算整体水平居中
+    const centerX = W / 2
+    const logoX = centerX - logoSize / 2
+    const textX = centerX - textW / 2
+
+    // 计算整体底部对齐的 Y 坐标
+    const logoY = currentY
+    const textY = logoY + logoSize + spacing   // 文字在 logo 下方
+
+    // 绘制 Logo
     try {
         const logo = await getImageInfo(logoUrl)
-        const logoSize = 100
-        const logoY = currentY + (footerH - logoSize) / 2
-        
-        // Center content: Logo + Text
-        const textStr = '愿力岛'
-        ctx.setFontSize(36)
-        const textMetrics = ctx.measureText(textStr)
-        const textW = textMetrics.width
-        
-        const totalW = logoSize + 20 + textW
-        const startX = (W - totalW) / 2
-        
         if (logo.path) {
-            ctx.drawImage(logo.path, startX, logoY, logoSize, logoSize)
+            ctx.drawImage(logo.path, logoX, logoY, logoSize, logoSize)
         }
-        
-        ctx.setFillStyle('#333')
-        ctx.setTextAlign('left')
-        ctx.fillText(textStr, startX + logoSize + 20, currentY + (footerH + 12) / 2)
     } catch (e) {
-        ctx.setFontSize(36)
-        ctx.setFillStyle('#333')
-        ctx.setTextAlign('center')
-        ctx.fillText('愿力岛', W / 2, currentY + footerH / 2 + 10)
+        // 容错：用灰色圆代替
+        ctx.setFillStyle('#e0e0e0')
+        ctx.beginPath()
+        ctx.arc(logoX + logoSize / 2, logoY + logoSize / 2, logoSize / 2, 0, 2 * Math.PI)
+        ctx.fill()
     }
 
-    const finalHeight = currentY + footerH
+    // 绘制品牌名
+    ctx.setFillStyle('#666')
+    ctx.setTextAlign('left')
+    ctx.fillText(textStr, textX, textY + textH)   // 文字基线对齐
 
+    // 最终画布高度 = 文字底部 + 底部留白 + 额外空白
+    const extraBlank = 40                    // 额外空白高度
+    const finalHeight = textY + textH + marginBottom + extraBlank
     ctx.draw(false, () => {
         setTimeout(() => {
             uni.canvasToTempFilePath({

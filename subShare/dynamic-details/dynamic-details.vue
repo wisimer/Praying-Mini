@@ -1329,10 +1329,10 @@
 
   .share-actions {
     display: flex;
+	margin-bottom: 40rpx;
     padding: 20rpx 40rpx;
     justify-content: space-between;
     gap: 30rpx;
-    background-color: #fff;
     
     .action-btn {
       flex: 1;
