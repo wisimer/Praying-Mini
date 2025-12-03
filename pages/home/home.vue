@@ -214,7 +214,7 @@ const loadData = async (reload = false) => {
       // user info mapping
       user: {
         nickname: item.user?.nickname || 'Unknown',
-        avatar: item.user?.avatar_file?.url || '/static/default-avatar.png'
+        avatar: item.user?.avatar_file?.url || '/static/imgs/d-avatar-150.png'
       },
       createTime: formatTime(item.publish_date),
       // Backup original content for detail view
