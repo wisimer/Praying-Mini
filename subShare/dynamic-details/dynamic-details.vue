@@ -421,7 +421,7 @@
       // 1. Header Image
       const headerUrl = dynamicDetail.value.imgs && dynamicDetail.value.imgs.length > 0 
         ? dynamicDetail.value.imgs[0] 
-        : 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static/card_bg_1.png'
+        : 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/card_bg_1.png'
       
       let headerImg
       try {
@@ -527,7 +527,7 @@
       ctx.stroke()
       
       // QR Code      
-      const qrImgUrl = "https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static/qrcode.jpeg"
+      const qrImgUrl = "https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/qrcode.jpeg"
       let qrImg;
       try {
         qrImg = await getImageInfo(qrImgUrl)

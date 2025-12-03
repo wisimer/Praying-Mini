@@ -12,7 +12,7 @@
 
 			<view class="padding40" style="width: 100%;">
 				<view class="flex justify-center">
-					<image src="https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static/logo.png"
+					<image src="https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/logo.png"
 						style="width: 604rpx;height: 604rpx;">
 					</image>
 				</view>

@@ -126,9 +126,9 @@ const props = defineProps({
 const emit = defineEmits(['update:visible', 'close'])
 const instance = getCurrentInstance()
 
-const defaultAvatar = 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static/d-avatar.png'
-const aiAvatar = 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static/modal1.png'
-const logoUrl = 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static/logo-150.png'
+const defaultAvatar = 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/d-avatar.png'
+const aiAvatar = 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/modal1.png'
+const logoUrl = 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/logo-150.png'
 
 const isLiked = ref(false)
 const loading = ref(false)
