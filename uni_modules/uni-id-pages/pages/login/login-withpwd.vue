@@ -12,7 +12,7 @@
 
 			<view class="padding40" style="width: 100%;">
 				<view class="flex justify-center">
-					<image src="https://mp-182cf5aa-f083-45a9-8d28-e12bee639ce3.cdn.bspapp.com/appBgimgs/loginIcon.png"
+					<image src="https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static/logo.png"
 						style="width: 604rpx;height: 604rpx;">
 					</image>
 				</view>
@@ -20,7 +20,7 @@
 					欢迎回来
 				</view>
 				<view class="margin-t30 font-size30" style="color: #C6D1D8;">
-					你好铲屎官，欢迎来到萌宠世界
+					你好清愿者，欢迎来到愿力岛
 				</view>
 				<!-- #ifdef H5 -->
 				<uni-forms style="z-index: 2;">

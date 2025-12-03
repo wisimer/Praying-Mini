@@ -70,30 +70,25 @@
             <view 
               class="mode-btn" 
               :class="{ active: settings.bgType === 'image' }"
-              @click="chooseImage"
+              @click="setBgMode('image')"
             >图片</view>
           </view>
 
-          <!-- Gradient/Solid Presets -->
-          <scroll-view v-if="settings.bgType !== 'image'" scroll-x class="preset-scroll">
+          <!-- Gradient/Solid/Image Presets -->
+          <scroll-view scroll-x class="preset-scroll">
             <view class="preset-list">
               <view 
-                v-for="(color, index) in currentPresets" 
+                v-for="(item, index) in currentPresets" 
                 :key="index"
                 class="preset-item"
-                :style="{ background: color }"
-                :class="{ active: settings.bgValue === color }"
-                @click="settings.bgValue = color"
-              ></view>
-              <!-- Custom Color Picker Trigger (Simplified) -->
-              <!-- <view class="preset-item add-custom" @click="openColorPicker">+</view> -->
+                :class="{ active: settings.bgValue === item }"
+                @click="settings.bgValue = item"
+              >
+                <image v-if="settings.bgType === 'image'" :src="item" mode="aspectFill" class="preset-img"></image>
+                <view v-else class="preset-color" :style="{ background: item }"></view>
+              </view>
             </view>
           </scroll-view>
-          
-          <view v-if="settings.bgType === 'image'" class="image-uploader" @click="chooseImage">
-            <text v-if="!settings.bgValue">点击上传图片</text>
-            <text v-else>点击更换图片</text>
-          </view>
         </view>
 
         <!-- Text Settings -->
@@ -193,6 +188,16 @@ const settings = reactive({
 })
 
 // Presets
+const imagePresets = [
+  'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static/card_bg_1.png',
+  'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static/card_bg_2.png',
+  'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static/card_bg_3.png',
+  'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static/card_bg_4.png',
+  'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static/card_bg_5.png',
+  'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static/card_bg_6.png',
+  'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static/card_bg_7.png'
+]
+
 const gradientPresets = [
   'linear-gradient(135deg, #fff1eb 0%, #ace0f9 100%)',
   'linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%)',
@@ -218,7 +223,10 @@ const bgStyle = computed(() => {
 })
 
 const currentPresets = computed(() => {
-  return settings.bgType === 'gradient' ? gradientPresets : solidPresets
+  if (settings.bgType === 'gradient') return gradientPresets
+  if (settings.bgType === 'solid') return solidPresets
+  if (settings.bgType === 'image') return imagePresets
+  return []
 })
 
 const textStyle = computed(() => {
@@ -248,16 +256,9 @@ const setBgMode = (mode) => {
     settings.bgValue = gradientPresets[0]
   } else if (mode === 'solid' && settings.bgValue.includes('gradient')) {
     settings.bgValue = solidPresets[0]
+  } else if (mode === 'image' && !imagePresets.includes(settings.bgValue)) {
+    settings.bgValue = imagePresets[0]
   }
-}
-
-const chooseImage = () => {
-  asyncUploadFile(1).then(results => {
-    if (results && results.length > 0) {
-      settings.bgType = 'image'
-      settings.bgValue = results[0].fileID
-    }
-  })
 }
 
 const handleWish = async () => {
@@ -430,6 +431,7 @@ const closeResult = () => {
   
   .wish-input {
     position: relative;
+    margin-top: 50%;
     z-index: 1;
     width: 100%;
     height: 100%;
@@ -538,26 +540,26 @@ const closeResult = () => {
         border-radius: 12px;
         border: 2px solid transparent;
         display: inline-block;
+        flex-shrink: 0;
         box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        overflow: hidden;
         
         &.active {
           border-color: #FF6B81;
           transform: scale(1.1);
+        }
+
+        .preset-img, .preset-color {
+          width: 100%;
+          height: 100%;
+          display: block;
         }
       }
     }
   }
   
   .image-uploader {
-    height: 80px;
-    border: 2px dashed #ddd;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #999;
-    font-size: 14px;
-    background-color: #fafafa;
+    display: none;
   }
   
   .control-row {
@@ -596,6 +598,7 @@ const closeResult = () => {
       border: 2px solid #fff;
       box-shadow: 0 2px 6px rgba(0,0,0,0.15);
       display: inline-block;
+      flex-shrink: 0;
       
       &.active {
         transform: scale(1.2);
