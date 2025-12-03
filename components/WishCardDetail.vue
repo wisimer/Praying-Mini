@@ -81,13 +81,6 @@
           <text class="btn-text">保存</text>
         </view>
 
-        <view class="action-btn" @click="handleShare">
-          <view class="icon-wrapper share-icon">
-            <uni-icons type="redo" size="24" color="#fff"></uni-icons>
-          </view>
-          <text class="btn-text">分享</text>
-        </view>
-
         <view class="action-btn" @click="handleSameWish" v-if="showSameWish && !wishData.fullfilled">
           <view class="icon-wrapper same-icon">
             <uni-icons type="plus" size="24" color="#fff"></uni-icons>
@@ -103,11 +96,14 @@
         </view>
       </view>
     </view>
+    
+    <!-- Hidden Canvas for saving image -->
+    <canvas canvas-id="shareCanvas" class="share-canvas" :style="{ width: canvasWidth + 'px', height: canvasHeight + 'px' }"></canvas>
   </view>
 </template>
 
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, getCurrentInstance } from 'vue'
 import { setLike, removeLike, getLikeDel } from '@/cloud-api/dynamic.js'
 import { store } from '@/uni_modules/uni-id-pages/common/store.js'
 import { showToast, toNextPage } from '@/core/app.js'
@@ -128,11 +124,18 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['update:visible', 'close'])
+const instance = getCurrentInstance()
 
-const defaultAvatar = 'https://mp-182cf5aa-f083-45a9-8d28-e12bee639ce3.cdn.bspapp.com/appBgimgs/default_avatar.png'
-const aiAvatar = 'https://mp-182cf5aa-f083-45a9-8d28-e12bee639ce3.cdn.bspapp.com/petModal/modal1.png'
+const defaultAvatar = 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static/d-avatar.png'
+const aiAvatar = 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static/modal1.png'
+const logoUrl = 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static/logo-150.png'
+
 const isLiked = ref(false)
 const loading = ref(false)
+const isSaving = ref(false)
+
+const canvasWidth = ref(750)
+const canvasHeight = ref(2000) // Initial large height, will be cropped
 
 const isMine = computed(() => {
   return store.hasLogin && props.wishData.user_id === store.userInfo._id
@@ -230,15 +233,321 @@ const handleLike = async () => {
   }
 }
 
-const handleSave = () => {
-  uni.showLoading({ title: '保存中...' })
-  setTimeout(() => {
-    uni.hideLoading()
-    uni.showToast({
-      title: '已保存到相册',
-      icon: 'success'
+const handleSave = async () => {
+  if (isSaving.value) return
+  isSaving.value = true
+  uni.showLoading({ title: '生成中...' })
+
+  try {
+    const ctx = uni.createCanvasContext('shareCanvas', instance)
+    const W = 750
+    const padding = 40
+    let currentY = 40 // Start padding
+
+    // --- Helper Functions inside handleSave to access ctx ---
+    
+    const getImageInfo = (src) => {
+        return new Promise((resolve, reject) => {
+            if (!src) {
+                reject('No source')
+                return
+            }
+            // #ifdef H5
+            const img = new Image()
+            img.crossOrigin = 'Anonymous'
+            img.onload = () => {
+                try {
+                    const canvas = document.createElement('canvas')
+                    canvas.width = img.width
+                    canvas.height = img.height
+                    const c = canvas.getContext('2d')
+                    c.drawImage(img, 0, 0)
+                    resolve({
+                        path: canvas.toDataURL('image/png'),
+                        width: img.width,
+                        height: img.height
+                    })
+                } catch (e) {
+                    // CORS restricted but loaded (e.g. opaque?) - usually implies tainted if we couldn't get dataURL
+                    // Fallback to original URL (canvas will be tainted)
+                    resolve({
+                        path: src,
+                        width: img.width,
+                        height: img.height
+                    })
+                }
+            }
+            img.onerror = () => {
+                // CORS request failed (e.g. server didn't send headers)
+                // Fallback: load without crossOrigin
+                const retryImg = new Image()
+                retryImg.onload = () => {
+                    resolve({
+                        path: src,
+                        width: retryImg.width,
+                        height: retryImg.height
+                    })
+                }
+                retryImg.onerror = (err) => {
+                    // If it fails again, just resolve with basic info (drawing might fail or show empty)
+                    console.warn('Image load failed', err)
+                    resolve({ path: src, width: 0, height: 0 })
+                }
+                retryImg.src = src
+            }
+            img.src = src
+            // #endif
+
+            // #ifndef H5
+            uni.getImageInfo({
+                src: src,
+                success: (res) => resolve(res),
+                fail: (err) => reject(err)
+            })
+            // #endif
+        })
+    }
+
+    const drawRoundRect = (x, y, w, h, r, fillStyle) => {
+        ctx.beginPath()
+        ctx.moveTo(x + r, y)
+        ctx.lineTo(x + w - r, y)
+        ctx.arc(x + w - r, y + r, r, -Math.PI / 2, 0)
+        ctx.lineTo(x + w, y + h - r)
+        ctx.arc(x + w - r, y + h - r, r, 0, Math.PI / 2)
+        ctx.lineTo(x + r, y + h)
+        ctx.arc(x + r, y + h - r, r, Math.PI / 2, Math.PI)
+        ctx.lineTo(x, y + r)
+        ctx.arc(x + r, y + r, r, Math.PI, -Math.PI / 2)
+        ctx.closePath()
+        if (fillStyle) {
+            ctx.setFillStyle(fillStyle)
+            ctx.fill()
+        }
+    }
+
+    const drawChatItem = async (avatar, name, content, isRight = false) => {
+        const avatarSize = 80
+        const bubblePadding = 30
+        const bubbleMaxWidth = W - (padding * 2) - avatarSize - 20 - (bubblePadding * 2) 
+        const avatarX = isRight ? (W - padding - avatarSize) : padding
+        
+        // Draw Avatar
+        try {
+            const avImg = await getImageInfo(avatar || defaultAvatar)
+            ctx.save()
+            ctx.beginPath()
+            ctx.arc(avatarX + avatarSize / 2, currentY + avatarSize / 2, avatarSize / 2, 0, 2 * Math.PI)
+            ctx.clip()
+            if (avImg.path) {
+                ctx.drawImage(avImg.path, avatarX, currentY, avatarSize, avatarSize)
+            } else {
+                throw new Error('No image path')
+            }
+            ctx.restore()
+        } catch (e) {
+            ctx.setFillStyle('#f5f5f5')
+            ctx.beginPath()
+            ctx.arc(avatarX + avatarSize / 2, currentY + avatarSize / 2, avatarSize / 2, 0, 2 * Math.PI)
+            ctx.fill()
+        }
+
+        // Draw Name
+        ctx.setTextAlign(isRight ? 'right' : 'left')
+        ctx.setFontSize(24)
+        ctx.setFillStyle('#999')
+        const nameX = isRight ? (W - padding - avatarSize - 10) : (padding + avatarSize + 10)
+        ctx.fillText(name, nameX, currentY + 20)
+
+        // Measure Text & Height
+        const fontSize = 32 
+        const lineHeight = 48
+        ctx.setFontSize(fontSize)
+        
+        const textLines = []
+        const arrText = String(content || '').split('')
+        let line = ''
+        for (let n = 0; n < arrText.length; n++) {
+            const testLine = line + arrText[n]
+            const metrics = ctx.measureText(testLine)
+            if (metrics.width > bubbleMaxWidth && n > 0) {
+                textLines.push(line)
+                line = arrText[n]
+            } else {
+                line = testLine
+            }
+        }
+        textLines.push(line)
+
+        const bubbleH = (textLines.length * lineHeight) + (bubblePadding * 2)
+        const bubbleTop = currentY + 30
+
+        // Bubble Background
+        let maxLineWidth = 0
+        textLines.forEach(l => {
+            const m = ctx.measureText(l)
+            if (m.width > maxLineWidth) maxLineWidth = m.width
+        })
+        const actualBubbleW = Math.max(maxLineWidth, 50) + (bubblePadding * 2)
+        const finalBubbleX = isRight ? (W - padding - avatarSize - 20 - actualBubbleW) : (padding + avatarSize + 20)
+
+        drawRoundRect(finalBubbleX, bubbleTop, actualBubbleW, bubbleH, 16, '#ffffff')
+
+        // Text
+        let textY = bubbleTop + bubblePadding + (lineHeight * 0.7) 
+        ctx.setFillStyle('#333')
+        ctx.setTextAlign('left') 
+        textLines.forEach(l => {
+            ctx.fillText(l, finalBubbleX + bubblePadding, textY)
+            textY += lineHeight
+        })
+
+        currentY = Math.max(currentY + avatarSize, bubbleTop + bubbleH) + 40
+    }
+
+    // --- 1. Background ---
+    if (isImageBg.value && bgValue.value) {
+        try {
+            const bgImg = await getImageInfo(bgValue.value)
+            ctx.drawImage(bgImg.path, 0, 0, W, canvasHeight.value)
+        } catch (e) {
+            ctx.setFillStyle('#fffbe8')
+            ctx.fillRect(0, 0, W, canvasHeight.value)
+        }
+    } else {
+        if (bgValue.value && bgValue.value.includes('gradient')) {
+             // Simple Gradient Approximation
+             const grd = ctx.createLinearGradient(0, 0, W, canvasHeight.value)
+             grd.addColorStop(0, '#fff1eb')
+             grd.addColorStop(1, '#ace0f9')
+             ctx.setFillStyle(grd)
+        } else {
+            ctx.setFillStyle(bgValue.value || '#fffbe8')
+        }
+        ctx.fillRect(0, 0, W, canvasHeight.value)
+    }
+
+    // --- 2. Content ---
+    await drawChatItem(
+        props.wishData.user?.avatar || defaultAvatar,
+        `许愿 · ${formattedDate.value}`,
+        wishContent.value,
+        false
+    )
+
+    if (aiMessage.value) {
+        await drawChatItem(
+            aiAvatar,
+            '星语AI',
+            aiMessage.value,
+            true
+        )
+    }
+
+    if (props.wishData.fullfilled) {
+        await drawChatItem(
+            props.wishData.user?.avatar || defaultAvatar,
+            `还愿 · ${formatFulfillDate.value}`,
+            props.wishData.fullfill_content,
+            false
+        )
+    }
+
+    if (props.wishData.fullfilled && props.wishData.fullfill_ai_message) {
+        await drawChatItem(
+            aiAvatar,
+            '祝福AI',
+            props.wishData.fullfill_ai_message,
+            true
+        )
+    }
+
+    // --- 3. Footer ---
+    currentY += 20
+    const footerH = 160
+    ctx.setFillStyle('#ffffff')
+    ctx.fillRect(0, currentY, W, footerH)
+
+    try {
+        const logo = await getImageInfo(logoUrl)
+        const logoSize = 100
+        const logoY = currentY + (footerH - logoSize) / 2
+        
+        // Center content: Logo + Text
+        const textStr = '愿力岛'
+        ctx.setFontSize(36)
+        const textMetrics = ctx.measureText(textStr)
+        const textW = textMetrics.width
+        
+        const totalW = logoSize + 20 + textW
+        const startX = (W - totalW) / 2
+        
+        if (logo.path) {
+            ctx.drawImage(logo.path, startX, logoY, logoSize, logoSize)
+        }
+        
+        ctx.setFillStyle('#333')
+        ctx.setTextAlign('left')
+        ctx.fillText(textStr, startX + logoSize + 20, currentY + (footerH + 12) / 2)
+    } catch (e) {
+        ctx.setFontSize(36)
+        ctx.setFillStyle('#333')
+        ctx.setTextAlign('center')
+        ctx.fillText('愿力岛', W / 2, currentY + footerH / 2 + 10)
+    }
+
+    const finalHeight = currentY + footerH
+
+    ctx.draw(false, () => {
+        setTimeout(() => {
+            uni.canvasToTempFilePath({
+                canvasId: 'shareCanvas',
+                width: W,
+                height: finalHeight,
+                destWidth: W,
+                destHeight: finalHeight,
+                success: (res) => {
+                    // #ifdef H5
+                    const link = document.createElement('a')
+                    link.href = res.tempFilePath
+                    link.download = `wish_card_${new Date().getTime()}.png`
+                    document.body.appendChild(link)
+                    link.click()
+                    document.body.removeChild(link)
+                    uni.showToast({ title: '已下载', icon: 'success' })
+                    // #endif
+
+                    // #ifndef H5
+                    uni.saveImageToPhotosAlbum({
+                        filePath: res.tempFilePath,
+                        success: () => {
+                            uni.showToast({ title: '已保存到相册', icon: 'success' })
+                        },
+                        fail: (err) => {
+                            console.error(err)
+                            uni.showToast({ title: '保存失败', icon: 'none' })
+                        }
+                    })
+                    // #endif
+                },
+                fail: (err) => {
+                    console.error(err)
+                    uni.showToast({ title: '生成图片失败', icon: 'none' })
+                },
+                complete: () => {
+                    isSaving.value = false
+                    uni.hideLoading()
+                }
+            }, instance)
+        }, 500) // Wait a bit longer for draw to complete
     })
-  }, 1000)
+
+  } catch (e) {
+    console.error(e)
+    isSaving.value = false
+    uni.hideLoading()
+    uni.showToast({ title: '发生错误', icon: 'none' })
+  }
 }
 
 const handleShare = () => {
@@ -406,6 +715,16 @@ watch(() => props.visible, (val) => {
     text-align: right;
 }
 
+.share-canvas {
+  position: fixed;
+  top: -9999px;
+  left: -9999px;
+  z-index: -1;
+  opacity: 0;
+}
+</style>
+
+<style lang="scss" scoped>
 .ai-header-row {
     display: flex;
     align-items: center;

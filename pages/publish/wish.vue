@@ -22,7 +22,7 @@
         v-model="wishText"
         placeholder="写下你的愿望，诚心祈祷..."
         placeholder-style="color: rgba(0,0,0,0.3);"
-        :maxlength="100"
+        :maxlength="20"
         :style="textStyle"
       ></textarea>
       
