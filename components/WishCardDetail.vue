@@ -437,11 +437,20 @@ const handleSave = async () => {
         }
     } else {
         if (bgValue.value && bgValue.value.includes('gradient')) {
-             // Simple Gradient Approximation
-             const grd = ctx.createLinearGradient(0, 0, W, canvasHeight.value)
-             grd.addColorStop(0, '#fff1eb')
-             grd.addColorStop(1, '#ace0f9')
-             ctx.setFillStyle(grd)
+             const colors = bgValue.value.match(/(#[0-9a-fA-F]{6}|#[0-9a-fA-F]{3}|rgba?\([^\)]+\))/g) || []
+             if (colors.length >= 2) {
+                 const grd = ctx.createLinearGradient(0, 0, W, canvasHeight.value)
+                 colors.forEach((color, index) => {
+                     grd.addColorStop(index / (colors.length - 1), color)
+                 })
+                 ctx.setFillStyle(grd)
+             } else {
+                 // Fallback if parsing fails
+                 const grd = ctx.createLinearGradient(0, 0, W, canvasHeight.value)
+                 grd.addColorStop(0, '#fff1eb')
+                 grd.addColorStop(1, '#ace0f9')
+                 ctx.setFillStyle(grd)
+             }
         } else {
             ctx.setFillStyle(bgValue.value || '#fffbe8')
         }
