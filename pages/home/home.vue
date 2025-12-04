@@ -137,49 +137,6 @@ const formatTime = (timestamp) => {
   return `${date.getMonth() + 1}月${date.getDate()}日`
 }
 
-// Fetch user like status for a list of items
-const fetchUserLikeStatus = async (items) => {
-  if (!store.hasLogin || items.length === 0) return
-  
-  const allIds = items.map(item => item.id)
-  const db = uniCloud.database()
-  const dbCmd = db.command
-  const CHUNK_SIZE = 50 // Safe limit for 'in' query
-  
-  try {
-    const promises = []
-    for (let i = 0; i < allIds.length; i += CHUNK_SIZE) {
-      const chunkIds = allIds.slice(i, i + CHUNK_SIZE)
-      promises.push(
-        db.collection('app-like-dynamic')
-          .where({
-            dynamic_id: dbCmd.in(chunkIds),
-            user_id: store.userInfo._id
-          })
-          .get()
-      )
-    }
-    
-    const results = await Promise.all(promises)
-    const likedIds = new Set()
-    
-    results.forEach(res => {
-      if (res.result && res.result.data) {
-        res.result.data.forEach(item => likedIds.add(item.dynamic_id))
-      }
-    })
-    
-    // Update userLikes map
-    const newLikes = { ...userLikes.value }
-    allIds.forEach(id => {
-      newLikes[id] = likedIds.has(id)
-    })
-    userLikes.value = newLikes
-  } catch (e) {
-    console.error('Failed to fetch like status', e)
-  }
-}
-
 const loadData = async (reload = false) => {
   if (loadStatus.value === 'loading') return
   if (reload) {

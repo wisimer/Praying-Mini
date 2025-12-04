@@ -17,8 +17,10 @@ export async function getUserDynamicList(option) {
 
 // 新建动态
 export function addDynamic(obj) {
+	const wish = db.collection('app-wish')
+
 	return new Promise((resolve, reject) => {
-		doc.add(obj).then((res) => {
+		wish.add(obj).then((res) => {
 			resolve(res.result)
 		}).catch(err => {
 			reject(err.errMsg)
@@ -198,13 +200,13 @@ export async function getHomeWishList(option) {
 	const pageSize = option.pageSize || 20
 	
 	const matchObj = {
-		sort: option.sort !== undefined ? option.sort : 0
+		
 	}
 	if (option.fullfilled !== undefined) {
 		matchObj.fullfilled = option.fullfilled
 	}
 
-	let agg = db.collection('app-dynamic').aggregate()
+	let agg = db.collection('app-wish').aggregate()
 		.match(matchObj)	
 		.lookup({
 			from: 'uni-id-users',
@@ -365,10 +367,9 @@ export async function removeLike(dynamicId) {
 // 获取未还愿列表
 export async function getUnfulfilledWishes() {
 	return new Promise((resolve, reject) => {
-		db.collection('app-dynamic')
+		db.collection('app-wish')
 			.where({
 				user_id: db.getCloudEnv('$cloudEnv_uid'),
-				sort: 0,
 				fullfilled: db.command.neq(true)
 			})
 			.orderBy('publish_date', 'desc')
@@ -385,7 +386,7 @@ export async function getUnfulfilledWishes() {
 // 许愿还愿
 export async function fulfillWish(id, content, aiMessage) {
 	return new Promise((resolve, reject) => {
-		db.collection('app-dynamic').doc(id).update({
+		db.collection('app-wish').doc(id).update({
 			fullfilled: true,
 			fullfill_content: content,
 			fullfill_ai_message: aiMessage,

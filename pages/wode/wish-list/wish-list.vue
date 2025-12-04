@@ -109,11 +109,10 @@ const loadData = async (refresh = false) => {
   
   try {
     // Query condition: app-dynamic=0 (Wish) and user_id=current user
-    const res = await db.collection('app-dynamic')
+    const res = await db.collection('app-wish')
       .where({
-        user_id: store.userInfo._id,
-        sort: CATEGORY_ID.WISH
-      })
+        user_id: store.userInfo._id
+            })
       .orderBy('publish_date', 'desc')
       .skip((page.value - 1) * pageSize)
       .limit(pageSize)
@@ -180,7 +179,7 @@ const handleDelete = (item) => {
         showLoading('删除中...')
         try {
           const db = uniCloud.database()
-          await db.collection('app-dynamic').doc(item._id).remove()
+          await db.collection('app-wishh').doc(item._id).remove()
           showToast('删除成功')
           loadData(true)
         } catch (e) {
