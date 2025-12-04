@@ -59,16 +59,42 @@
 				})
 			},
 			async bindMobileByMpWeixin(e) {
+				console.log('bindMobileByMpWeixin event:', e);
 				if (e.detail.errMsg == "getPhoneNumber:ok") {
-					//检查登录信息是否过期，否则通过重新登录刷新session_key
-					await this.beforeGetphonenumber()
-					uniIdCo.bindMobileByMpWeixin(e.detail).then(e => {
-						this.$emit('success')
-					}).finally(e => {
-						this.closeMe()
-					})
+					try {
+						uni.showLoading({
+							title: '绑定中...'
+						});
+						// 如果是旧版接口（没有code），需要检查session_key是否过期
+						if (!e.detail.code) {
+							await this.beforeGetphonenumber()
+						}
+						
+						// 调用云对象绑定手机号
+						const res = await uniIdCo.bindMobileByMpWeixin(e.detail);
+						console.log('bindMobileByMpWeixin result:', res);
+						
+						uni.showToast({
+							title: '绑定成功',
+							icon: 'success'
+						});
+						this.$emit('success');
+						this.closeMe();
+					} catch (err) {
+						console.error('bindMobileByMpWeixin error:', err);
+						uni.showModal({
+							title: '绑定失败',
+							content: err.message || '请稍后重试',
+							showCancel: false
+						});
+					} finally {
+						uni.hideLoading();
+					}
 				} else {
-					this.closeMe()
+					console.log('用户拒绝或发生错误:', e.detail.errMsg);
+					// 用户取消授权，或者发生其他错误，关闭弹窗
+					// this.closeMe() 
+					// 可以选择不关闭，让用户有机会重试
 				}
 			},
 			async open() {
