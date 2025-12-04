@@ -13,7 +13,7 @@
 		}, {
 			"path": "pages/message/message",
 			"style": {
-				"enablePullDownRefresh": true
+				"enablePullDownRefresh": false
 			}
 
 		}, {

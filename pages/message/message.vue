@@ -30,7 +30,14 @@
 		>
 			<!-- 任务 Tab -->
 			<swiper-item>
-				<scroll-view scroll-y class="scroll-content" @scrolltolower="loadMoreTasks">
+				<scroll-view 
+					scroll-y 
+					class="scroll-content" 
+					@scrolltolower="loadMoreTasks"
+					refresher-enabled
+					:refresher-triggered="isTaskRefreshing"
+					@refresherrefresh="onRefreshTasks"
+				>
 					<view class="padding32">
 						<view class="task-item margin-b24" v-for="item in taskList" :key="item._id" @click="openTaskPopup(item)">
 							<view class="flex align-center">
@@ -51,7 +58,14 @@
 
 			<!-- 评论 Tab -->
 			<swiper-item>
-				<scroll-view scroll-y class="scroll-content" @scrolltolower="loadMoreComments">
+				<scroll-view 
+					scroll-y 
+					class="scroll-content" 
+					@scrolltolower="loadMoreComments"
+					refresher-enabled
+					:refresher-triggered="isCommentRefreshing"
+					@refresherrefresh="onRefreshComments"
+				>
 					<view class="padding32">
 						<view class="c-card margin-b24" v-for="item in commentList" :key="item._id">
 							<view class="flex align-center">
@@ -167,7 +181,7 @@
 <script setup>
 	import { MSG_TYPE, ARTICLE_STATUS } from '@/core/constants.js'
 	import { ref, onMounted, computed } from 'vue'
-	import { onLoad, onShow, onPullDownRefresh } from '@dcloudio/uni-app'
+	import { onLoad, onShow } from '@dcloudio/uni-app'
 	import { store } from '@/uni_modules/uni-id-pages/common/store'
 	import { getMyComments, updateCommentsState } from '@/cloud-api/index.js'
 	import { getLikes } from '@/cloud-api/dynamic.js'
@@ -197,11 +211,13 @@
 	// Data & Loading States
 	const taskList = ref([])
 	const loadingTasks = ref(false)
+	const isTaskRefreshing = ref(false)
 	const taskPage = ref(0)
 	const taskTotal = ref(true)
 
 	const commentList = ref([])
 	const loadingComments = ref(false)
+	const isCommentRefreshing = ref(false)
 	const commentPage = ref(0)
 	const commentTotal = ref(true)
 
@@ -302,7 +318,9 @@
     const handleCheckDetail = (task) => {
         const taskId = task.relevance_id && task.relevance_id[0] ? task.relevance_id[0]._id : ''
         if (taskId) {
-            closeTaskPopup() // 点击查看详情后关闭弹窗
+            // closeTaskPopup() // Keep popup open or close? Probably close to navigate
+            // Actually, we can keep the currentTask in state, navigate, and when back, if handled, refresh.
+            // But for now, just navigate.
             toNextPage(`/pages/publish/task-check?taskId=${taskId}`)
         }
     }
@@ -492,29 +510,45 @@
 		})
 	}
 
-	onPullDownRefresh(async () => {
-		const index = currentTab.value
-		if (index === 0) {
-			taskPage.value = 0
-			taskList.value = []
-			taskTotal.value = true
-			loadingTasks.value = false
+	const onRefreshTasks = async () => {
+		if (isTaskRefreshing.value) return
+		isTaskRefreshing.value = true
+		
+		taskPage.value = 0
+		// Do not clear list immediately to avoid flicker, or clear it if desired.
+		// Original code cleared it. Let's clear it to be consistent with previous behavior
+		// but typically refresher keeps list until load.
+		// However, to avoid "no more data" or duplicate key issues if logic is simple:
+		taskList.value = [] 
+		taskTotal.value = true
+		loadingTasks.value = false
+		
+		try {
 			await loadMoreTasks()
-		} else if (index === 1) {
-			commentPage.value = 0
-			commentList.value = []
-			commentTotal.value = true
-			loadingComments.value = false
-			await loadMoreComments()
-		} else if (index === 2) {
-			likePage.value = 0
-			likeList.value = []
-			likeTotal.value = true
-			loadingLikes.value = false
-			await loadMoreLikes()
+		} catch (e) {
+			console.error(e)
+		} finally {
+			isTaskRefreshing.value = false
 		}
-		uni.stopPullDownRefresh()
-	})
+	}
+
+	const onRefreshComments = async () => {
+		if (isCommentRefreshing.value) return
+		isCommentRefreshing.value = true
+		
+		commentPage.value = 0
+		commentList.value = []
+		commentTotal.value = true
+		loadingComments.value = false
+		
+		try {
+			await loadMoreComments()
+		} catch (e) {
+			console.error(e)
+		} finally {
+			isCommentRefreshing.value = false
+		}
+	}
 </script>
 
 <style lang="scss" scoped>
