@@ -3,11 +3,16 @@
     <!-- Background Gradient -->
     <div class="page-bg"></div>
 
-    <div class="nav-header">
-      <uni-icons type="back" size="24" color="#fff" @click="goBack"></uni-icons>
-      <span class="title">提交完成结果</span>
-      <div class="placeholder"></div>
-    </div>
+    <cuNavbar bgColor="rgba(111, 207, 251, 0.95)">
+      <template #left>
+        <div @click="goBack" style="display: flex; align-items: center; margin-left: 10px;">
+          <uni-icons type="back" size="24" color="#fff"></uni-icons>
+        </div>
+      </template>
+      <template #content>
+        <view class="font-size36 font-weight" style="color: #fff; font-size: 18px;">提交完成结果</view>
+      </template>
+    </cuNavbar>
 
     <div class="form-content">
       <!-- Content -->
@@ -55,6 +60,7 @@
 
 <script setup>
 import { ref } from 'vue'
+import cuNavbar from '@/components/cu-navbar/cu-navbar.vue'
 import { MSG_TYPE, ARTICLE_STATUS } from '@/core/constants.js'
 import { onLoad } from '@dcloudio/uni-app'
 import { showToast, showLoading, asyncUploadFile } from '@/core/app.js'
@@ -179,31 +185,6 @@ const handleSubmit = async () => {
   background: linear-gradient(180deg, #6FCFFB 0%, #B59DFF 100%);
   z-index: 0;
   opacity: 0.9;
-}
-
-.nav-header {
-  height: 44px;
-  padding: 0 16px;
-  padding-top: env(safe-area-inset-top);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background-color: rgba(111, 207, 251, 0.95);
-  backdrop-filter: blur(10px);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  
-  .title {
-    font-size: 20px;
-    font-weight: 800;
-    color: #fff;
-    letter-spacing: 1px;
-  }
-  
-  .placeholder {
-    width: 24px;
-  }
 }
 
 .form-content {
