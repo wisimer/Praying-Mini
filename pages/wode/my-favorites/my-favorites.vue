@@ -11,7 +11,7 @@
 
     <!-- List Component -->
     <view class="list-container">
-      <view class="card-wrapper" v-for="(item, index) in list" :key="item._id">
+      <view class="card-wrapper" v-for="(item, index) in list" :key="item._id" @click="handleItemClick(item)">
         <DynamicCard 
           :user-info="item.author" 
           :dynamic-detail="item.dynamic" 
@@ -26,6 +26,11 @@
       <image src="/static/empty.png" mode="widthFix"></image>
       <text>暂无收藏的内容</text>
     </view>
+
+    <WishCardDetail 
+      v-model:visible="showDetail" 
+      :wishData="selectedWish"
+    />
   </view>
 </template>
 
@@ -35,6 +40,7 @@ import { onLoad, onPullDownRefresh, onReachBottom } from '@dcloudio/uni-app'
 import { store } from '@/uni_modules/uni-id-pages/common/store'
 import { toNextPage, showToast } from '@/core/app.js'
 import DynamicCard from '@/components/Dynamic-card/index.vue'
+import WishCardDetail from '@/components/WishCardDetail.vue'
 
 const goBack = () => {
   uni.navigateBack()
@@ -46,6 +52,18 @@ const pageSize = 10
 const loadStatus = ref('more')
 const headerStyle = ref({})
 const spacerStyle = ref({})
+
+const showDetail = ref(false)
+const selectedWish = ref({})
+
+const handleItemClick = (item) => {
+  const dynamic = item.dynamic
+  // Navigate to dynamic-detail page
+    uni.navigateTo({
+      url: `/subShare/dynamic-details/dynamic-details?id=${dynamic._id}`
+    })
+}
+
 
 onLoad(() => {
   // #ifdef MP-WEIXIN

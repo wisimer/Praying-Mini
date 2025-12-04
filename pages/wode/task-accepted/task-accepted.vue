@@ -102,7 +102,7 @@ const loadData = async (refresh = false) => {
     // Query: app-dynamic != 0 (Task) AND user_id = current user
     const res = await db.collection('app-dynamic')
       .where({
-        user_id: store.userInfo._id,
+        fullfill_user_id: store.userInfo._id,
         sort: dbCmd.neq(CATEGORY_ID.WISH) 
       })
       .orderBy('publish_date', 'desc')

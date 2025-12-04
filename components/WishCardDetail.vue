@@ -67,12 +67,12 @@
 
       <!-- Action Buttons -->
       <view class="action-area">
-        <view class="action-btn" @click="handleLike">
+        <!-- <view class="action-btn" @click="handleLike">
           <view class="icon-wrapper like-icon" :class="{ 'is-liked': isLiked }">
             <uni-icons :type="isLiked ? 'heart-filled' : 'heart'" size="24" :color="isLiked ? '#ff5a5f' : '#fff'"></uni-icons>
           </view>
           <text class="btn-text">{{ isLiked ? '已收藏' : '收藏' }}</text>
-        </view>
+        </view> -->
 
         <view class="action-btn" @click="handleSave">
           <view class="icon-wrapper save-icon">

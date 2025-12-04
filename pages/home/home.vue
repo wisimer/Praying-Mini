@@ -22,8 +22,8 @@
           @like="handleLike(item)"
         />
       </div>
-      <Loading :visible="loading" />
-      <div class="empty-state" v-if="!loading && displayWishList.length === 0">
+      <uni-load-more :status="loadStatus" v-if="displayWishList.length > 0"></uni-load-more>
+      <div class="empty-state" v-if="loadStatus !== 'loading' && displayWishList.length === 0">
         暂无数据
       </div>
     </div>
@@ -55,8 +55,7 @@ const wishList = ref([])
 const userLikes = ref({}) // Store user like status separately: { id: boolean }
 const pageNum = ref(0)
 const pageSize = 20
-const hasMore = ref(true)
-const loading = ref(false)
+const loadStatus = ref('more')
 
 const showDetail = ref(false)
 const selectedWish = ref({})
@@ -182,16 +181,16 @@ const fetchUserLikeStatus = async (items) => {
 }
 
 const loadData = async (reload = false) => {
-  if (loading.value) return
+  if (loadStatus.value === 'loading') return
   if (reload) {
     pageNum.value = 0
-    hasMore.value = true
+    loadStatus.value = 'more'
     wishList.value = []
     userLikes.value = {}
   }
-  if (!hasMore.value) return
+  if (loadStatus.value === 'noMore') return
 
-  loading.value = true
+  loadStatus.value = 'loading'
   try {
     // Always fetch with checkLikeStatus: false (Unconditional total count)
     const res = await getHomeWishList({ 
@@ -202,10 +201,13 @@ const loadData = async (reload = false) => {
       fullfilled: currentTab.value === 1
     })
     
-    if (res.data && res.data.length < pageSize) {
-      hasMore.value = false
+    const data = res.data || []
+    
+    if (data.length < pageSize) {
+      loadStatus.value = 'noMore'
+    } else {
+      loadStatus.value = 'more'
     }
-    const data = res.data
 	
     const formattedList = data.map(item => ({
       ...item,
@@ -236,8 +238,7 @@ const loadData = async (reload = false) => {
       title: '加载失败',
       icon: 'none'
     })
-  } finally {
-    loading.value = false
+    loadStatus.value = 'more'
   }
 }
 
