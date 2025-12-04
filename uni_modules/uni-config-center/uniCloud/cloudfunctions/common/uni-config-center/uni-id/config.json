@@ -50,7 +50,7 @@
 		}
 	},
 	"mp-weixin": {
-		"tokenExpiresIn": 259200,
+		"tokenExpiresIn": 2592000,
 		"tokenExpiresThreshold": 86400,
 		"oauth": {
 			"weixin": {

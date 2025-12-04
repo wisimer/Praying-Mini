@@ -2,18 +2,16 @@ async function beforeRegister({
 	userRecord,
 	clientInfo
 } = {}) {
-	if (clientInfo.appId === '__UNI__8F1BB0E') {
-		const randomNum = Math.floor(Date.now() % 1000000);
-		const num = String(randomNum).padStart(6, '0');
-		if (!userRecord.nickname) {
-			userRecord.nickname = '毛星人' + num
-		}
-		if (!userRecord.avatar_file) {
-			userRecord.avatar_file = {
-				extname: "png",
-				name: num,
-				url: "https://mp-182cf5aa-f083-45a9-8d28-e12bee639ce3.cdn.bspapp.com/appBgimgs/d-avatar.png"
-			}
+	const randomNum = Math.floor(Date.now() % 1000000);
+	const num = String(randomNum).padStart(6, '0');
+	if (!userRecord.nickname) {
+		userRecord.nickname = '清愿者' + num
+	}
+	if (!userRecord.avatar_file) {
+		userRecord.avatar_file = {
+			extname: "png",
+			name: num,
+			url: "https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/d-avatar.png"
 		}
 	}
 	return userRecord

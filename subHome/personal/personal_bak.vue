@@ -12,9 +12,9 @@
 			<view class="userInfo flex align-center ">
 				<image class="avatar" :src="userInfo.avatar_file ? userInfo.avatar_file.url : BASE_URL_AVATAR"></image>
 				<view class="margin-l20">
-					<view class="font-size30 margin-b16 color-352926 font-weight"> {{userInfo.nickname || '毛星人'}} </view>
+					<view class="font-size30 margin-b16 color-352926 font-weight"> {{userInfo.nickname || '清愿者'}} </view>
 					<view class="flex">
-						<view class="chenghao"> {{ palyer.achievement_id[0].name || '初级铲屎官' }} </view>
+						<view class="chenghao"> {{ palyer.achievement_id[0].name || '清愿者' }} </view>
 					</view>
 				</view>
 				<!-- <image class="siliao" v-if="store.userInfo._id !== userInfo._id"
