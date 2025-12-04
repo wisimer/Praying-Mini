@@ -10,7 +10,7 @@
     <view class="header-image-box" @click="previewHeaderImage" v-if="!loading">
       <image 
         mode="aspectFill" 
-        :src="dynamicDetail.imgs && dynamicDetail.imgs.length > 0 ? dynamicDetail.imgs[0] : 'https://mp-182cf5aa-f083-45a9-8d28-e12bee639ce3.cdn.bspapp.com/appBgimgs/share.png'" 
+        :src="dynamicDetail.imgs && dynamicDetail.imgs.length > 0 ? dynamicDetail.imgs[0] : 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/card_bg_1.png'" 
         class="header-image"
       ></image>
       <div class="header-overlay"></div>
