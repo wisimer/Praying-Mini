@@ -326,7 +326,7 @@ const handleSave = async () => {
         }
     }
 
-    const drawChatItem = async (avatar, name, content, isRight = false) => {
+    const drawChatItem = async (avatar, name, content, isRight = false, textColor = '#333') => {
         const avatarSize = 80
         const bubblePadding = 30
         const bubbleMaxWidth = W - (padding * 2) - avatarSize - 20 - (bubblePadding * 2) 
@@ -395,7 +395,7 @@ const handleSave = async () => {
 
         // Text
         let textY = bubbleTop + bubblePadding + (lineHeight * 0.7) 
-        ctx.setFillStyle('#333')
+        ctx.setFillStyle(textColor)
         ctx.setTextAlign('left') 
         textLines.forEach(l => {
             ctx.fillText(l, finalBubbleX + bubblePadding, textY)
@@ -453,7 +453,8 @@ const handleSave = async () => {
         props.wishData.user?.avatar || defaultAvatar,
         `许愿 · ${formattedDate.value}`,
         wishContent.value,
-        false
+        false,
+        textStyle.value.color
     )
 
     if (aiMessage.value) {
@@ -470,7 +471,8 @@ const handleSave = async () => {
             props.wishData.user?.avatar || defaultAvatar,
             `还愿 · ${formatFulfillDate.value}`,
             props.wishData.fullfill_content,
-            false
+            false,
+            textStyle.value.color
         )
     }
 
