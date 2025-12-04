@@ -1,7 +1,7 @@
 <template>
   <view class="wish-page">
     <!-- Background Gradient -->
-    <div class="page-bg"></div>
+    <!-- <div class="page-bg"></div> -->
 
     <!-- Navigation -->
     <view class="nav-header">
@@ -31,7 +31,7 @@
     </view>
 
     <!-- Tools Panel -->
-    <view class="tools-panel" :class="{ collapsed: isAnimating }">
+    <view class="tools-panel">
       <!-- Tabs -->
       <view class="tool-tabs">
         <view 
@@ -93,7 +93,7 @@
 
         <!-- Text Settings -->
         <view v-if="activeTab === 'text'" class="setting-group">
-          <view class="control-row">
+          <!-- <view class="control-row">
             <text class="label">字号</text>
             <slider 
               class="slider" 
@@ -116,7 +116,7 @@
               style="transform:scale(0.7)"
               @change="e => settings.fontWeight = e.detail.value ? 'bold' : 'normal'"
             />
-          </view>
+          </view> -->
 
           <view class="control-row vertical">
             <text class="label">颜色</text>
