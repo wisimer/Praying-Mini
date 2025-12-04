@@ -54,7 +54,8 @@ module.exports = async function (params = {}) {
       type: LOG_TYPE.LOGIN
     })
     throw {
-      errCode: ERROR.GET_THIRD_PARTY_ACCOUNT_FAILED
+      errCode: ERROR.GET_THIRD_PARTY_ACCOUNT_FAILED,
+      errMsg: error.message || error.errMsg || JSON.stringify(error)
     }
   }
 

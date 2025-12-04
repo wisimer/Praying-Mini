@@ -293,7 +293,7 @@
 					}
 				}
 				// #endif
-				console.log('login ----')
+				console.log('login ----'+type)
 				uni.showLoading({
 					// #ifdef MP-HARMONY
 					title: "正在登录",

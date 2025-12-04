@@ -48,7 +48,8 @@ module.exports = async function (params = {}) {
   } catch (error) {
     console.error(error)
     throw {
-      errCode: ERROR.GET_THIRD_PARTY_ACCOUNT_FAILED
+      errCode: ERROR.GET_THIRD_PARTY_ACCOUNT_FAILED,
+      errMsg: error.message || error.errMsg || JSON.stringify(error)
     }
   }
   const {
