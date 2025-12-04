@@ -15,12 +15,23 @@ export async function getUserDynamicList(option) {
 	})
 }
 
-// 新建动态
-export function addDynamic(obj) {
+export function addWish(obj) {
 	const wish = db.collection('app-wish')
 
 	return new Promise((resolve, reject) => {
 		wish.add(obj).then((res) => {
+			resolve(res.result)
+		}).catch(err => {
+			reject(err.errMsg)
+		})
+	})
+}
+
+// 新建动态
+export function addDynamic(obj) {
+
+	return new Promise((resolve, reject) => {
+		doc.add(obj).then((res) => {
 			resolve(res.result)
 		}).catch(err => {
 			reject(err.errMsg)

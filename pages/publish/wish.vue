@@ -168,7 +168,7 @@
 import { ref, computed, reactive } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import WishCardDetail from '@/components/WishCardDetail.vue'
-import { addDynamic } from '@/cloud-api/dynamic.js'
+import { addWish } from '@/cloud-api/dynamic.js'
 import { showLoading, showToast, asyncUploadFile } from '@/core/app.js'
 
 // State
@@ -347,7 +347,7 @@ const finishWish = async () => {
     }
     
     // 4. Save to DB
-    await addDynamic(obj)
+    await addWish(obj)
     uni.$emit('saveRecord')
     
     return { randomMsg }
