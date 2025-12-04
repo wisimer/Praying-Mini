@@ -3,7 +3,7 @@
     <!-- Background Gradient -->
     <div class="page-bg"></div>
 
-    <view class="nav-header">
+    <view class="nav-header" :style="navStyle">
       <uni-icons type="back" size="24" color="#fff" @click="goBack"></uni-icons>
       <text class="title">我要还愿</text>
       <view class="placeholder"></view>
@@ -83,6 +83,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
 import { getUnfulfilledWishes, fulfillWish } from '@/cloud-api/dynamic.js'
 import { showToast } from '@/core/app.js'
 
@@ -91,6 +92,26 @@ const selectedWishId = ref('')
 const fulfillContent = ref('')
 const loadingWishes = ref(false)
 const submitting = ref(false)
+const navStyle = ref({})
+
+onLoad(() => {
+  // #ifdef MP-WEIXIN
+  try {
+    const menuButton = uni.getMenuButtonBoundingClientRect()
+    const sysInfo = uni.getSystemInfoSync()
+    const statusBarHeight = sysInfo.statusBarHeight
+    const navBarContentHeight = (menuButton.top - statusBarHeight) * 2 + menuButton.height
+    const totalHeight = statusBarHeight + navBarContentHeight
+    
+    navStyle.value = {
+      height: `${totalHeight}px`,
+      paddingTop: `${statusBarHeight}px`
+    }
+  } catch (e) {
+    console.error('Header calculation failed:', e)
+  }
+  // #endif
+})
 
 const goBack = () => uni.navigateBack()
 

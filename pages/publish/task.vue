@@ -3,7 +3,7 @@
     <!-- Background Gradient -->
     <div class="task-bg"></div>
 
-    <div class="nav-header">
+    <div class="nav-header" :style="navStyle">
       <uni-icons type="back" size="24" color="#fff" @click="goBack"></uni-icons>
       <span class="title">发布任务</span>
       <div class="placeholder"></div>
@@ -94,10 +94,31 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
 import { addDynamic } from '@/cloud-api/dynamic.js'
 import { showToast, showLoading, asyncUploadFile } from '@/core/app.js'
 
 const taskTypes = ['日常委托', '跑腿代购', '技能服务', '其他']
+const navStyle = ref({})
+
+onLoad(() => {
+  // #ifdef MP-WEIXIN
+  try {
+    const menuButton = uni.getMenuButtonBoundingClientRect()
+    const sysInfo = uni.getSystemInfoSync()
+    const statusBarHeight = sysInfo.statusBarHeight
+    const navBarContentHeight = (menuButton.top - statusBarHeight) * 2 + menuButton.height
+    const totalHeight = statusBarHeight + navBarContentHeight
+    
+    navStyle.value = {
+      height: `${totalHeight}px`,
+      paddingTop: `${statusBarHeight}px`
+    }
+  } catch (e) {
+    console.error('Header calculation failed:', e)
+  }
+  // #endif
+})
 const typeIndex = ref(-1)
 const taskContent = ref('')
 const imageList = ref([])

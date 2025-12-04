@@ -4,7 +4,7 @@
     <!-- <div class="page-bg"></div> -->
 
     <!-- Navigation -->
-    <view class="nav-header">
+    <view class="nav-header" :style="navStyle">
       <uni-icons type="back" size="24" color="#fff" @click="goBack"></uni-icons>
       <text class="title">许愿</text>
       <view class="placeholder"></view>
@@ -177,6 +177,7 @@ const activeTab = ref('bg')
 const isAnimating = ref(false)
 const showResult = ref(false)
 const resultData = ref({})
+const navStyle = ref({})
 
 // Default Settings
 const settings = reactive({
@@ -241,6 +242,23 @@ const textStyle = computed(() => {
 
 // Lifecycle
 onLoad(() => {
+  // #ifdef MP-WEIXIN
+  try {
+    const menuButton = uni.getMenuButtonBoundingClientRect()
+    const sysInfo = uni.getSystemInfoSync()
+    const statusBarHeight = sysInfo.statusBarHeight
+    const navBarContentHeight = (menuButton.top - statusBarHeight) * 2 + menuButton.height
+    const totalHeight = statusBarHeight + navBarContentHeight
+    
+    navStyle.value = {
+      height: `${totalHeight}px`,
+      paddingTop: `${statusBarHeight}px`
+    }
+  } catch (e) {
+    console.error('Header calculation failed:', e)
+  }
+  // #endif
+
   const saved = uni.getStorageSync('wish_settings')
   if (saved) {
     Object.assign(settings, JSON.parse(saved))
