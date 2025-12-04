@@ -2,7 +2,7 @@ async function beforeRegister({
 	userRecord,
 	clientInfo
 } = {}) {
-	if (clientInfo.appId === '__UNI__5955E4C') {
+	if (clientInfo.appId === '__UNI__8F1BB0E') {
 		const randomNum = Math.floor(Date.now() % 1000000);
 		const num = String(randomNum).padStart(6, '0');
 		if (!userRecord.nickname) {

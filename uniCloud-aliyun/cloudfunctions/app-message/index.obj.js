@@ -1,4 +1,4 @@
-const uniPush = uniCloud.getPushManager({ appId: "__UNI__5955E4C" })
+const uniPush = uniCloud.getPushManager({ appId: "__UNI__8F1BB0E" })
 
 
 module.exports = {

@@ -38,14 +38,14 @@
 			}
 		}
 	},
-	"dcloudAppid": "__UNI__5955E4C",
+	"dcloudAppid": "__UNI__8F1BB0E",
 	"web": {
 		"tokenExpiresIn": 259200,
 		"tokenExpiresThreshold": 86400,
 		"oauth": {
 			"weixin-h5": {
-				"appid": "wx45f68996fe91389b",
-				"appsecret": "aac241146dc9d75df95ed8c422f6235a"
+				"appid": "wx212f37256d458a18",
+				"appsecret": "3e72f2c5ca647f6e4875d1151918d27e"
 			}
 		}
 	},
@@ -54,8 +54,8 @@
 		"tokenExpiresThreshold": 86400,
 		"oauth": {
 			"weixin": {
-				"appid": "wx9a96f0ff49d93656",
-				"appsecret": "a2a7d6aec5d40b1b5d04974f7f06bf7f"
+				"appid": "wx212f37256d458a18",
+				"appsecret": "3e72f2c5ca647f6e4875d1151918d27e"
 			}
 		}
 	},

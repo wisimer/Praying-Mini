@@ -3,7 +3,7 @@ const UniSubscribemsg = require('uni-subscribemsg');
 const { get7day } = require('dayjs-utils')
 
 let uniSubscribemsg = new UniSubscribemsg({
-	dcloudAppid: "__UNI__5955E4C",
+	dcloudAppid: "__UNI__8F1BB0E",
 	provider: "weixin-h5",
 });
 

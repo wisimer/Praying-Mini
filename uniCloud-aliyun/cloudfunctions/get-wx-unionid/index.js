@@ -6,7 +6,7 @@ const xml2js = require('wx-xml2js')
 const token = '692993465620447bb31eed45d1efb672'
 
 const key = {
-	dcloudAppid: '__UNI__5955E4C',
+	dcloudAppid: '__UNI__8F1BB0E',
 	platform: 'weixin-h5'
 }
 

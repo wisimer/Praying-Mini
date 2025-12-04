@@ -58,6 +58,11 @@
         "usingComponents" : true,
         "unipush" : {
             "enable" : true
+        },
+        "permission" : {
+            "scope.userLocation" : {
+                "desc" : "获取当前愿望发布地址"
+            }
         }
     },
     "mp-alipay" : {
