@@ -17,7 +17,7 @@
           <text class="status" :class="`status-${item.article_status || 0}`">{{ getStatusText(item.article_status) }}</text>
         </view>
         <view class="item-content">{{ item.content }}</view>
-        <view class="item-footer">
+        <!-- <view class="item-footer">
           <view class="price" v-if="item.price">
             <text class="symbol">¥</text>
             <text class="amount">{{ item.price / 100 }}</text>
@@ -27,7 +27,7 @@
               <uni-icons type="trash" size="16" color="#999"></uni-icons>
             </view>
           </view>
-        </view>
+        </view> -->
       </view>
     </view>
 
@@ -39,6 +39,15 @@
       <image src="/static/empty.png" mode="widthFix"></image>
       <text>暂无数据</text>
     </view>
+
+    <!-- Wish Detail Modal -->
+    <WishCardDetail 
+      v-if="showWishDetail"
+      :visible="showWishDetail"
+      :wish-data="currentWish"
+      :show-same-wish="false"
+      @update:visible="val => showWishDetail = val"
+    />
   </view>
 </template>
 
@@ -49,6 +58,7 @@ import { store } from '@/uni_modules/uni-id-pages/common/store'
 import { formatDate } from '@/utils/date.js'
 import { ARTICLE_STATUS, CATEGORY_ID } from '@/core/constants.js'
 import { toNextPage, showModal, showToast, showLoading } from '@/core/app.js'
+import WishCardDetail from '@/components/WishCardDetail.vue'
 
 const goBack = () => {
   uni.navigateBack()
@@ -61,6 +71,9 @@ const loadStatus = ref('more') // more, loading, noMore
 const isAuthor = ref(true)
 const headerStyle = ref({})
 const spacerStyle = ref({})
+
+const showWishDetail = ref(false)
+const currentWish = ref({})
 
 onLoad(() => {
   // #ifdef MP-WEIXIN
@@ -168,7 +181,11 @@ const getStatusText = (status) => {
 }
 
 const toDetail = (item) => {
-  toNextPage(`/subShare/dynamic-details/dynamic-details?id=${item._id}`)
+  currentWish.value = {
+    ...item,
+    user: store.userInfo
+  }
+  showWishDetail.value = true
 }
 
 const handleDelete = (item) => {
@@ -179,7 +196,7 @@ const handleDelete = (item) => {
         showLoading('删除中...')
         try {
           const db = uniCloud.database()
-          await db.collection('app-wishh').doc(item._id).remove()
+          await db.collection('app-wish').doc(item._id).remove()
           showToast('删除成功')
           loadData(true)
         } catch (e) {
