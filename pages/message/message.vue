@@ -302,9 +302,7 @@
     const handleCheckDetail = (task) => {
         const taskId = task.relevance_id && task.relevance_id[0] ? task.relevance_id[0]._id : ''
         if (taskId) {
-            // closeTaskPopup() // Keep popup open or close? Probably close to navigate
-            // Actually, we can keep the currentTask in state, navigate, and when back, if handled, refresh.
-            // But for now, just navigate.
+            closeTaskPopup() // 点击查看详情后关闭弹窗
             toNextPage(`/pages/publish/task-check?taskId=${taskId}`)
         }
     }
@@ -411,6 +409,13 @@
                  await db.collection('app-dynamic').doc(taskId).update({
                      article_status: dynamicStatus
                  })
+
+				 if (action === 'agree') {
+					// Update task status to accepted
+					await db.collection('app-dynamic').doc(taskId).update({
+						fullfill_user_id: toUser
+					})
+				}	
             }
 
             // Insert new message

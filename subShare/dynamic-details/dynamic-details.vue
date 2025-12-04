@@ -99,7 +99,7 @@
           </view>
           
           <view class="action-btn primary" @click="handleAccept">
-            <text>接单</text>
+            <text >接单</text>
           </view>
           
           <view class="action-btn outline" @click="openShare">
@@ -633,6 +633,13 @@
       showToast('请先登录')
       return
     }
+
+    // debugger
+    if (dynamicDetail.value.article_status > 0) {
+      showToast('已被其他人接单')
+      return
+    }
+
     // Check if current user is the author
     if (userInfo.value._id === store.userInfo._id) {
       showToast('不能接自己的单哦')
