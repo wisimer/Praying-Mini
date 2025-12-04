@@ -47,27 +47,34 @@ const emit = defineEmits(['click', 'like', 'collect'])
 const cardStyle = computed(() => {
   const style = {}
   const cs = props.data.content_style
-  // Move background logic to contentWrapperStyle or keep here if applied to whole card?
-  // If applied here, children backgrounds might cover it.
-  // Keeping it here for now, but we need to make sure content-wrapper doesn't have opaque background unless necessary.
+  
+  let hasCustomBg = false
+  if (cs) {
+    if (cs.bgType === 'solid'&& cs.bgValue) {
+      style.background = cs.bgValue
+      hasCustomBg = true
+    } else if (cs.bgType === 'image' && cs.bgValue) {
+      style.backgroundImage = `url("${cs.bgValue}")`
+      style.backgroundSize = 'cover'
+      style.backgroundPosition = 'center'
+      hasCustomBg = true
+    } else if (cs.bgType === 'gradient' && cs.bgValue) {
+      style.background = cs.bgValue
+      hasCustomBg = true
+    }
+  }
+
+  if (!hasCustomBg) {
+    // Default gradient background for the whole card
+    style.background = 'linear-gradient(135deg, #fff 0%, #f9faff 100%)'
+  }
+
   return style
 })
 
 const contentWrapperStyle = computed(() => {
   const style = {}
-  // Default gradient background
-  style.background = 'linear-gradient(135deg, #fff 0%, #f9faff 100%)'
-  
-  const cs = props.data.content_style
-  if (cs) {
-    if (cs.bgType === 'color' && cs.bgValue) {
-      style.background = cs.bgValue
-    } else if (cs.bgType === 'image' && cs.bgValue) {
-      style.backgroundImage = `url("${cs.bgValue}")`
-      style.backgroundSize = 'cover'
-      style.backgroundPosition = 'center'
-    }
-  }
+  // Background logic moved to cardStyle to cover the whole card including footer
   return style
 })
 
@@ -98,7 +105,7 @@ const handleClick = () => {
 
 <style lang="scss" scoped>
 .wish-card {
-  background-color: #fff;
+  /* background-color: #fff; Removed to allow dynamic background */
   border-radius: 24px; /* Larger radius */
   overflow: hidden;
   margin-bottom: 20px;
@@ -110,7 +117,7 @@ const handleClick = () => {
     width: 100%;
     height: 0;
     padding-bottom: 60%; /* Slightly taller */
-    background-color: #f0f4f8;
+    background-color: rgba(240, 244, 248, 0.5); /* Semi-transparent placeholder */
 
     .poster-image {
       position: absolute;
@@ -177,7 +184,9 @@ const handleClick = () => {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #fff;
+    /* background-color: #fff; Removed to show card background */
+    backdrop-filter: blur(10px); /* Optional: adds glass effect if background is an image */
+    background-color: rgba(255, 255, 255, 0.3); /* Semi-transparent for readability */
 
     .user-info {
       display: flex;
