@@ -28,7 +28,7 @@
       </div>
     </div>
 
-    <AddIconComponent style="margin-right: 24rpx;"/>
+    <AddIconComponent style="margin-right: 44rpx;"/>
     
     <WishCardDetail 
       v-model:visible="showDetail" 

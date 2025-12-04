@@ -22,7 +22,7 @@
 			<Empty v-if="!loading && shares.length === 0"></Empty>
 		</view>
 
-    <AddIconComponent style="margin-right: 24rpx;"/>
+    <AddIconComponent style="margin-right: 44rpx;"/>
 	</view>
 </template>
 

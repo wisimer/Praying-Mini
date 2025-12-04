@@ -41,7 +41,7 @@ import { store } from '@/uni_modules/uni-id-pages/common/store'
 const props = defineProps({
   right: {
     type: String,
-    default: '30rpx'
+    default: '44rpx'
   },
   bottom: {
     type: String,
