@@ -83,6 +83,12 @@
             }
         },
         {
+            "path": "pages/wode/my-favorites/my-favorites",
+            "style": {
+                "navigationBarTitleText": "我的收藏"
+            }
+        },
+        {
             "path": "pages/wode/task-published/task-published",
             "style": {
                 "navigationBarTitleText": "我发布的任务"

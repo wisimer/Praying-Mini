@@ -82,7 +82,7 @@
 			</swiper-item>
 
 			<!-- 收藏 Tab -->
-			<swiper-item>
+			<!-- <swiper-item>
 				<scroll-view scroll-y class="scroll-content" @scrolltolower="loadMoreLikes">
 					<view class="padding32">
 						<view class="margin-b24 card-wrapper" v-for="item in likeList" :key="item._id">
@@ -95,7 +95,7 @@
 						<Empty v-if="likeList.length === 0 && !loadingLikes" description="暂无收藏消息"></Empty>
 					</view>
 				</scroll-view>
-			</swiper-item>
+			</swiper-item> -->
 		</swiper>
 
 		<!-- 任务详情弹窗 -->
@@ -181,7 +181,7 @@
 	const tabs = ref([
 		{ name: '任务', count: 0 },
 		{ name: '评论', count: 0 },
-		{ name: '收藏', count: 0 }
+		// { name: '收藏', count: 0 }
 	])
 
 	// Swiper Change Handler

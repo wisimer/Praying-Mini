@@ -36,6 +36,16 @@
           </view>
           <uni-icons type="right" size="16" color="#ccc"></uni-icons>
         </view>
+
+        <view class="menu-item" @click="toNextPage('/pages/wode/my-favorites/my-favorites')">
+          <view class="item-left">
+            <view class="icon-box red">
+              <uni-icons type="heart-filled" size="20" color="#fff"></uni-icons>
+            </view>
+            <text class="item-text">我的收藏</text>
+          </view>
+          <uni-icons type="right" size="16" color="#ccc"></uni-icons>
+        </view>
         
         <view class="menu-item" @click="toNextPage('/pages/wode/task-published/task-published')">
           <view class="item-left">
@@ -283,6 +293,7 @@ const handleLogout = () => {
         &.green { background: linear-gradient(135deg, #81FBB8 0%, #28C76F 100%); }
         &.orange { background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); }
         &.pink { background: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 100%); }
+        &.red { background: linear-gradient(135deg, #FF6B81 0%, #FF4757 100%); }
         &.gray { background: linear-gradient(135deg, #E0E0E0 0%, #BDBDBD 100%); }
       }
       
