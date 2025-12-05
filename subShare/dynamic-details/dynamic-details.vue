@@ -199,6 +199,7 @@
 </template>
 
 <script setup>
+	import { getStatusText } from '@/core/constants.js'
 	import { reactive, ref, computed, getCurrentInstance } from 'vue';
 	import { MSG_TYPE, ARTICLE_STATUS } from '@/core/constants.js'
 	import { onLoad, onShareAppMessage } from '@dcloudio/uni-app'
@@ -262,22 +263,7 @@
     return -1
   })
 
-  const getStatusText = (status) => {
-    const statusMap = {
-      [ARTICLE_STATUS.AUDITING]: '审核中',
-      [ARTICLE_STATUS.PUBLISHED]: '待接单',
-      [ARTICLE_STATUS.AUDIT_REJECT]: '审核驳回',
-      [ARTICLE_STATUS.APPROVED_EXECUTING]: '进行中',
-      [ARTICLE_STATUS.REJECTED]: '已拒绝',
-      [ARTICLE_STATUS.EXECUTED_WAIT_VERIFY]: '已完成',
-      [ARTICLE_STATUS.FAILED_TIMEOUT]: '已失败',
-      [ARTICLE_STATUS.VERIFY_PASS_WAIT_PLATFORM]: '待审核',
-      [ARTICLE_STATUS.VERIFY_FAIL_WAIT_PLATFORM]: '验证失败',
-      [ARTICLE_STATUS.PLATFORM_PASS_SETTLED]: '已结算',
-      [ARTICLE_STATUS.PLATFORM_FAIL]: '审核失败'
-    }
-    return statusMap[status] || '待接单'
-  }
+
 
   const openShare = () => {
     sharePopup.value.open()

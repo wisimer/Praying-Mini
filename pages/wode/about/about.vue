@@ -11,7 +11,7 @@
 
     <view class="logo-section">
       <image src="/static/logo.png" class="logo"></image>
-      <text class="app-name">Praying</text>
+      <text class="app-name">愿力岛</text>
       <text class="version">Version 1.0.0</text>
     </view>
     

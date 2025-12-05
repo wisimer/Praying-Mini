@@ -110,3 +110,5 @@
 
 // db.collection('app-messages')
 // 	.remove()
+
+db.collection('app-dynamic').remove()

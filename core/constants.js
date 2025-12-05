@@ -26,6 +26,23 @@ export const ARTICLE_STATUS = {
   PLATFORM_FAIL: -5 // 平台三方审核不通过
 }
 
+export const getStatusText = (status) => {
+    const statusMap = {
+      [ARTICLE_STATUS.AUDITING]: '审核中',
+      [ARTICLE_STATUS.PUBLISHED]: '待接单',
+      [ARTICLE_STATUS.AUDIT_REJECT]: '审核驳回',
+      [ARTICLE_STATUS.APPROVED_EXECUTING]: '进行中',
+      [ARTICLE_STATUS.REJECTED]: '已拒绝',
+      [ARTICLE_STATUS.EXECUTED_WAIT_VERIFY]: '已完成',
+      [ARTICLE_STATUS.FAILED_TIMEOUT]: '已失败',
+      [ARTICLE_STATUS.VERIFY_PASS_WAIT_PLATFORM]: '待结算',
+      [ARTICLE_STATUS.VERIFY_FAIL_WAIT_PLATFORM]: '验证失败',
+      [ARTICLE_STATUS.PLATFORM_PASS_SETTLED]: '已结算',
+      [ARTICLE_STATUS.PLATFORM_FAIL]: '审核失败'
+    }
+    return statusMap[status] || '待接单'
+  }
+
 // Category IDs
 export const CATEGORY_ID = {
     WISH: 0

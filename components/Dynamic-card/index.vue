@@ -8,9 +8,7 @@
 				<view class="font-size28 color-8C8888 margin-r20">
 					{{userInfo.nickname}}
 				</view>
-				<view class="d-title">
-					<!-- {{userInfo.player? userInfo.player[0].achievement_id[0].name:''}} -->
-				</view>
+
 			</view>
       <view class="marginlauto" v-if="dynamicDetail.sort >= 11 && dynamicDetail.sort <= 14">
         <view class="status-tag" :class="`status-${dynamicDetail.article_status || 0}`">
@@ -60,7 +58,8 @@
 	import { formatDate } from '@/utils/date.js'
 	import { store } from '@/uni_modules/uni-id-pages/common/store'
 	import { addFollow } from '@/cloud-api/follow.js'
-
+	import { getStatusText } from '@/core/constants.js'
+	
 	const porp = defineProps({
 		dynamicDetail: {
 			type: Object,
@@ -77,23 +76,6 @@
 			default: false
 		}
 	})
-
-  const getStatusText = (status) => {
-    const statusMap = {
-      [ARTICLE_STATUS.AUDITING]: '审核中',
-      [ARTICLE_STATUS.PUBLISHED]: '待接单',
-      [ARTICLE_STATUS.AUDIT_REJECT]: '审核驳回',
-      [ARTICLE_STATUS.APPROVED_EXECUTING]: '进行中',
-      [ARTICLE_STATUS.REJECTED]: '已拒绝',
-      [ARTICLE_STATUS.EXECUTED_WAIT_VERIFY]: '已完成',
-      [ARTICLE_STATUS.FAILED_TIMEOUT]: '已失败',
-      [ARTICLE_STATUS.VERIFY_PASS_WAIT_PLATFORM]: '待审核',
-      [ARTICLE_STATUS.VERIFY_FAIL_WAIT_PLATFORM]: '验证失败',
-      [ARTICLE_STATUS.PLATFORM_PASS_SETTLED]: '已结算',
-      [ARTICLE_STATUS.PLATFORM_FAIL]: '审核失败'
-    }
-    return statusMap[status] || '待接单'
-  }
 
 	const isTo = () => {
 		if (porp.isDetails) {
