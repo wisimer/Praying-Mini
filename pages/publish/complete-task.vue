@@ -73,10 +73,13 @@ const isLoading = ref(false)
 // Params
 const taskId = ref('')
 const toUserId = ref('')
+const taskMsgId = ref('')
 
 onLoad((options) => {
   if (options.taskId) taskId.value = options.taskId
   if (options.toUserId) toUserId.value = options.toUserId
+  if (options.taskMsgId) taskMsgId.value = options.taskMsgId
+
 })
 
 const chooseImage = () => {
@@ -149,6 +152,17 @@ const handleSubmit = async () => {
         to_user_id: toUserId.value,
         msg_type: MSG_TYPE.COMPLETE_NOTIFY, // 任务完成待确认
     })
+
+    // Update related message state to true
+    try {
+            await db.collection('app-task-message')
+                .where(`_id == "${taskMsgId.value}`)
+                .update({
+                    state: true
+                })
+    } catch (e) {
+        console.error('Update message state failed:', e)
+    }
     
     uni.$emit('refreshTasks')
     showToast('提交成功')

@@ -61,13 +61,17 @@ import { store } from '@/uni_modules/uni-id-pages/common/store.js'
 const taskInfo = ref(null)
 const imgs = ref([])
 const taskId = ref('')
-const messageId = ref('') // To handle the message logic if needed, though we mainly need to trigger the action back
+const taskMsgId = ref('') // To handle the message logic if needed, though we mainly need to trigger the action back
 
 onLoad((options) => {
   if (options.taskId) {
     taskId.value = options.taskId
     loadTaskDetail()
   }
+  if (options.taskMsgId) {
+    taskMsgId.value = options.taskMsgId
+  }
+
 })
 
 const loadTaskDetail = async () => {
@@ -137,6 +141,17 @@ const handleAction = async (action) => {
                 to_user_id: taskInfo.value.fullfill_user_id,
                 msg_type: action
             })
+
+            // Update related message state to true
+            try {
+                 await db.collection('app-task-message')
+                     .where(`_task_msg_id == "${taskMsgId.value}`)
+                     .update({
+                         state: true
+                     })
+            } catch (e) {
+                console.error('Update message state failed:', e)
+            }
             
             showToast('操作成功')
             // Refresh list

@@ -48,7 +48,7 @@
 										{{ getMsgTypeDesc(item.msg_type) }} - {{ item.requester.nickname }}
 									</view>
 								</view>
-								<view class="status-tag">{{ getStatusText(item.msg_type) }}</view>
+								<view class="status-tag">{{ getStatusText(item) }}</view>
 							</view>
 						</view>
 						<Empty v-if="taskList.length === 0 && !loadingTasks" description="暂无任务消息"></Empty>
@@ -294,12 +294,9 @@
         return map[type] || '未知状态'
     }
 
-    const getStatusText = (type) => {
-        if(type === MSG_TYPE.REQUEST) return '待处理'
-        if(type === MSG_TYPE.AGREE) return '进行中'
-        if(type === MSG_TYPE.COMPLETE_NOTIFY) return '待确认'
-        if(type === MSG_TYPE.CONFIRM_COMPLETE) return '已完成'
-        return '已结束'
+    const getStatusText = (item) => {
+        if (item.state === false || item.state === undefined) return '待处理'
+        return '已处理'
     }
 
     const getPopupDesc = (task) => {
@@ -321,7 +318,7 @@
             // closeTaskPopup() // Keep popup open or close? Probably close to navigate
             // Actually, we can keep the currentTask in state, navigate, and when back, if handled, refresh.
             // But for now, just navigate.
-            toNextPage(`/pages/publish/task-check?taskId=${taskId}`)
+            toNextPage(`/pages/publish/task-check?taskId=${taskId}&taskMsgId=${task._id}`)
         }
     }
 
@@ -407,7 +404,7 @@
             const taskId = task.relevance_id && task.relevance_id[0] ? task.relevance_id[0]._id : ''
             const toUserId = fromUserId
             closeTaskPopup()
-            toNextPage(`/pages/publish/complete-task?taskId=${taskId}&toUserId=${toUserId}`)
+            toNextPage(`/pages/publish/complete-task?taskId=${taskId}&toUserId=${toUserId}&taskMsgId=${task._id}`)
             return // Stop further execution
         } else if (action === 'giveUp') {
             newMsgType = MSG_TYPE.INCOMPLETE_NOTIFY
@@ -442,6 +439,11 @@
                 from_user_id: store.userInfo._id,
                 to_user_id: toUser,
                 msg_type: newMsgType
+            })
+
+            // Update current message state to true
+            await db.collection('app-task-message').doc(currentTask.value._id).update({
+                state: true
             })
             
             showToast('操作成功')
