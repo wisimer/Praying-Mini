@@ -63,6 +63,17 @@ onShow(() =>{
 			const self = this; //声明常量
 			let options = wx.getEnterOptionsSync();
 			console.log("onShow : options : ", options)
+      if (globalData.value.pay_status != null && globalData.value.pay_status === 0) {
+        globalData.value.pay_status = null; //建议处理数据后重置改状态
+        let out_trade_no = globalData.value.out_trade_no; //商户订单号
+        //处理您自己的业务
+        /*
+        /*
+        */
+       console.log("onShow : 支付成功 out_trade_no : ", out_trade_no)
+       return
+      }
+      
 			if (options && options.scene == 1038 && options.referrerInfo.appId == 'wx5356f0d34f30337f') {
 				let data = options.referrerInfo.extraData; //蓝兔收银 小程序传过来的数据
 				if (data) {
@@ -82,6 +93,7 @@ onShow(() =>{
 						globalData.value.pay_msg = data.msg; //支付返回的信息
 					} else { //data.code === -1
 						//小程序执行中出现异常
+            console.log("小程序执行中出现异常 : ", data)
 					}
 				} else {
 					/*当通过物理返回键或者通过半屏小程序右上角关闭退出（即未通过收银台小程序内按钮退出），extraData内容会为空，
@@ -131,8 +143,10 @@ const toWxPayment = async () => {
   const db = uniCloud.database()
   const userInfo = await db.collection('uni-id-users').where('_id == $cloudEnv_uid').field('_id,wx_openid')
     .get({ getOne: true })
-  wx_openid.value = userInfo.wx_openid.mp
+  console.log("userInfo : ", userInfo)
 
+  wx_openid.value = userInfo.result.data.wx_openid.mp.weixin
+  
   //构造订单参数
   let matchKey = "1af1e23462f165824e3c4467f84fb432"
 
@@ -154,7 +168,7 @@ const toWxPayment = async () => {
   console.log("store.userinfo " + store.userinfo)
   reqParams["attach"] = wx_openid.value
   console.log("reqParams : ", reqParams)
-  uni.openEmbeddedMiniProgram({
+  wx.openEmbeddedMiniProgram({
     appId: 'wx5356f0d34f30337f', //蓝兔收银小程序的appid 固定值 不可修改
     path: 'pages/pay/pay', //支付页面 固定值 不可修改
     extraData: reqParams, //携带的参数 参考API文档
