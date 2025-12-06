@@ -77,9 +77,10 @@ exports.main = async (event, context) => {
 
 	let product = mapproduct_id(product_id)
 
+	// 长度6-32位
 	let out_trade_no =uid + "-" +  Math.random().toString(16).substr(2, 6)
+	// 这里有个注意点，reqParams只能先设置这6个必要参数，然后再签名，再附加其他参数
 	let reqParams = {
-		// "attach": api_data.OpenId.toString(),
 		"mch_id": "1695436159",
 		"out_trade_no": out_trade_no,
 		"total_fee": product.total_fee,
@@ -87,8 +88,9 @@ exports.main = async (event, context) => {
 		"timestamp": ts,
 		"notify_url": "https://fc-mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.next.bspapp.com/payment_lt_order_listener"
 	}
-	
+	// 签名算法
 	const sign = wxPaySign(reqParams,matchKey)
+	// 签完名在附加一下sign和其他信息
 	reqParams["sign"]=sign
 	reqParams["attach"]=uid
 	reqParams["title"]="愿力岛",
