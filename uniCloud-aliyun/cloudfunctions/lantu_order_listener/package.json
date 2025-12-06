@@ -1,7 +1,0 @@
-{
-  "name": "lantu_order_listener",
-  "dependencies": {},
-  "extensions": {
-    "uni-cloud-jql": {}
-  }
-}

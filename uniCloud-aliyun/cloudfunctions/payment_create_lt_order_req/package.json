@@ -1,0 +1,9 @@
+{
+  "name": "payment_create_lt_order_req",
+  "dependencies": {
+    "prayingUtils": "file:../common/prayingUtils"
+  },
+  "extensions": {
+    "uni-cloud-jql": {}
+  }
+}

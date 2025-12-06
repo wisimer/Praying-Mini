@@ -17,7 +17,7 @@
     <view class="recharge-options">
       <view class="option-title">选择充值金额</view>
 
-      <view class="option-item" v-for="(item, index) in options" :key="index">
+      <view class="option-item" v-for="(item, index) in priceOptions" :key="index">
         <view class="info">
           <view class="coin">
             <text class="value">{{ item.coin }}</text>
@@ -49,7 +49,7 @@ const goBack = () => {
 }
 
 const totalMoney = ref(0)
-const options = ref([
+const priceOptions = ref([
   { coin: 1, price: 1 },
   { coin: 10, price: 9, originalPrice: 10, tag: '9折' },
   { coin: 100, price: 90, originalPrice: 100, tag: '9折' }
@@ -139,35 +139,27 @@ const initTotalMoney = () => {
 }
 
 // 用这个
-const toWxPayment = async () => {
-  const db = uniCloud.database()
-  const userInfo = await db.collection('uni-id-users').where('_id == $cloudEnv_uid').field('_id,wx_openid')
-    .get({ getOne: true })
-  console.log("userInfo : ", userInfo)
-
-  wx_openid.value = userInfo.result.data.wx_openid.mp.weixin
-  
+const toWxPayment = async (item) => {   
   //构造订单参数
-  let matchKey = "1af1e23462f165824e3c4467f84fb432"
+  // 调用云函数获取支付参数
+  const res = await uniCloud.callFunction({
+    name: 'payment_create_lt_order_req',
+    data: {
+      product_id: item.coin,
+      uid: store.userInfo._id
+    }
+  })
 
-  let ts = Math.floor(new Date().getTime() / 1000).toString()
-  let reqParams = {
-    // "attach": api_data.OpenId.toString(),
-    "mch_id": "1695436159",
-    "out_trade_no": Math.random().toString(36).substr(2, 16),
-    "total_fee": "6.9",
-    "body": "AI取名神器永久VIP",
-    "timestamp": ts,
-    "notify_url": "https://fc-mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.next.bspapp.com/lantu_order_listener"
-
+  if (res.result.code !== 0) {
+    console.error('获取支付参数失败：', res.result.message)
+    uni.showToast({ title: '获取支付参数失败', icon: 'none' })
+    return
   }
 
-  let signRes = wxPaySign(reqParams, matchKey)
-  console.log("signRes : ", signRes)
-  reqParams["sign"] = signRes
-  console.log("store.userinfo " + store.userinfo)
-  reqParams["attach"] = wx_openid.value
-  console.log("reqParams : ", reqParams)
+  const reqParams = res.result.reqParams
+  const orderId = res.result.orderId
+  console.log('云函数返回 reqParams：', reqParams)
+  console.log('云函数返回 orderId：', orderId)
   wx.openEmbeddedMiniProgram({
     appId: 'wx5356f0d34f30337f', //蓝兔收银小程序的appid 固定值 不可修改
     path: 'pages/pay/pay', //支付页面 固定值 不可修改
@@ -184,41 +176,6 @@ const toWxPayment = async () => {
   })
 }
 
-const wxPaySign = (params, key) => {
-  const paramsArr = Object.keys(params);
-  paramsArr.sort();
-  const stringArr = [];
-  paramsArr.map(key => {
-    stringArr.push(key + '=' + params[key]);
-  });
-  // 最后加上商户Key
-  stringArr.push("key=" + key);
-  const string = stringArr.join('&');
-  return w_md5.hex_md5_32Upper(string).toString();
-}
-const handlePay = async (item) => {
-  showLoading('正在发起支付...')
-
-  try {
-    // Call cloud function to create order and get payment params
-    // This is a placeholder. You need to implement the actual payment logic.
-    // const res = await uniCloud.callFunction({
-    //   name: 'create-order',
-    //   data: { amount: item.price, coin: item.coin }
-    // })
-
-    // Mock payment success
-    setTimeout(() => {
-      uni.hideLoading()
-      showToast('支付功能开发中')
-    }, 1000)
-
-  } catch (e) {
-    uni.hideLoading()
-    showToast('支付失败')
-    console.error(e)
-  }
-}
 </script>
 
 <style lang="scss" scoped>

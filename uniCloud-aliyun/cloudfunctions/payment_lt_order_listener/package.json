@@ -1,5 +1,5 @@
 {
-  "name": "bpage_create_lt_order_req",
+  "name": "payment_lt_order_listener",
   "dependencies": {},
   "extensions": {
     "uni-cloud-jql": {}
