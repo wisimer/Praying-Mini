@@ -1,7 +1,7 @@
 <template>
   <div class="publish-container">
     <!-- Background Gradient -->
-    <div class="task-bg"></div>
+    <!-- <div class="task-bg"></div> -->
 
     <div class="nav-header" :style="navStyle">
       <uni-icons type="back" size="24" color="#fff" @click="goBack"></uni-icons>
@@ -69,7 +69,7 @@
 
       <!-- Price -->
       <div class="form-item">
-        <div class="label">悬赏金额</div>
+        <div class="label">悬赏金币</div>
         <div class="price-input-box">
           <span class="currency">¥</span>
           <input 
@@ -79,6 +79,10 @@
             placeholder="0"
             @input="onPriceInput"
           />
+        </div>
+        <div class="balance-row">
+          <span class="balance-text">当前余额：{{ coin }} 金币</span>
+          <button v-if="isInsufficient" class="recharge-link" @click="toNextPage('/pages/wode/recharge/recharge')">去充值</button>
         </div>
       </div>
     </div>
@@ -96,7 +100,8 @@
 import { ref, computed } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { addDynamic } from '@/cloud-api/dynamic.js'
-import { showToast, showLoading, asyncUploadFile } from '@/core/app.js'
+import { showToast, showLoading, asyncUploadFile, showModal, toNextPage } from '@/core/app.js'
+import { getPlayer } from '@/cloud-api/index.js'
 
 const taskTypes = ['日常委托', '跑腿代购', '技能服务', '其他']
 const navStyle = ref({})
@@ -125,6 +130,7 @@ const imageList = ref([])
 const deadline = ref('')
 const price = ref('1')
 const isLoading = ref(false)
+const coin = ref(0)
 
 const startDate = computed(() => {
   const tomorrow = new Date()
@@ -189,6 +195,23 @@ const goBack = () => {
   uni.navigateBack()
 }
 
+const initCoin = async () => {
+  try {
+    const res = await getPlayer()
+    const data = res.data || {}
+    coin.value = data.coin || 0
+  } catch (e) {}
+}
+
+onLoad(() => {
+  initCoin()
+})
+
+const isInsufficient = computed(() => {
+  const p = parseInt(price.value || '0')
+  return coin.value <= 0 || coin.value <= p
+})
+
 const handlePublish = async () => {
   if (isLoading.value) return
 
@@ -209,6 +232,13 @@ const handlePublish = async () => {
   // Price validation
   if (!price.value || !/^\d+$/.test(price.value) || parseInt(price.value) < 0) {
     return showToast('请输入正整数金额')
+  }
+
+  const priceYuan = parseInt(price.value)
+  if (coin.value <= 0 || coin.value <= priceYuan) {
+    await showModal({ content: '金币不足，请先充值' })
+    toNextPage('/pages/wode/recharge/recharge')
+    return
   }
 
   isLoading.value = true
@@ -297,7 +327,7 @@ const handlePublish = async () => {
   }
 }
 
-.form-content {
+  .form-content {
   flex: 1;
   padding: 20px;
   padding-bottom: 100px;
@@ -308,7 +338,7 @@ const handlePublish = async () => {
     
     .label {
       font-size: 15px;
-      color: #fff; /* White label on gradient bg */
+      color: #000; /* White label on gradient bg */
       margin-bottom: 10px;
       font-weight: 600;
       text-shadow: 0 1px 2px rgba(0,0,0,0.1);
@@ -364,6 +394,27 @@ const handlePublish = async () => {
         font-weight: bold;
         color: #333;
       }
+    }
+    .balance-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+    }
+    .balance-text {
+      font-size: 13px;
+      color: #666;
+    }
+    .recharge-link {
+      margin: 0;
+      background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+      color: #fff;
+      border-radius: 20px;
+      height: 30px;
+      line-height: 30px;
+      padding: 0 12px;
+      font-size: 12px;
+      border: none;
     }
   }
   
