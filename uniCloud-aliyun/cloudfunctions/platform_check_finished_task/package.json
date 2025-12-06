@@ -1,0 +1,7 @@
+{
+  "name": "platform_check_finished_task",
+  "dependencies": {},
+  "extensions": {
+    "uni-cloud-jql": {}
+  }
+}

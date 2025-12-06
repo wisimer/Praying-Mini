@@ -111,4 +111,4 @@
 // db.collection('app-messages')
 // 	.remove()
 
-db.collection('app-dynamic').remove()
+db.collection('app-task-message').remove()
