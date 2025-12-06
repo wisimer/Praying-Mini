@@ -37,8 +37,8 @@
 
 <script setup>
 import { ref } from 'vue'
-import { onLoad,onShow } from '@dcloudio/uni-app'
-import { showLoading, showToast } from '@/core/app.js'
+import { onLoad, onShow } from '@dcloudio/uni-app'
+import { showToast, toNextPage } from '@/core/app.js'
 import { w_md5 } from '@/core/js-md5/w_md5.js';
 import {
   store,
@@ -59,53 +59,55 @@ const spacerStyle = ref({})
 const wx_openid = ref('')
 const globalData = ref({})
 
-onShow(() =>{
-			const self = this; //声明常量
-			let options = wx.getEnterOptionsSync();
-			console.log("onShow : options : ", options)
-      if (globalData.value.pay_status != null && globalData.value.pay_status === 0) {
-        globalData.value.pay_status = null; //建议处理数据后重置改状态
-        let out_trade_no = globalData.value.out_trade_no; //商户订单号
-        //处理您自己的业务
-        /*
-        /*
-        */
-       console.log("onShow : 支付成功 out_trade_no : ", out_trade_no)
-       return
+onShow(() => {
+  const self = this; //声明常量
+  let options = wx.getEnterOptionsSync();
+  console.log("onShow : options : ", options)
+  if (globalData.value.pay_status != null && globalData.value.pay_status === 0) {
+    globalData.value.pay_status = null; //建议处理数据后重置改状态
+    let out_trade_no = globalData.value.out_trade_no; //商户订单号
+    //处理您自己的业务
+    /*
+    /*
+    */
+    console.log("onShow : 支付成功 out_trade_no : ", out_trade_no)
+    initTotalMoney()
+    return
+  }
+
+  if (options && options.scene == 1038 && options.referrerInfo.appId == 'wx5356f0d34f30337f') {
+    let data = options.referrerInfo.extraData; //蓝兔收银 小程序传过来的数据
+    if (data) {
+      if (data.code === 0) {
+        //支付成功
+        globalData.value.out_trade_no = data.data.out_trade_no; //商户订单号
+        globalData.value.pay_status = 0; //支付成功
+        globalData.value.pay_msg = data.msg; //支付返回的信息
+        this.$refs.popup.close()
+        showToast({
+          title: '支付成功',
+          content: '请继续使用~'
+        })
+        initTotalMoney()
+      } else if (data.code === 1) {
+        //支付已取消或支付接口返回错误等
+        globalData.value.pay_status = 1; //支付已取消
+        globalData.value.pay_msg = data.msg; //支付返回的信息
+      } else { //data.code === -1
+        //小程序执行中出现异常
+        console.log("小程序执行中出现异常 : ", data)
       }
-      
-			if (options && options.scene == 1038 && options.referrerInfo.appId == 'wx5356f0d34f30337f') {
-				let data = options.referrerInfo.extraData; //蓝兔收银 小程序传过来的数据
-				if (data) {
-					if (data.code === 0) {
-						//支付成功
-						globalData.value.out_trade_no = data.data.out_trade_no; //商户订单号
-						globalData.value.pay_status = 0; //支付成功
-						globalData.value.pay_msg = data.msg; //支付返回的信息
-						this.$refs.popup.close()
-						uni.showToast({
-							title: '支付成功',
-							content: '请继续使用~'
-						})
-					} else if (data.code === 1) {
-						//支付已取消或支付接口返回错误等
-						globalData.value.pay_status = 1; //支付已取消
-						globalData.value.pay_msg = data.msg; //支付返回的信息
-					} else { //data.code === -1
-						//小程序执行中出现异常
-            console.log("小程序执行中出现异常 : ", data)
-					}
-				} else {
-					/*当通过物理返回键或者通过半屏小程序右上角关闭退出（即未通过收银台小程序内按钮退出），extraData内容会为空，
-					调用方小程序会无法获得支付结果，该情况为微信小程序特性，小程序代码无法处理。需要自行查询订单支付结果*/
-					uni.showToast({
-						title: '状态未知，未通过收银台小程序内按钮退出', //错误提示
-						icon: 'none',
-						duration: 3000
-					});
-				}
-			}
-		})
+    } else {
+      /*当通过物理返回键或者通过半屏小程序右上角关闭退出（即未通过收银台小程序内按钮退出），extraData内容会为空，
+      调用方小程序会无法获得支付结果，该情况为微信小程序特性，小程序代码无法处理。需要自行查询订单支付结果*/
+      showToast({
+        title: '状态未知，未通过收银台小程序内按钮退出', //错误提示
+        icon: 'none',
+        duration: 3000
+      });
+    }
+  }
+})
 
 onLoad(() => {
   // #ifdef MP-WEIXIN
@@ -132,14 +134,20 @@ onLoad(() => {
 })
 
 const initTotalMoney = () => {
-  const calculateMoney = uniCloud.importObject('calculate-money', { customUI: true })
-  calculateMoney.getTotalMoney().then(res => {
-    totalMoney.value = res.totalMoney
-  }).catch(console.error)
+  console.log("initTotalMoney : store.userInfo._id : ", store.userInfo._id)
+  //查询app-player表的coin字段
+  const db = uniCloud.database()
+  db.collection('app-player').where({
+    'user_id': db.command.eq(store.userInfo._id)
+  }).get().then(res => {
+    if (res && res.result && res.result.data && res.result.data.length > 0) {
+      totalMoney.value = res.result.data[0].coin
+    }
+  })
 }
 
 // 用这个
-const toWxPayment = async (item) => {   
+const toWxPayment = async (item) => {
   //构造订单参数
   // 调用云函数获取支付参数
   const res = await uniCloud.callFunction({

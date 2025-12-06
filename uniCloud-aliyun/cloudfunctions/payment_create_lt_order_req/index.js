@@ -67,9 +67,6 @@ exports.main = async (event, context) => {
 		}
 	}
 
-	const wx_openid = userInfo.data[0].wx_openid.mp
-
-
 	//构造订单参数
 	let matchKey = "1af1e23462f165824e3c4467f84fb432"
 
@@ -92,7 +89,7 @@ exports.main = async (event, context) => {
 	const sign = wxPaySign(reqParams,matchKey)
 	// 签完名在附加一下sign和其他信息
 	reqParams["sign"]=sign
-	reqParams["attach"]=uid
+	reqParams["attach"]=`uid=${uid}&product_id=${product_id}`
 	reqParams["title"]="愿力岛",
 	
 	console.log("reqParams : ", reqParams)
