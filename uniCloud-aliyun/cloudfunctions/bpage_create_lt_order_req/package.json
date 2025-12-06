@@ -1,0 +1,7 @@
+{
+  "name": "bpage_create_lt_order_req",
+  "dependencies": {},
+  "extensions": {
+    "uni-cloud-jql": {}
+  }
+}
