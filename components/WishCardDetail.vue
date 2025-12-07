@@ -588,55 +588,11 @@ const handleClose = () => {
 const handleMpShare = async () => {
     if (isSaving.value) return
     isSaving.value = true
-    uni.showLoading({ title: '准备分享...' })
-    
-    try {
-        const tempFilePath = await drawCanvas()
-        
-        // #ifdef MP-WEIXIN
-        if (uni.showShareImageMenu) {
-            uni.showShareImageMenu({
-                path: tempFilePath,
-                success: () => {
-                    uni.showToast({ title: '分享成功', icon: 'success' })
-                },
-                fail: (err) => {
-                    console.error('showShareImageMenu fail', err)
-                    if (err.errMsg.indexOf('cancel') === -1) {
-                         // Fallback to save if not cancel
-                         // Actually user might have cancelled.
-                         // If not supported or error, we could try save
-                         if (err.errMsg.indexOf('not supported') > -1) {
-                             handleSave('save')
-                         }
-                    }
-                },
-                complete: () => {
-                    uni.hideLoading()
-                    isSaving.value = false
-                }
-            })
-        } else {
-            // Fallback
-            uni.previewImage({
-                urls: [tempFilePath]
-            })
-            uni.hideLoading()
-            isSaving.value = false
-        }
-        // #endif
-        
-        // #ifndef MP-WEIXIN
-        uni.hideLoading()
-        isSaving.value = false
-        // #endif
-        
-    } catch (e) {
-        console.error(e)
-        isSaving.value = false
-        uni.hideLoading()
-        uni.showToast({ title: '生成失败', icon: 'none' })
-    }
+      // 直接拉起微信转发面板，不带图片
+      uni.showShareMenu({
+        withShareTicket: true,
+        menus: ['shareAppMessage', 'shareTimeline']
+      })
 }
 
 const handleSave = async (type) => {
