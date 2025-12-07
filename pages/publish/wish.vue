@@ -84,6 +84,7 @@
       v-if="showResult"
       :visible="showResult"
       :wish-data="resultData"
+      :start-rect="startRect"
       :show-same-wish="false"
       @close="closeResult"
       @update:visible="v => showResult = v"
@@ -114,6 +115,7 @@ const showResult = ref(false)
 const resultData = ref({})
 const navStyle = ref({})
 const remainingWishes = ref(5) // Mock value
+const startRect = ref(null)
 
 const currentScene = computed(() => scenes[currentIndex.value] || scenes[0])
 const canSubmit = computed(() => wishText.value.trim().length > 0)
@@ -171,6 +173,15 @@ const handleWish = async () => {
   isAnimating.value = true
   
   try {
+    // 0. Capture Card Position for Animation
+    // Need to do this before showing modal
+    const rect = await new Promise(resolve => {
+      uni.createSelectorQuery().select('.scene-card.active').boundingClientRect(resolve).exec()
+    })
+    if (rect) {
+      startRect.value = rect
+    }
+
     // 1. Generate AI Message (Mock or API)
     // In real scenario, this might take time, but for "interaction flow", we want quick feedback
     // If using API, maybe show loading briefly. 

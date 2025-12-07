@@ -1,6 +1,6 @@
 <template>
   <view class="wish-detail-modal" v-if="visible" @click="handleClose" :class="{ 'fade-in': animationActive }">
-    <view class="modal-content" @click.stop>
+    <view class="modal-content" @click.stop :style="modalStyle">
       <!-- Card Area (To be captured) -->
       <view class="card-container" id="wish-card-capture">
         <!-- Background Layer -->
@@ -88,6 +88,10 @@ const props = defineProps({
   wishData: {
     type: Object,
     default: () => ({})
+  },
+  startRect: {
+    type: Object,
+    default: null
   }
 })
 
@@ -103,6 +107,7 @@ const displayedAiText = ref('')
 const isTyping = ref(false)
 const showActions = ref(false)
 const animationActive = ref(false)
+const modalStyle = ref({}) // For FLIP animation
 let typingTimer = null
 
 const isImageBg = computed(() => {
@@ -170,10 +175,74 @@ const startTypewriter = () => {
 }
 
 const startEntranceAnimation = () => {
-  animationActive.value = false
-  // Delay to allow DOM render before transition
+  // Safety timeout: Ensure content becomes visible even if logic fails
+  const safetyTimer = setTimeout(() => {
+    if (!animationActive.value) {
+       console.warn('Animation Safety Triggered')
+       modalStyle.value = {} // Clear any JS styles to let CSS take over
+       animationActive.value = true
+    }
+  }, 300)
+
+  if (!props.startRect) {
+    animationActive.value = false
+    setTimeout(() => {
+      animationActive.value = true
+      clearTimeout(safetyTimer)
+    }, 50)
+    return
+  }
+
+  // FLIP Animation
+  // Start with no overrides, let CSS handle initial layout
+  modalStyle.value = {
+    transition: 'none', // Disable CSS transition for measurement
+    opacity: 0
+  }
+
+  // Wait for render
   setTimeout(() => {
-    animationActive.value = true
+     uni.createSelectorQuery().in(instance).select('.modal-content').boundingClientRect(finalRect => {
+       if (!finalRect || !finalRect.width) {
+         // Measurement failed, fallback to CSS animation
+         modalStyle.value = {}
+         animationActive.value = true
+         return
+       }
+       
+       const start = props.startRect
+       const end = finalRect
+       
+       const dx = start.left + start.width/2 - (end.left + end.width/2)
+       const dy = start.top + start.height/2 - (end.top + end.height/2)
+       const sx = start.width / end.width
+       const sy = start.height / end.height
+       
+       // Apply Invert
+       modalStyle.value = {
+         transform: `translate(${dx}px, ${dy}px) scale(${sx}, ${sy})`,
+         transformOrigin: 'center center',
+         opacity: 1,
+         transition: 'none',
+         willChange: 'transform'
+       }
+       
+       // Play
+       setTimeout(() => {
+         clearTimeout(safetyTimer)
+         // Enable animation to final state
+         modalStyle.value = {
+           transform: 'translate(0, 0) scale(1, 1)',
+           transformOrigin: 'center center',
+           opacity: 1,
+           transition: 'transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)',
+           willChange: 'auto'
+         }
+         // Also set this to ensure background fade-in works
+         animationActive.value = true
+       }, 50)
+       
+     }).exec()
   }, 50)
 }
 
@@ -183,6 +252,7 @@ watch(() => props.visible, (val) => {
     startTypewriter()
   } else {
     animationActive.value = false
+    modalStyle.value = {} // Reset
     displayedAiText.value = ''
     showActions.value = false
     isTyping.value = false
@@ -369,9 +439,10 @@ const handleSave = async (type) => {
     flex-direction: column;
     align-items: center;
     position: relative;
-    transform: scale(0.7); // Start smaller to match card size
+    /* Default state for fallback CSS animation */
+    transform: scale(0.8);
     opacity: 0;
-    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); // Bouncy effect
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 }
 
