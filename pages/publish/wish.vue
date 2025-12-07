@@ -364,6 +364,7 @@ const handleWish = async () => {
 
 const closeResult = () => {
   showResult.value = false
+  uni.navigateBack()
 }
 </script>
 

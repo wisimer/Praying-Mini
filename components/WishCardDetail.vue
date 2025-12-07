@@ -1,5 +1,5 @@
 <template>
-  <view class="wish-detail-modal" v-if="visible" @click="handleClose" :class="{ 'fade-in': animationActive }">
+  <view class="wish-detail-modal" v-if="visible" :class="{ 'fade-in': animationActive }">
     <view class="modal-content" @click.stop :style="modalStyle">
       <!-- Card Area (To be captured) -->
       <view class="card-container" id="wish-card-capture">
@@ -40,12 +40,12 @@
      <view class="action-area" :class="{ 'show': showActions }">
         <!-- WeChat Share (MP) -->
         <!-- #ifdef MP-WEIXIN -->
-        <button class="action-btn share-btn" open-type="share">
+        <view class="action-btn" @click="handleMpShare">
           <view class="icon-circle wechat">
             <uni-icons type="weixin" size="28" color="#fff"></uni-icons>
           </view>
           <text class="btn-label">微信</text>
-        </button>
+        </view>
         <!-- #endif -->
         
         <!-- App Share (WeChat) -->
@@ -72,7 +72,7 @@
         <!-- #endif -->
         
         <!-- #ifdef MP-WEIXIN -->
-         <view class="action-btn" @click="handleSave('moments')">
+         <view class="action-btn" @click="handleMpShare">
           <view class="icon-circle moments">
             <image src="https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/moments_icon.png" class="moments-icon" mode="aspectFit"></image>
           </view>
@@ -531,6 +531,61 @@ const handleClose = () => {
       reject(e)
     }
   })
+}
+
+// MP Share Handler
+const handleMpShare = async () => {
+    if (isSaving.value) return
+    isSaving.value = true
+    uni.showLoading({ title: '准备分享...' })
+    
+    try {
+        const tempFilePath = await drawCanvas()
+        
+        // #ifdef MP-WEIXIN
+        if (uni.showShareImageMenu) {
+            uni.showShareImageMenu({
+                path: tempFilePath,
+                success: () => {
+                    uni.showToast({ title: '分享成功', icon: 'success' })
+                },
+                fail: (err) => {
+                    console.error('showShareImageMenu fail', err)
+                    if (err.errMsg.indexOf('cancel') === -1) {
+                         // Fallback to save if not cancel
+                         // Actually user might have cancelled.
+                         // If not supported or error, we could try save
+                         if (err.errMsg.indexOf('not supported') > -1) {
+                             handleSave('save')
+                         }
+                    }
+                },
+                complete: () => {
+                    uni.hideLoading()
+                    isSaving.value = false
+                }
+            })
+        } else {
+            // Fallback
+            uni.previewImage({
+                urls: [tempFilePath]
+            })
+            uni.hideLoading()
+            isSaving.value = false
+        }
+        // #endif
+        
+        // #ifndef MP-WEIXIN
+        uni.hideLoading()
+        isSaving.value = false
+        // #endif
+        
+    } catch (e) {
+        console.error(e)
+        isSaving.value = false
+        uni.hideLoading()
+        uni.showToast({ title: '生成失败', icon: 'none' })
+    }
 }
 
 const handleSave = async (type) => {
