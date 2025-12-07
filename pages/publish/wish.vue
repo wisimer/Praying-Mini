@@ -45,34 +45,74 @@
         </swiper>
       </view>
 
-      <!-- 2. Wish Input Area -->
-      <view class="input-area">
-        <view class="input-wrapper">
-          <textarea
-            class="wish-textarea"
-            v-model="wishText"
-            placeholder="写下你的心愿（最多100字）"
-            placeholder-class="input-placeholder"
-            maxlength="100"
-            :disable-default-padding="true"
-          ></textarea>
-          <text class="char-counter">{{ wishText.length }}/100</text>
+      <!-- 2. Chat Area -->
+      <scroll-view 
+        class="chat-area" 
+        scroll-y 
+        :scroll-into-view="scrollViewId"
+        :scroll-with-animation="true"
+      >
+        <view class="chat-list">
+          <view 
+            v-for="(msg, index) in chatList" 
+            :key="index" 
+            :id="'msg-' + index"
+            class="chat-item" 
+            :class="msg.type"
+          >
+            <!-- AI Side -->
+            <template v-if="msg.type === 'ai'">
+              <view class="avatar ai-avatar">
+                <image class="avatar-img" src="https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/avatar_ai.png" mode="aspectFill"></image>
+              </view>
+              <view class="content-wrapper">
+                <text class="nickname">飞飞</text>
+                <view class="bubble">
+                  <text class="text">{{ msg.content }}</text>
+                </view>
+              </view>
+            </template>
+            
+            <!-- User Side -->
+            <template v-else>
+              <view class="avatar user-avatar">
+                 <!-- Use user avatar if available, else default -->
+                 <image class="avatar-img" :src="userInfo.avatar || 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/avatar_user_default.png'" mode="aspectFill"></image>
+              </view>
+              <view class="content-wrapper">
+                <text class="nickname">{{ userInfo.nickname || 'XP' }}</text>
+                <view class="bubble">
+                  <text class="text">{{ msg.content }}</text>
+                </view>
+              </view>
+            </template>
+          </view>
         </view>
-      </view>
+      </scroll-view>
 
     </view>
 
-    <!-- 3. Wish Button Area -->
-    <view class="action-bar">
+    <!-- 3. Bottom Input Area -->
+    <view class="bottom-bar">
+      <view class="input-wrapper">
+        <input
+          class="wish-input"
+          v-model="wishText"
+          placeholder="写下你的心愿..."
+          placeholder-class="input-placeholder"
+          maxlength="100"
+          :confirm-type="'send'"
+          @confirm="handleWish"
+        />
+      </view>
+      
       <button 
-        class="wish-btn" 
+        class="send-btn" 
         :class="{ 'is-loading': isAnimating, 'is-disabled': !canSubmit }" 
         @click="handleWish"
         :disabled="!canSubmit || isAnimating"
       >
-        <template v-if="!isAnimating">
-          <text class="btn-text">许愿（✨：{{ remainingWishes }}）</text>
-        </template>
+        <text v-if="!isAnimating">许愿</text>
         <view v-else class="loading-dots">
           <text class="dot">.</text><text class="dot">.</text><text class="dot">.</text>
         </view>
@@ -93,7 +133,7 @@
 </template>
 
 <script setup>
-import { ref, computed, reactive, onMounted } from 'vue'
+import { ref, computed, reactive, onMounted, nextTick } from 'vue'
 import { onLoad, onShareAppMessage } from '@dcloudio/uni-app'
 import WishCardDetail from '@/components/WishCardDetail.vue'
 import { addWish } from '@/cloud-api/dynamic.js'
@@ -116,6 +156,12 @@ const resultData = ref({})
 const navStyle = ref({})
 const remainingWishes = ref(5) // Mock value
 const startRect = ref(null)
+const chatList = ref([])
+const scrollViewId = ref('')
+const userInfo = ref({
+  nickname: 'XP',
+  avatar: '' // Will use default
+})
 
 const currentScene = computed(() => scenes[currentIndex.value] || scenes[0])
 const canSubmit = computed(() => wishText.value.trim().length > 0)
@@ -167,14 +213,44 @@ const onSwiperChange = (e) => {
   currentIndex.value = e.detail.current
 }
 
+const scrollToBottom = () => {
+  nextTick(() => {
+    scrollViewId.value = 'msg-' + (chatList.value.length - 1)
+  })
+}
+
+const typeWriter = async (text) => {
+  const msgIndex = chatList.value.length
+  chatList.value.push({ type: 'ai', content: '' })
+  
+  let index = 0
+  return new Promise(resolve => {
+    const timer = setInterval(() => {
+      if (index < text.length) {
+        chatList.value[msgIndex].content += text.charAt(index)
+        index++
+        scrollToBottom()
+      } else {
+        clearInterval(timer)
+        resolve()
+      }
+    }, 100) // 100ms per char
+  })
+}
+
 const handleWish = async () => {
   if (!canSubmit.value || isAnimating.value) return
 
   isAnimating.value = true
+  const currentWishText = wishText.value
+  wishText.value = '' // Clear input immediately
+  
+  // Add User Message
+  chatList.value.push({ type: 'user', content: currentWishText })
+  scrollToBottom()
   
   try {
     // 0. Capture Card Position for Animation
-    // Need to do this before showing modal
     const rect = await new Promise(resolve => {
       uni.createSelectorQuery().select('.scene-card.active').boundingClientRect(resolve).exec()
     })
@@ -182,20 +258,11 @@ const handleWish = async () => {
       startRect.value = rect
     }
 
-    // 1. Generate AI Message (Mock or API)
-    // In real scenario, this might take time, but for "interaction flow", we want quick feedback
-    // If using API, maybe show loading briefly. 
-    // User requested: "Click Wish -> Card expands". This implies near instant transition.
-    // So we generate message first or in parallel.
-    
-    // 2. Mock API call delay (Reduced for better interaction as per new requirements)
-    // await new Promise(resolve => setTimeout(resolve, 500)) 
-    
     // Check Text (Weixin MP)
     // #ifdef MP-WEIXIN
     const checkRes = await uniCloud.callFunction({ 
       name: 'set-check-text', 
-      data: { text: wishText.value } 
+      data: { text: currentWishText } 
     })
     if (checkRes.result.errCode === 400) {
       throw new Error('内容不合规')
@@ -220,19 +287,23 @@ const handleWish = async () => {
     }
     
     const obj = {
-      content: wishText.value,
+      content: currentWishText,
       sort: 0, 
       imgs: "",
       content_style: contentStyle
     }
     
-    // Save to DB (Async, don't block UI transition if possible, but safe to await)
-    await addWish(obj)
-    uni.$emit('saveRecord')
+    // Save to DB
+    addWish(obj).then(() => {
+       uni.$emit('saveRecord')
+    })
     
-    // Update UI Data
+    // Start Typewriter Effect
+    await typeWriter(randomMsg)
+    
+    // Prepare Result Data
     resultData.value = {
-      title: wishText.value,
+      title: currentWishText,
       user: {
         nickname: '我',
         avatar: '' 
@@ -244,17 +315,18 @@ const handleWish = async () => {
       aiMessage: randomMsg
     }
     
-    // Trigger Modal immediately
+    // Trigger Modal
     showResult.value = true
     remainingWishes.value = Math.max(0, remainingWishes.value - 1)
-    wishText.value = ''
 
   } catch (e) {
     console.error(e)
     if (e.message === '内容不合规') {
       showToast('内容不合规，请重新编辑')
+      wishText.value = currentWishText // Restore text
     } else {
       showToast('许愿失败，请稍后重试')
+      wishText.value = currentWishText // Restore text
     }
   } finally {
     isAnimating.value = false
@@ -326,18 +398,20 @@ const closeResult = () => {
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start; // Start from top
   align-items: center;
   z-index: 10;
-  padding-bottom: 100px; // Space for bottom button
   width: 100%;
+  overflow: hidden;
+  padding-bottom: calc(120rpx + env(safe-area-inset-bottom)); // Space for bottom bar
 }
 
 // Scene Swiper Area
 .scene-area {
   width: 100%;
   height: 400rpx;
-  margin-bottom: 40rpx;
+  margin-top: 40rpx;
+  flex-shrink: 0;
 
   .scene-swiper {
     width: 100%;
@@ -395,100 +469,190 @@ const closeResult = () => {
   }
 }
 
-// Input Area
-.input-area {
+// Chat Area
+.chat-area {
+  flex: 1;
   width: 100%;
-  padding: 0 40rpx;
+  padding: 0 30rpx;
   box-sizing: border-box;
-  margin-top: 20rpx;
-
-  .input-wrapper {
-    width: 100%;
-    background: rgba(255, 255, 255, 0.15);
-    border-radius: 24rpx;
-    padding: 30rpx;
-    box-sizing: border-box;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    position: relative;
-    transition: all 0.3s;
-
-    &:focus-within {
-      background: rgba(255, 255, 255, 0.25);
-      border-color: rgba(255, 255, 255, 0.4);
-    }
-
-    .wish-textarea {
-      width: 100%;
-      height: 160rpx;
-      font-size: 30rpx;
-      color: #fff;
-      line-height: 1.6;
+  overflow: hidden;
+  
+  .chat-list {
+    padding-bottom: 20rpx;
+    
+    .chat-item {
+      display: flex;
+      margin-bottom: 30rpx;
+      align-items: flex-start;
       
-      // Placeholder color
-      &::placeholder {
-        color: rgba(255, 255, 255, 0.6);
+      .content-wrapper {
+        display: flex;
+        flex-direction: column;
+        max-width: 70%;
       }
-    }
+      
+      .nickname {
+        font-size: 24rpx;
+        color: #fff; // Contrast against background
+        margin-bottom: 8rpx;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+      }
+      
+      .avatar {
+        width: 80rpx;
+        height: 80rpx;
+        border-radius: 10rpx; // Rounded square like WeChat
+        overflow: hidden;
+        flex-shrink: 0;
+        background: #fff;
+        
+        .avatar-img {
+          width: 100%;
+          height: 100%;
+        }
+      }
+      
+      .bubble {
+        padding: 20rpx;
+        border-radius: 10rpx;
+        position: relative;
+        font-size: 30rpx;
+        line-height: 1.5;
+        word-wrap: break-word;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      }
 
-    .input-placeholder {
-      color: rgba(255, 255, 255, 0.6);
-    }
+      // User Specific Styles
+      &.user {
+        flex-direction: row-reverse;
+        
+        .content-wrapper {
+          align-items: flex-end;
+          margin-right: 20rpx;
+        }
+        
+        .nickname {
+          text-align: right;
+        }
 
-    .char-counter {
-      display: block;
-      text-align: right;
-      font-size: 24rpx;
-      color: rgba(255, 255, 255, 0.8);
-      margin-top: 10rpx;
+        .bubble {
+          background: #95ec69; // WeChat Green
+          color: #000;
+          
+          &::after { // Triangle
+            content: '';
+            position: absolute;
+            right: -10rpx;
+            top: 20rpx;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 10rpx 0 10rpx 12rpx;
+            border-color: transparent transparent transparent #95ec69;
+          }
+        }
+      }
+      
+      // AI Specific Styles
+      &.ai {
+        flex-direction: row;
+        
+        .content-wrapper {
+          align-items: flex-start;
+          margin-left: 20rpx;
+        }
+        
+        .nickname {
+          text-align: left;
+        }
+
+        .bubble {
+          background: #fff;
+          color: #333;
+          
+          &::after { // Triangle
+            content: '';
+            position: absolute;
+            left: -10rpx;
+            top: 20rpx;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 10rpx 12rpx 10rpx 0;
+            border-color: transparent #fff transparent transparent;
+          }
+        }
+      }
     }
   }
 }
 
-// Action Bar
-.action-bar {
+// Bottom Bar
+.bottom-bar {
   position: fixed;
   bottom: 0;
   left: 0;
   width: 100%;
-  padding: 30rpx 40rpx;
-  padding-bottom: calc(30rpx + env(safe-area-inset-bottom));
-  background: rgba(0, 0, 0, 0.2); // Slight dark background
-  backdrop-filter: blur(5px);
+  padding: 20rpx 30rpx;
+  padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
+  background: rgba(0, 0, 0, 0.4); 
+  backdrop-filter: blur(10px);
   z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
   box-sizing: border-box;
 
-  .wish-btn {
-    width: 100%;
-    height: 96rpx;
-    border-radius: 48rpx;
+  .input-wrapper {
+    flex: 1;
+    background: #fff;
+    border-radius: 10rpx;
+    padding: 16rpx 20rpx;
+    display: flex;
+    align-items: center;
+    min-height: 80rpx;
+    
+    .wish-input {
+      width: 100%;
+      font-size: 30rpx;
+      color: #333;
+      
+      &::placeholder {
+        color: #999;
+      }
+    }
+  }
+
+  .send-btn {
+    width: 140rpx;
+    height: 80rpx;
+    border-radius: 10rpx;
+    background: #07c160; // WeChat Green or keep gradient? User mentioned WeChat style, maybe green is better, or keep theme.
+    // Keeping theme for consistency but style for layout
     background: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 100%);
     color: #fff;
-    font-size: 32rpx;
+    font-size: 30rpx;
     font-weight: 600;
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 0;
+    margin: 0;
     border: none;
-    box-shadow: 0 8px 20px rgba(255, 154, 158, 0.4);
-    transition: all 0.3s;
-
+    
     &.is-disabled {
       opacity: 0.6;
       background: #ccc;
-      box-shadow: none;
-      pointer-events: none;
     }
-
+    
     &:active {
-      transform: scale(0.98);
+      opacity: 0.8;
     }
-
+    
     .loading-dots {
       .dot {
-        animation: dotFade 1.4s infinite ease-in-out both;
         font-size: 40rpx;
-        margin: 0 2rpx;
+        animation: dotFade 1.4s infinite ease-in-out both;
         &:nth-child(1) { animation-delay: -0.32s; }
         &:nth-child(2) { animation-delay: -0.16s; }
       }

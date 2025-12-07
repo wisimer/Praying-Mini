@@ -38,23 +38,47 @@
 
      <!-- Layer 3: Action Buttons (Outside capture area for UI, but inside logic) -->
      <view class="action-area" :class="{ 'show': showActions }">
-        <!-- WeChat Share -->
+        <!-- WeChat Share (MP) -->
+        <!-- #ifdef MP-WEIXIN -->
         <button class="action-btn share-btn" open-type="share">
           <view class="icon-circle wechat">
             <uni-icons type="weixin" size="28" color="#fff"></uni-icons>
           </view>
           <text class="btn-label">微信</text>
         </button>
+        <!-- #endif -->
+        
+        <!-- App Share (WeChat) -->
+        <!-- #ifdef APP-PLUS -->
+        <view class="action-btn" @click="handleAppShare('WXSceneSession')">
+          <view class="icon-circle wechat">
+            <uni-icons type="weixin" size="28" color="#fff"></uni-icons>
+          </view>
+          <text class="btn-label">微信</text>
+        </view>
+        <!-- #endif -->
 
-        <!-- Moments (Save Image trigger) -->
-        <view class="action-btn" @click="handleSave('moments')">
+        <!-- Moments (Save Image trigger or Share Timeline) -->
+        <!-- For MP, Moments is usually handled via top menu, but we can guide user or save image -->
+        <!-- For App, we can share to Timeline directly -->
+        
+        <!-- #ifdef APP-PLUS -->
+        <view class="action-btn" @click="handleAppShare('WXSenceTimeline')">
           <view class="icon-circle moments">
             <image src="https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/moments_icon.png" class="moments-icon" mode="aspectFit"></image>
-            <!-- Fallback icon if image fails -->
-            <!-- <uni-icons type="pyq" size="24" color="#fff"></uni-icons> -->
           </view>
           <text class="btn-label">朋友圈</text>
         </view>
+        <!-- #endif -->
+        
+        <!-- #ifdef MP-WEIXIN -->
+         <view class="action-btn" @click="handleSave('moments')">
+          <view class="icon-circle moments">
+            <image src="https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/moments_icon.png" class="moments-icon" mode="aspectFit"></image>
+          </view>
+          <text class="btn-label">朋友圈</text>
+        </view>
+        <!-- #endif -->
 
         <!-- Save Image -->
         <view class="action-btn" @click="handleSave('save')">
@@ -150,28 +174,17 @@ const formattedDate = computed(() => {
 // Typewriter Effect
 const startTypewriter = () => {
   // Reset
-  displayedAiText.value = ''
   showActions.value = false
-  isTyping.value = true
+  isTyping.value = false
   if (typingTimer) clearTimeout(typingTimer)
   
-  const fullText = aiMessage.value
-  let index = 0
+  // Display immediately as per requirements
+  displayedAiText.value = aiMessage.value
   
-  const type = () => {
-    if (index < fullText.length) {
-      displayedAiText.value += fullText.charAt(index)
-      index++
-      typingTimer = setTimeout(type, 100) // 100ms per char
-    } else {
-      isTyping.value = false
-      setTimeout(() => {
-        showActions.value = true
-      }, 500) // 500ms delay for buttons
-    }
-  }
-  
-  type()
+  // Show actions with a small delay
+  setTimeout(() => {
+    showActions.value = true
+  }, 500)
 }
 
 const startEntranceAnimation = () => {
@@ -274,140 +287,202 @@ const handleClose = () => {
 }
 
 // Canvas Drawing Logic
+const drawCanvas = async () => {
+  return new Promise((resolve, reject) => {
+    try {
+      const ctx = uni.createCanvasContext('shareCanvas', instance)
+      const W = 750
+      const H = 1200 
+      canvasHeight.value = H
+      
+      // 1. Draw Background
+      ctx.setFillStyle('#ffffff')
+      ctx.fillRect(0, 0, W, H)
+      
+      // Simple gradient fallback if image fails or for speed
+      const grd = ctx.createLinearGradient(0, 0, W, H)
+      grd.addColorStop(0, '#e0c3fc')
+      grd.addColorStop(1, '#8ec5fc')
+      ctx.setFillStyle(grd)
+      ctx.fillRect(0, 0, W, H)
+
+      // 2. Draw Image Background (If available)
+      // Note: In real app, we must use uni.getImageInfo to get local path for canvas
+      // Here we skip for simplicity/stability, relying on gradient or if we had preloaded paths
+      
+      // 3. Draw Overlay
+      ctx.setFillStyle('rgba(255, 255, 255, 0.9)')
+      ctx.fillRect(40, 100, W - 80, H - 200)
+      
+      // 4. Draw Content
+      ctx.setTextAlign('center')
+      
+      // Title
+      ctx.setFontSize(24)
+      ctx.setFillStyle('#333')
+      ctx.fillText('我的心愿', W / 2, 180)
+      
+      // Wish Text
+      ctx.setFontSize(32)
+      ctx.setFillStyle('#000')
+      const text = wishContent.value || ''
+      // Simple word wrap
+      let lineWidth = 0;
+      let lastSubStrIndex = 0; 
+      let initY = 260;
+      for (let i = 0; i < text.length; i++) {
+          lineWidth += ctx.measureText(text[i]).width; 
+          if (lineWidth > 500) {
+              ctx.fillText(text.substring(lastSubStrIndex, i), W/2, initY);
+              initY += 50;
+              lineWidth = 0;
+              lastSubStrIndex = i;
+          } 
+          if (i == text.length - 1) {
+              ctx.fillText(text.substring(lastSubStrIndex, i + 1), W/2, initY);
+          }
+      }
+      
+      // AI Message
+      if (aiMessage.value) {
+          initY += 100
+          ctx.setFontSize(24)
+          ctx.setFillStyle('#666')
+          ctx.fillText('✦ 星语 ✦', W/2, initY)
+          initY += 60
+          ctx.setFontSize(28)
+          ctx.setFillStyle('#333')
+          
+          // Wrap AI Text
+          lineWidth = 0;
+          lastSubStrIndex = 0;
+          for (let i = 0; i < aiMessage.value.length; i++) {
+              lineWidth += ctx.measureText(aiMessage.value[i]).width; 
+              if (lineWidth > 500) {
+                  ctx.fillText(aiMessage.value.substring(lastSubStrIndex, i), W/2, initY);
+                  initY += 45;
+                  lineWidth = 0;
+                  lastSubStrIndex = i;
+              } 
+              if (i == aiMessage.value.length - 1) {
+                  ctx.fillText(aiMessage.value.substring(lastSubStrIndex, i + 1), W/2, initY);
+              }
+          }
+      }
+      
+      // Footer
+      ctx.setFontSize(20)
+      ctx.setFillStyle('#999')
+      ctx.fillText('愿力岛 · 祈福', W/2, H - 140)
+
+      ctx.draw(false, () => {
+        setTimeout(() => {
+          uni.canvasToTempFilePath({
+            canvasId: 'shareCanvas',
+            width: W,
+            height: H,
+            destWidth: W,
+            destHeight: H,
+            fileType: 'jpg',
+            quality: 0.8,
+            success: (res) => {
+              resolve(res.tempFilePath)
+            },
+            fail: (err) => {
+              reject(err)
+            }
+          }, instance)
+        }, 500)
+      })
+    } catch (e) {
+      reject(e)
+    }
+  })
+}
+
 const handleSave = async (type) => {
   if (isSaving.value) return
   isSaving.value = true
   uni.showLoading({ title: '生成海报中...' })
 
   try {
-    const ctx = uni.createCanvasContext('shareCanvas', instance)
-    const W = 750
-    const H = 1200 // Fixed height for poster
-    canvasHeight.value = H
+    const tempFilePath = await drawCanvas()
     
-    // 1. Draw Background
-    // ... Simplified drawing logic for robustness ...
-    ctx.setFillStyle('#ffffff')
-    ctx.fillRect(0, 0, W, H)
-    
-    if (isImageBg.value && bgValue.value) {
-       // Draw image background (placeholder for complexity)
-       // For now, draw a colored rect as fallback or try to draw image if possible
-       // In real implementation, need `getImageInfo`
-       ctx.save()
-       // Draw a gradient as fallback
-       const grd = ctx.createLinearGradient(0, 0, W, H)
-       grd.addColorStop(0, '#e0c3fc')
-       grd.addColorStop(1, '#8ec5fc')
-       ctx.setFillStyle(grd)
-       ctx.fillRect(0, 0, W, H)
-       ctx.restore()
-    } else {
-       ctx.setFillStyle('#f5f5f5')
-       ctx.fillRect(0, 0, W, H)
+    // Check Permissions
+    // #ifdef APP-PLUS || MP-WEIXIN
+    const setting = await new Promise(resolve => uni.getSetting({ success: resolve }))
+    if (setting.authSetting['scope.writePhotosAlbum'] === false) {
+       // Open Settings
+       uni.hideLoading()
+       uni.showModal({
+         title: '提示',
+         content: '需要保存图片权限',
+         success: (res) => {
+           if (res.confirm) uni.openSetting()
+         }
+       })
+       isSaving.value = false
+       return
     }
-    
-    // Draw Overlay
-    ctx.setFillStyle('rgba(255, 255, 255, 0.9)')
-    ctx.fillRect(40, 100, W - 80, H - 200)
-    
-    // Draw Content
-    ctx.setTextAlign('center')
-    
-    // Title
-    ctx.setFontSize(24)
-    ctx.setFillStyle('#333')
-    ctx.fillText('我的心愿', W / 2, 180)
-    
-    // Wish Text
-    ctx.setFontSize(32)
-    ctx.setFillStyle('#000')
-    const text = wishContent.value || ''
-    // Simple word wrap
-    let lineWidth = 0;
-    let lastSubStrIndex = 0; 
-    let initY = 260;
-    for (let i = 0; i < text.length; i++) {
-        lineWidth += ctx.measureText(text[i]).width; 
-        if (lineWidth > 500) {
-            ctx.fillText(text.substring(lastSubStrIndex, i), W/2, initY);
-            initY += 50;
-            lineWidth = 0;
-            lastSubStrIndex = i;
-        } 
-        if (i == text.length - 1) {
-            ctx.fillText(text.substring(lastSubStrIndex, i + 1), W/2, initY);
-        }
-    }
-    
-    // AI Message
-    if (aiMessage.value) {
-        initY += 100
-        ctx.setFontSize(24)
-        ctx.setFillStyle('#666')
-        ctx.fillText('✦ 星语 ✦', W/2, initY)
-        initY += 60
-        ctx.setFontSize(28)
-        ctx.setFillStyle('#333')
-        
-        // Wrap AI Text
-        lineWidth = 0;
-        lastSubStrIndex = 0;
-        for (let i = 0; i < aiMessage.value.length; i++) {
-            lineWidth += ctx.measureText(aiMessage.value[i]).width; 
-            if (lineWidth > 500) {
-                ctx.fillText(aiMessage.value.substring(lastSubStrIndex, i), W/2, initY);
-                initY += 45;
-                lineWidth = 0;
-                lastSubStrIndex = i;
-            } 
-            if (i == aiMessage.value.length - 1) {
-                ctx.fillText(aiMessage.value.substring(lastSubStrIndex, i + 1), W/2, initY);
-            }
-        }
-    }
-    
-    // Footer
-    ctx.setFontSize(20)
-    ctx.setFillStyle('#999')
-    ctx.fillText('愿力岛 · 祈福', W/2, H - 140)
+    // #endif
 
-    ctx.draw(false, () => {
-      setTimeout(() => {
-        uni.canvasToTempFilePath({
-          canvasId: 'shareCanvas',
-          width: W,
-          height: H,
-          destWidth: W,
-          destHeight: H,
-          success: (res) => {
-            uni.saveImageToPhotosAlbum({
-                filePath: res.tempFilePath,
-                success: () => {
-                    uni.showToast({ title: type === 'moments' ? '已保存，请分享到朋友圈' : '已保存到相册', icon: 'success' })
-                },
-                fail: () => {
-                    uni.showToast({ title: '保存失败', icon: 'none' })
-                }
-            })
-          },
-          fail: (err) => {
+    uni.saveImageToPhotosAlbum({
+        filePath: tempFilePath,
+        success: () => {
+            uni.showToast({ title: type === 'moments' ? '已保存，请分享到朋友圈' : '已保存到相册', icon: 'success' })
+        },
+        fail: (err) => {
             console.error(err)
-            uni.showToast({ title: '生成图片失败', icon: 'none' })
-          },
-          complete: () => {
-            isSaving.value = false
+            // If failure is due to permission (sometimes generic error on iOS), guide user
+            uni.showToast({ title: '保存失败', icon: 'none' })
+        },
+        complete: () => {
             uni.hideLoading()
-          }
-        }, instance)
-      }, 500)
+            isSaving.value = false
+        }
     })
 
   } catch (e) {
     console.error(e)
     isSaving.value = false
     uni.hideLoading()
+    uni.showToast({ title: '生成失败', icon: 'none' })
   }
+}
+
+// App Share
+const handleAppShare = async (scene) => {
+    if (isSaving.value) return
+    isSaving.value = true
+    uni.showLoading({ title: '准备分享...' })
+    
+    try {
+        const tempFilePath = await drawCanvas()
+        
+        uni.share({
+            provider: "weixin",
+            scene: scene, // WXSceneSession or WXSenceTimeline
+            type: 2, // Image
+            imageUrl: tempFilePath,
+            success: function (res) {
+                console.log("success:" + JSON.stringify(res));
+                uni.showToast({ title: '分享成功', icon: 'success' })
+            },
+            fail: function (err) {
+                console.log("fail:" + JSON.stringify(err));
+                uni.showToast({ title: '分享失败', icon: 'none' })
+            },
+            complete: () => {
+                uni.hideLoading()
+                isSaving.value = false
+            }
+        });
+    } catch (e) {
+        console.error(e)
+        isSaving.value = false
+        uni.hideLoading()
+        uni.showToast({ title: '分享准备失败', icon: 'none' })
+    }
 }
 </script>
 
