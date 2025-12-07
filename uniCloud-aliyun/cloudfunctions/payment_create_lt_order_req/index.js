@@ -1,7 +1,8 @@
 'use strict';
 
 const {
-	w_md5
+	w_md5,
+	wxPaySign,
 } = require('prayingUtils')
 
 function mapproduct_id(product_id) {
@@ -19,18 +20,6 @@ function mapproduct_id(product_id) {
 	}
 }
 
-function wxPaySign(params, key) {
-	const paramsArr = Object.keys(params);
-	paramsArr.sort();
-	const stringArr = [];
-	paramsArr.map(key => {
-		stringArr.push(key + '=' + params[key]);
-	});
-	// 最后加上商户Key
-	stringArr.push("key=" + key);
-	  const string = stringArr.join('&');
-	  return w_md5.hex_md5_32Upper(string).toString();
-}
 
 exports.main = async (event, context) => {
 	//event为客户端上传的参数
@@ -67,9 +56,6 @@ exports.main = async (event, context) => {
 		}
 	}
 
-	//构造订单参数
-	let matchKey = "1af1e23462f165824e3c4467f84fb432"
-
 	let ts = Math.floor(new Date().getTime() / 1000).toString()
 
 	let product = mapproduct_id(product_id)
@@ -86,7 +72,7 @@ exports.main = async (event, context) => {
 		"notify_url": "https://fc-mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.next.bspapp.com/payment_lt_order_listener"
 	}
 	// 签名算法
-	const sign = wxPaySign(reqParams,matchKey)
+	const sign = wxPaySign(reqParams)
 	// 签完名在附加一下sign和其他信息
 	reqParams["sign"]=sign
 	reqParams["attach"]=`uid=${uid}&product_id=${product_id}`

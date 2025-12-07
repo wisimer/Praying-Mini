@@ -1,6 +1,8 @@
 {
   "name": "payment_lt_order_listener",
-  "dependencies": {},
+  "dependencies": {
+    "prayingUtils": "file:../common/prayingUtils"
+  },
   "extensions": {
     "uni-cloud-jql": {}
   }

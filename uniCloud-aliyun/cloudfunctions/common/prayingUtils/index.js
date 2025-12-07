@@ -202,7 +202,23 @@ w_md5.hex_md5_32Upper = function (string) {
 	return hex_md5(string,32).toUpperCase(); 
 }
 
+//构造订单参数
+const matchKey = "1af1e23462f165824e3c4467f84fb432"
+function wxPaySign(params) {
+	const paramsArr = Object.keys(params);
+	paramsArr.sort();
+	const stringArr = [];
+	paramsArr.map(key => {
+		stringArr.push(key + '=' + params[key]);
+	});
+	// 最后加上商户Key
+	stringArr.push("key=" + matchKey);
+	  const string = stringArr.join('&');
+	  return w_md5.hex_md5_32Upper(string).toString();
+}
+
 module.exports = {
 	w_md5,
+    wxPaySign,
 }
 
