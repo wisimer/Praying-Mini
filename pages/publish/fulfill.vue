@@ -31,8 +31,8 @@
           class="wish-swiper" 
           circular 
           :current="currentIndex" 
-          previous-margin="60rpx" 
-          next-margin="60rpx"
+          previous-margin="90rpx" 
+          next-margin="90rpx"
           @change="onSwiperChange"
         >
           <swiper-item v-for="(item, index) in wishes" :key="item._id" class="swiper-item">
@@ -173,6 +173,29 @@ const hasFulfilled = ref(false)
 
 const currentWish = computed(() => wishes.value[currentIndex.value] || null)
 const canSubmit = computed(() => fulfillContent.value.trim().length > 0 && currentWish.value)
+
+// Watch current wish to update chat history
+watch(currentWish, (newVal) => {
+  if (newVal) {
+    const history = []
+    
+    // 1. Original Wish (User)
+    if (newVal.content) {
+      history.push({ type: 'user', content: newVal.content })
+    }
+    
+    // 2. Original AI Message (AI)
+    const aiMsg = newVal.content_style?.aiMessage || newVal.ai_message || newVal.aiMessage
+    if (aiMsg) {
+      history.push({ type: 'ai', content: aiMsg })
+    }
+    
+    chatList.value = history
+    scrollToBottom()
+  } else {
+    chatList.value = []
+  }
+}, { immediate: true })
 
 onLoad((options) => {
   if (options.id) {
