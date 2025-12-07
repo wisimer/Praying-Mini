@@ -171,10 +171,16 @@ const handleWish = async () => {
   isAnimating.value = true
   
   try {
-    // Mock API call delay
-    await new Promise(resolve => setTimeout(resolve, 1500))
+    // 1. Generate AI Message (Mock or API)
+    // In real scenario, this might take time, but for "interaction flow", we want quick feedback
+    // If using API, maybe show loading briefly. 
+    // User requested: "Click Wish -> Card expands". This implies near instant transition.
+    // So we generate message first or in parallel.
     
-    // 1. Check Text (Weixin MP)
+    // 2. Mock API call delay (Reduced for better interaction as per new requirements)
+    // await new Promise(resolve => setTimeout(resolve, 500)) 
+    
+    // Check Text (Weixin MP)
     // #ifdef MP-WEIXIN
     const checkRes = await uniCloud.callFunction({ 
       name: 'set-check-text', 
@@ -185,7 +191,7 @@ const handleWish = async () => {
     }
     // #endif
 
-    // 2. Generate AI Message
+    // Generate AI Message
     const aiMessages = [
       "你的愿望已被星辰听见，正在赶来的路上。",
       "愿你所求皆如愿，所行化坦途。",
@@ -194,7 +200,7 @@ const handleWish = async () => {
     ]
     const randomMsg = aiMessages[Math.floor(Math.random() * aiMessages.length)]
     
-    // 3. Construct Data
+    // Construct Data
     const contentStyle = {
       bgType: 'image',
       bgValue: currentScene.value.bg,
@@ -209,16 +215,16 @@ const handleWish = async () => {
       content_style: contentStyle
     }
     
-    // 4. Save to DB
+    // Save to DB (Async, don't block UI transition if possible, but safe to await)
     await addWish(obj)
     uni.$emit('saveRecord')
     
-    // 5. Update UI
+    // Update UI Data
     resultData.value = {
       title: wishText.value,
       user: {
         nickname: '我',
-        avatar: '' // Should get from store if available
+        avatar: '' 
       },
       createTime: new Date().getTime(),
       bgType: 'image',
@@ -227,6 +233,7 @@ const handleWish = async () => {
       aiMessage: randomMsg
     }
     
+    // Trigger Modal immediately
     showResult.value = true
     remainingWishes.value = Math.max(0, remainingWishes.value - 1)
     wishText.value = ''

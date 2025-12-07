@@ -1,5 +1,5 @@
 <template>
-  <view class="wish-detail-modal" v-if="visible" @click="handleClose" :class="{ 'fade-in': visible }">
+  <view class="wish-detail-modal" v-if="visible" @click="handleClose" :class="{ 'fade-in': animationActive }">
     <view class="modal-content" @click.stop>
       <!-- Card Area (To be captured) -->
       <view class="card-container" id="wish-card-capture">
@@ -17,24 +17,27 @@
            </view>
 
            <!-- Layer 2: AI Message -->
-           <view class="ai-layer" v-if="aiMessage">
-             <view class="ai-divider">
-               <uni-icons type="star-filled" size="14" color="#FFD700"></uni-icons>
-               <text class="ai-label">星语</text>
-               <uni-icons type="star-filled" size="14" color="#FFD700"></uni-icons>
-             </view>
-             <text class="ai-text">{{ aiMessage }}</text>
-           </view>
-        </view>
-        
-        <!-- Branding (Visible in capture) -->
-        <view class="branding-layer">
-           <text class="brand-text">愿力岛 · 祈福</text>
-        </view>
-      </view>
+          <view class="ai-layer">
+            <view class="ai-divider">
+              <uni-icons type="star-filled" size="14" color="#FFD700"></uni-icons>
+              <text class="ai-label">星语</text>
+              <uni-icons type="star-filled" size="14" color="#FFD700"></uni-icons>
+            </view>
+            <view class="ai-text-container">
+               <text class="ai-text">{{ displayedAiText }}</text>
+               <view class="cursor" v-if="isTyping"></view>
+            </view>
+          </view>
+       </view>
+       
+       <!-- Branding (Visible in capture) -->
+       <view class="branding-layer">
+          <text class="brand-text">愿力岛 · 祈福</text>
+       </view>
+     </view>
 
-      <!-- Layer 3: Action Buttons (Outside capture area for UI, but inside logic) -->
-      <view class="action-area">
+     <!-- Layer 3: Action Buttons (Outside capture area for UI, but inside logic) -->
+     <view class="action-area" :class="{ 'show': showActions }">
         <!-- WeChat Share -->
         <button class="action-btn share-btn" open-type="share">
           <view class="icon-circle wechat">
@@ -74,7 +77,7 @@
 </template>
 
 <script setup>
-import { computed, ref, getCurrentInstance } from 'vue'
+import { computed, ref, getCurrentInstance, watch, onMounted } from 'vue'
 import { store } from '@/uni_modules/uni-id-pages/common/store.js'
 
 const props = defineProps({
@@ -94,6 +97,13 @@ const instance = getCurrentInstance()
 const isSaving = ref(false)
 const canvasWidth = ref(750)
 const canvasHeight = ref(1334) 
+
+// Animation States
+const displayedAiText = ref('')
+const isTyping = ref(false)
+const showActions = ref(false)
+const animationActive = ref(false)
+let typingTimer = null
 
 const isImageBg = computed(() => {
   const cs = props.wishData?.content_style
@@ -124,12 +134,68 @@ const wishContent = computed(() => {
 })
 
 const aiMessage = computed(() => {
-  return props.wishData.ai_message || props.wishData.aiMessage || props.wishData.content_style?.aiMessage
+  return props.wishData.ai_message || props.wishData.aiMessage || props.wishData.content_style?.aiMessage || ''
 })
 
 const formattedDate = computed(() => {
   const date = new Date()
   return `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`
+})
+
+// Typewriter Effect
+const startTypewriter = () => {
+  // Reset
+  displayedAiText.value = ''
+  showActions.value = false
+  isTyping.value = true
+  if (typingTimer) clearTimeout(typingTimer)
+  
+  const fullText = aiMessage.value
+  let index = 0
+  
+  const type = () => {
+    if (index < fullText.length) {
+      displayedAiText.value += fullText.charAt(index)
+      index++
+      typingTimer = setTimeout(type, 100) // 100ms per char
+    } else {
+      isTyping.value = false
+      setTimeout(() => {
+        showActions.value = true
+      }, 500) // 500ms delay for buttons
+    }
+  }
+  
+  type()
+}
+
+const startEntranceAnimation = () => {
+  animationActive.value = false
+  // Delay to allow DOM render before transition
+  setTimeout(() => {
+    animationActive.value = true
+  }, 50)
+}
+
+watch(() => props.visible, (val) => {
+  if (val) {
+    startEntranceAnimation()
+    startTypewriter()
+  } else {
+    animationActive.value = false
+    displayedAiText.value = ''
+    showActions.value = false
+    isTyping.value = false
+    if (typingTimer) clearTimeout(typingTimer)
+  }
+})
+
+// Start if already visible on mount
+onMounted(() => {
+  if (props.visible) {
+    startEntranceAnimation()
+    startTypewriter()
+  }
 })
 
 const handleClose = () => {
@@ -303,7 +369,15 @@ const handleSave = async (type) => {
     flex-direction: column;
     align-items: center;
     position: relative;
+    transform: scale(0.7); // Start smaller to match card size
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); // Bouncy effect
   }
+}
+
+.wish-detail-modal.fade-in .modal-content {
+  transform: scale(1);
+  opacity: 1;
 }
 
 .card-container {
@@ -404,11 +478,28 @@ const handleSave = async (type) => {
       }
     }
     
+    .ai-text-container {
+      position: relative;
+      display: inline-block;
+      text-align: left;
+      width: 100%;
+    }
+
     .ai-text {
-      font-size: 28rpx;
-      color: #666;
+      font-size: 16px; // 16px as requested
+      color: #333;
       line-height: 1.6;
       font-style: italic;
+    }
+    
+    .cursor {
+      display: inline-block;
+      width: 2px;
+      height: 16px;
+      background-color: #333;
+      margin-left: 2px;
+      vertical-align: middle;
+      animation: blink 1s infinite;
     }
   }
   
@@ -431,6 +522,14 @@ const handleSave = async (type) => {
   display: flex;
   justify-content: space-around;
   margin-top: 40rpx;
+  opacity: 0; // Initially hidden
+  transform: translateY(20px);
+  transition: all 0.5s ease;
+  
+  &.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
   
   .action-btn {
     display: flex;
@@ -477,12 +576,17 @@ const handleSave = async (type) => {
 }
 
 .close-btn {
-  margin-top: 60rpx;
-  opacity: 0.8;
-  padding: 20rpx;
-}
+    margin-top: 60rpx;
+    opacity: 0.8;
+    padding: 20rpx;
+  }
+  
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
 
-.share-canvas {
+  .share-canvas {
   position: fixed;
   top: -9999px;
   left: -9999px;
