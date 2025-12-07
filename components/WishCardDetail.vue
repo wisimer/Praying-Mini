@@ -15,7 +15,7 @@
              <text class="wish-text" :style="textStyle">{{ wishData.original_content || wishContent }}</text>
              
              <!-- Original AI Message (Visible when fulfilled and exists) -->
-             <view v-if="wishData.fullfilled && (wishData.original_ai_message || wishData.content_style?.aiMessage)" class="ai-layer" style="margin-top: 20px;">
+             <view v-if="wishData.fullfilled && (wishData.original_ai_message || wishData.content_style?.aiMessage)" class="ai-layer" style="margin-top: 20rpx;">
                <view class="ai-divider">
                  <uni-icons type="star-filled" size="14" color="#FFD700"></uni-icons>
                  <text class="ai-label">AI许愿寄语</text>
@@ -445,23 +445,23 @@ const handleClose = () => {
           return currentY
       }
       
-      let currentY = 180
+      let currentY = 160
       
       // --- Title: 我的心愿 ---
       ctx.setFontSize(28)
       ctx.setFillStyle('#999')
       ctx.setTextAlign('center')
       ctx.fillText('我的心愿', W / 2, currentY)
-      currentY += 60
+      currentY += 30
       
       // --- Wish Text ---
-      currentY = drawText(wishContent.value || '', W/2, currentY, 500, 36, '#333', 50, 'center', true)
-      currentY += 20
+      currentY = drawText(wishContent.value || '', W/2, currentY, 500, 32, '#333', 42, 'center', true)
+      currentY += 10
       
       // --- Original AI Message (If fulfilled) ---
       const originalAiMsg = props.wishData.original_ai_message || props.wishData.content_style?.aiMessage
       if (props.wishData.fullfilled && originalAiMsg) {
-          currentY += 60
+          currentY += 20
           const boxY = currentY
           const boxW = 600
           const boxX = (W - boxW) / 2
@@ -484,9 +484,9 @@ const handleClose = () => {
               }
           }
           
-          const headerHeight = 90 // Spacing + Text
-          const textHeight = lines.length * 50
-          const boxH = headerHeight + textHeight + 40
+          const headerHeight = 60 // Spacing + Text
+          const textHeight = lines.length * 46
+          const boxH = headerHeight + textHeight + 20
           
           // Draw Box
           ctx.setFillStyle('rgba(255, 248, 240, 0.9)')
@@ -500,14 +500,14 @@ const handleClose = () => {
           ctx.setFillStyle('#DAA520')
           ctx.setTextAlign('center')
           const title = '✦ AI许愿寄语 ✦'
-          ctx.fillText(title, W/2, boxY + 50)
+          ctx.fillText(title, W/2, boxY + 36)
           
           // Draw Text
           ctx.setFontSize(32)
           ctx.setFillStyle('#333')
           ctx.setTextAlign('left')
           lines.forEach((line, index) => {
-              ctx.fillText(line, boxX + 30, boxY + 100 + (index * 50))
+              ctx.fillText(line, boxX + 30, boxY + 70 + (index * 46))
           })
           
           currentY = boxY + boxH
@@ -515,30 +515,30 @@ const handleClose = () => {
 
       // --- Fulfill Content (If fulfilled) ---
       if (props.wishData.fullfilled) {
-          currentY += 30
+          currentY += 16
           // Divider
           ctx.setStrokeStyle('rgba(0,0,0,0.1)')
           ctx.beginPath()
           ctx.moveTo(W * 0.15, currentY)
           ctx.lineTo(W * 0.85, currentY)
           ctx.stroke()
-          currentY += 40
+          currentY += 20
           
           // Title
           ctx.setFontSize(28)
           ctx.setFillStyle('#999')
           ctx.setTextAlign('center')
           ctx.fillText('还愿内容', W / 2, currentY)
-          currentY += 60
+          currentY += 30
           
           // Content
           const fulfillText = props.wishData.content || props.wishData.fullfill_content || ''
-          currentY = drawText(fulfillText, W/2, currentY, 500, 36, '#333', 50, 'center', true)
-          currentY += 20
+          currentY = drawText(fulfillText, W/2, currentY, 500, 32, '#333', 42, 'center', true)
+          currentY += 10
       }
       
       // --- Date ---
-      currentY += 20
+      currentY += 10
       ctx.setFontSize(24)
       ctx.setFillStyle('#bbb')
       ctx.setTextAlign('center')
@@ -546,7 +546,7 @@ const handleClose = () => {
       
       // --- AI Message Box (Current AI Message) ---
       if (aiMessage.value) {
-          currentY += 60
+          currentY += 20
           const boxY = currentY
           const boxW = 600
           const boxX = (W - boxW) / 2
@@ -569,9 +569,9 @@ const handleClose = () => {
               }
           }
           
-          const headerHeight = 90 // Spacing + Text
-          const textHeight = lines.length * 50
-          const boxH = headerHeight + textHeight + 40
+          const headerHeight = 60 // Spacing + Text
+          const textHeight = lines.length * 46
+          const boxH = headerHeight + textHeight + 20
           
           // Draw Box
           ctx.setFillStyle('rgba(255, 248, 240, 0.9)')
@@ -585,21 +585,21 @@ const handleClose = () => {
           ctx.setFillStyle('#DAA520')
           ctx.setTextAlign('center')
           const title = props.wishData.fullfilled ? '✦ 还愿寄语 ✦' : '✦ 星语 ✦'
-          ctx.fillText(title, W/2, boxY + 50)
+          ctx.fillText(title, W/2, boxY + 36)
           
           // Draw Text
           ctx.setFontSize(32)
           ctx.setFillStyle('#333')
           ctx.setTextAlign('left')
           lines.forEach((line, index) => {
-              ctx.fillText(line, boxX + 30, boxY + 100 + (index * 50))
+              ctx.fillText(line, boxX + 30, boxY + 70 + (index * 46))
           })
           
           currentY = boxY + boxH
       }
       
       // Footer
-      currentY += 60
+      currentY += 30
       ctx.setFontSize(22)
       ctx.setFillStyle('#ccc')
       ctx.setTextAlign('center')
@@ -819,7 +819,7 @@ const handleAppShare = async (scene) => {
   .card-content-layout {
     position: relative;
     z-index: 2;
-    padding: 60rpx 40rpx;
+    padding: 30rpx 20rpx;
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -828,36 +828,38 @@ const handleAppShare = async (scene) => {
   }
   
   .wish-layer {
-    margin-bottom: 60rpx;
+    margin-bottom: 20rpx;
+    width: 100%;
     
     .wish-divider {
       height: 1px;
       background: rgba(0,0,0,0.1);
-      margin: 30rpx 0;
-      width: 80%;
-      margin-left: 10%;
+      margin: 16rpx 0;
+      width: 90%;
+      margin-left: 5%;
     }
 
     .wish-title {
-      font-size: 28rpx;
+      font-size: 26rpx;
       color: #999;
-      margin-bottom: 20rpx;
+      margin-bottom: 6rpx;
       display: block;
-      letter-spacing: 4rpx;
+      letter-spacing: 2rpx;
     }
     
     .wish-text {
-      font-size: 36rpx;
+      font-size: 32rpx;
       color: #333;
-      line-height: 1.6;
+      line-height: 1.4;
       font-weight: bold;
       display: block;
-      margin-bottom: 20rpx;
+      margin-bottom: 10rpx;
     }
     
     .wish-date {
-      font-size: 24rpx;
+      font-size: 22rpx;
       color: #bbb;
+      margin-top: 8rpx;
     }
 
     .original-ai-box {
@@ -893,7 +895,7 @@ const handleAppShare = async (scene) => {
   
   .ai-layer {
     width: 100%;
-    padding: 30rpx;
+    padding: 20rpx;
     background: rgba(255, 248, 240, 0.8);
     border-radius: 16rpx;
     border: 1px solid rgba(255, 215, 0, 0.3);
@@ -903,7 +905,7 @@ const handleAppShare = async (scene) => {
       align-items: center;
       justify-content: center;
       gap: 10rpx;
-      margin-bottom: 20rpx;
+      margin-bottom: 8rpx;
       
       .ai-label {
         font-size: 24rpx;
