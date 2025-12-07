@@ -15,9 +15,15 @@
              <text class="wish-text" :style="textStyle">{{ wishData.original_content || wishContent }}</text>
              
              <!-- Original AI Message (Visible when fulfilled and exists) -->
-             <view v-if="wishData.fullfilled && wishData.original_ai_message" class="original-ai-box">
-                <view class="ai-tag">AI许愿寄语</view>
-                <text class="ai-text-small">{{ wishData.original_ai_message }}</text>
+             <view v-if="wishData.fullfilled && (wishData.original_ai_message || wishData.content_style?.aiMessage)" class="ai-layer" style="margin-top: 20px;">
+               <view class="ai-divider">
+                 <uni-icons type="star-filled" size="14" color="#FFD700"></uni-icons>
+                 <text class="ai-label">AI许愿寄语</text>
+                 <uni-icons type="star-filled" size="14" color="#FFD700"></uni-icons>
+               </view>
+               <view class="ai-text-container">
+                  <text class="ai-text">{{ wishData.original_ai_message || wishData.content_style?.aiMessage }}</text>
+               </view>
              </view>
 
              <template v-if="wishData.fullfilled">
@@ -453,18 +459,58 @@ const handleClose = () => {
       currentY += 20
       
       // --- Original AI Message (If fulfilled) ---
-      if (props.wishData.fullfilled && props.wishData.original_ai_message) {
-          currentY += 30
-          // Tag
-          ctx.setFontSize(24)
+      const originalAiMsg = props.wishData.original_ai_message || props.wishData.content_style?.aiMessage
+      if (props.wishData.fullfilled && originalAiMsg) {
+          currentY += 60
+          const boxY = currentY
+          const boxW = 600
+          const boxX = (W - boxW) / 2
+          
+          // Pre-calculate text lines
+          const aiText = originalAiMsg
+          const lines = []
+          ctx.setFontSize(32)
+          let lineWidth = 0
+          let lastSubStrIndex = 0
+          for (let i = 0; i < aiText.length; i++) {
+              lineWidth += ctx.measureText(aiText[i]).width
+              if (lineWidth > (boxW - 60)) { // Padding 30*2
+                  lines.push(aiText.substring(lastSubStrIndex, i))
+                  lineWidth = 0
+                  lastSubStrIndex = i
+              }
+              if (i === aiText.length - 1) {
+                  lines.push(aiText.substring(lastSubStrIndex, i + 1))
+              }
+          }
+          
+          const headerHeight = 90 // Spacing + Text
+          const textHeight = lines.length * 50
+          const boxH = headerHeight + textHeight + 40
+          
+          // Draw Box
+          ctx.setFillStyle('rgba(255, 248, 240, 0.9)')
+          ctx.setStrokeStyle('rgba(255, 215, 0, 0.3)')
+          ctx.setLineWidth(2)
+          ctx.fillRect(boxX, boxY, boxW, boxH)
+          ctx.strokeRect(boxX, boxY, boxW, boxH)
+          
+          // Draw Header
+          ctx.setFontSize(28)
           ctx.setFillStyle('#DAA520')
           ctx.setTextAlign('center')
-          ctx.fillText('AI许愿寄语', W/2, currentY)
-          currentY += 40
+          const title = '✦ AI许愿寄语 ✦'
+          ctx.fillText(title, W/2, boxY + 50)
           
-          // Content
-          currentY = drawText(props.wishData.original_ai_message, W/2, currentY, 480, 28, '#666', 40, 'center', false)
-          currentY += 20
+          // Draw Text
+          ctx.setFontSize(32)
+          ctx.setFillStyle('#333')
+          ctx.setTextAlign('left')
+          lines.forEach((line, index) => {
+              ctx.fillText(line, boxX + 30, boxY + 100 + (index * 50))
+          })
+          
+          currentY = boxY + boxH
       }
 
       // --- Fulfill Content (If fulfilled) ---
