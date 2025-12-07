@@ -46,6 +46,7 @@
       :visible="showWishDetail"
       :wish-data="currentWish"
       :show-same-wish="false"
+      :showFulfillAction="true"
       @update:visible="val => showWishDetail = val"
     />
   </view>

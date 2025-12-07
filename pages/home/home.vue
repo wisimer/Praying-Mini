@@ -33,7 +33,7 @@
     <WishCardDetail 
       v-model:visible="showDetail" 
       :wishData="selectedWish"
-      :showFulfillAction="true"
+      :showFulfillAction="false"
     />
   </div>
 </template>
