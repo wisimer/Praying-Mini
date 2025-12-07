@@ -14,6 +14,12 @@
              <text class="wish-title">我的心愿</text>
              <text class="wish-text" :style="textStyle">{{ wishData.original_content || wishContent }}</text>
              
+             <!-- Original AI Message (Visible when fulfilled and exists) -->
+             <view v-if="wishData.fullfilled && wishData.original_ai_message" class="original-ai-box">
+                <view class="ai-tag">AI许愿寄语</view>
+                <text class="ai-text-small">{{ wishData.original_ai_message }}</text>
+             </view>
+
              <template v-if="wishData.fullfilled">
                <view class="wish-divider"></view>
                <text class="wish-title">还愿内容</text>
@@ -819,6 +825,36 @@ const handleAppShare = async (scene) => {
     .wish-date {
       font-size: 24rpx;
       color: #bbb;
+    }
+
+    .original-ai-box {
+      margin-top: 20rpx;
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: 12rpx;
+      padding: 20rpx;
+      border: 1px dashed rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      width: 100%;
+      box-sizing: border-box;
+
+      .ai-tag {
+        font-size: 20rpx;
+        color: #fff;
+        background: #FFD700;
+        padding: 4rpx 12rpx;
+        border-radius: 8rpx;
+        margin-bottom: 10rpx;
+      }
+
+      .ai-text-small {
+        font-size: 26rpx;
+        color: #666;
+        line-height: 1.4;
+        text-align: left;
+        font-style: italic;
+      }
     }
   }
   

@@ -1,99 +1,178 @@
 <template>
   <view class="fulfill-page">
-    <!-- Background Gradient -->
-    <div class="page-bg"></div>
+    <!-- Background Layer -->
+    <view class="page-bg">
+      <image 
+        class="bg-image" 
+        :src="currentWish?.content_style?.bgValue || defaultBg" 
+        mode="aspectFill"
+      ></image>
+      <view class="bg-overlay"></view>
+    </view>
 
+    <!-- Navigation -->
     <view class="nav-header" :style="navStyle">
       <uni-icons type="back" size="24" color="#fff" @click="goBack"></uni-icons>
       <text class="title">我要还愿</text>
       <view class="placeholder"></view>
     </view>
 
-    <scroll-view scroll-y class="content-area">
-      <!-- Step 1: Select Wish -->
-      <view class="section-header">
-        <text class="section-title">选择愿望</text>
-        <text class="section-subtitle">请选择要还愿的祈愿</text>
-      </view>
+    <!-- Main Content -->
+    <view class="content-container">
       
-      <view class="wish-list-container">
+      <!-- 1. Wish Swiper Area -->
+      <view class="wish-area">
         <view v-if="loadingWishes" class="loading-state">
-          <uni-icons type="spinner-cycle" size="24" color="#999" class="rotating"></uni-icons>
-          <text>加载中...</text>
+           <uni-icons type="spinner-cycle" size="24" color="#fff" class="rotating"></uni-icons>
+           <text style="color: #fff; margin-top: 10px;">加载愿望中...</text>
         </view>
-        
-        <view v-else-if="wishes.length > 0" class="wish-list">
+        <swiper 
+          v-else-if="wishes.length > 0"
+          class="wish-swiper" 
+          circular 
+          :current="currentIndex" 
+          previous-margin="60rpx" 
+          next-margin="60rpx"
+          @change="onSwiperChange"
+        >
+          <swiper-item v-for="(item, index) in wishes" :key="item._id" class="swiper-item">
+            <view 
+              class="wish-card" 
+              :class="{ active: currentIndex === index }"
+              @click="currentIndex = index"
+            >
+              <image class="card-bg" :src="item.content_style?.bgValue || defaultBg" mode="aspectFill"></image>
+              <view class="card-overlay"></view>
+              <view class="card-info">
+                <text class="wish-content">{{ item.content }}</text>
+                <text class="wish-date">{{ formatDate(item.publish_date) }}</text>
+              </view>
+            </view>
+          </swiper-item>
+        </swiper>
+         <view v-else class="empty-state">
+            <text style="color: #fff;">暂无待还愿的祈愿</text>
+         </view>
+      </view>
+
+      <!-- 2. Chat Area -->
+      <scroll-view 
+        class="chat-area" 
+        scroll-y 
+        :scroll-into-view="scrollViewId"
+        :scroll-with-animation="true"
+      >
+        <view class="chat-list">
           <view 
-            v-for="item in wishes" 
-            :key="item._id" 
-            class="wish-item"
-            :class="{ active: selectedWishId === item._id }"
-            @click="selectWish(item)"
+            v-for="(msg, index) in chatList" 
+            :key="index" 
+            :id="'msg-' + index"
+            class="chat-item" 
+            :class="msg.type"
           >
-            <view class="wish-content-wrapper">
-              <text class="wish-content">{{ item.content }}</text>
-              <text class="wish-date">{{ formatDate(item.publish_date) }}</text>
-            </view>
-            <view class="radio-circle">
-              <view class="radio-inner" v-if="selectedWishId === item._id"></view>
-            </view>
+            <!-- AI Side -->
+            <template v-if="msg.type === 'ai'">
+              <view class="avatar ai-avatar">
+                <image class="avatar-img" src="https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/avatar_ai.png" mode="aspectFill"></image>
+              </view>
+              <view class="content-wrapper">
+                <text class="nickname">飞飞</text>
+                <view class="bubble">
+                  <text class="text">{{ msg.content }}</text>
+                </view>
+              </view>
+            </template>
+            
+            <!-- User Side -->
+            <template v-else>
+              <view class="avatar user-avatar">
+                 <!-- Use user avatar if available, else default -->
+                 <image class="avatar-img" :src="userInfo.avatar || 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/avatar_user_default.png'" mode="aspectFill"></image>
+              </view>
+              <view class="content-wrapper">
+                <text class="nickname">{{ userInfo.nickname || '我' }}</text>
+                <view class="bubble">
+                  <text class="text">{{ msg.content }}</text>
+                </view>
+              </view>
+            </template>
           </view>
         </view>
-        
-        <view v-else class="empty-state">
-          <image src="https://mp-182cf5aa-f083-45a9-8d28-e12bee639ce3.cdn.bspapp.com/appBgimgs/empty-box.png" mode="aspectFit" class="empty-img"></image>
-          <text>暂无待还愿的祈愿</text>
-        </view>
-      </view>
+      </scroll-view>
 
-      <!-- Step 2: Fulfill Message -->
-      <view class="input-section" :class="{ disabled: !selectedWishId }">
-        <view class="section-header">
-          <text class="section-title">还愿感言</text>
-        </view>
-        <view class="textarea-wrapper">
-          <textarea
-            class="fulfill-input"
-            v-model="fulfillContent"
-            placeholder="写下你的还愿感言，感谢神恩..."
-            :maxlength="200"
-            :disabled="!selectedWishId"
-            placeholder-style="color: #ccc"
-          ></textarea>
-          <text class="char-count">{{ fulfillContent.length }}/200</text>
-        </view>
-      </view>
-    </scroll-view>
+    </view>
 
-    <view class="action-bar">
+    <!-- 3. Bottom Input Area -->
+    <view class="bottom-bar" v-if="!hasFulfilled && wishes.length > 0">
+      <view class="input-wrapper">
+        <textarea
+          class="fulfill-input"
+          v-model="fulfillContent"
+          placeholder="写下你的还愿感言..."
+          placeholder-class="input-placeholder"
+          maxlength="200"
+          auto-height
+          :cursor-spacing="20"
+          :show-confirm-bar="false"
+        ></textarea>
+      </view>
+      
       <button 
-        class="fulfill-btn" 
-        :class="{ disabled: !selectedWishId || !fulfillContent.trim() || submitting }"
-        :disabled="!selectedWishId || !fulfillContent.trim() || submitting"
+        class="send-btn" 
+        :class="{ 'is-loading': submitting, 'is-disabled': !canSubmit }" 
         @click="handleFulfill"
+        :disabled="!canSubmit || submitting"
       >
-        <text v-if="!submitting">确认还愿</text>
+        <text v-if="!submitting">还愿</text>
         <view v-else class="loading-dots">
-          <text>.</text><text>.</text><text>.</text>
+          <text class="dot">.</text><text class="dot">.</text><text class="dot">.</text>
         </view>
       </button>
     </view>
+
+    <!-- 4. Result Modal -->
+    <WishCardDetail 
+      v-if="showResult"
+      :visible="showResult"
+      :wish-data="resultData"
+      :start-rect="startRect"
+      :show-same-wish="false"
+      @close="closeResult"
+      @update:visible="v => showResult = v"
+    />
   </view>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted, nextTick, watch } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { getUnfulfilledWishes, fulfillWish } from '@/cloud-api/dynamic.js'
 import { showToast } from '@/core/app.js'
+import WishCardDetail from '@/components/WishCardDetail.vue'
+import { store } from '@/uni_modules/uni-id-pages/common/store.js'
 
 const wishes = ref([])
-const selectedWishId = ref('')
+const currentIndex = ref(0)
 const fulfillContent = ref('')
 const loadingWishes = ref(false)
 const submitting = ref(false)
 const navStyle = ref({})
-const preSelectId = ref('') // Store ID passed from URL
+const preSelectId = ref('')
+const defaultBg = 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/card_bg_1.png'
+
+const showResult = ref(false)
+const resultData = ref({})
+const startRect = ref(null)
+const chatList = ref([])
+const scrollViewId = ref('')
+const userInfo = ref({
+  nickname: store.userInfo?.nickname || '我',
+  avatar: store.userInfo?.avatar_file?.url || ''
+})
+const hasFulfilled = ref(false)
+
+const currentWish = computed(() => wishes.value[currentIndex.value] || null)
+const canSubmit = computed(() => fulfillContent.value.trim().length > 0 && currentWish.value)
 
 onLoad((options) => {
   if (options.id) {
@@ -134,9 +213,9 @@ const loadWishes = async () => {
     
     // Check pre-selection
     if (preSelectId.value) {
-       const found = wishes.value.find(w => w._id === preSelectId.value)
-       if (found) {
-         selectedWishId.value = preSelectId.value
+       const index = wishes.value.findIndex(w => w._id === preSelectId.value)
+       if (index !== -1) {
+         currentIndex.value = index
        }
     }
   } catch (e) {
@@ -147,25 +226,60 @@ const loadWishes = async () => {
   }
 }
 
-const selectWish = (item) => {
-  if (selectedWishId.value === item._id) {
-    selectedWishId.value = '' // Deselect
-  } else {
-    selectedWishId.value = item._id
-  }
+const onSwiperChange = (e) => {
+  currentIndex.value = e.detail.current
+}
+
+const scrollToBottom = () => {
+  nextTick(() => {
+    scrollViewId.value = 'msg-' + (chatList.value.length - 1)
+  })
+}
+
+const typeWriter = async (text) => {
+  const msgIndex = chatList.value.length
+  chatList.value.push({ type: 'ai', content: '' })
+  
+  let index = 0
+  return new Promise(resolve => {
+    const timer = setInterval(() => {
+      if (index < text.length) {
+        chatList.value[msgIndex].content += text.charAt(index)
+        index++
+        scrollToBottom()
+      } else {
+        clearInterval(timer)
+        resolve()
+      }
+    }, 100)
+  })
 }
 
 const handleFulfill = async () => {
-  if (!selectedWishId.value || !fulfillContent.value.trim()) return
+  if (!currentWish.value || !fulfillContent.value.trim()) return
   
   submitting.value = true
+  const content = fulfillContent.value
+  fulfillContent.value = ''
   
+  // Add User Message
+  chatList.value.push({ type: 'user', content: content })
+  scrollToBottom()
+
   try {
-    // Check text content (if needed, similar to wish.vue)
+    // 0. Capture Card Position
+    const rect = await new Promise(resolve => {
+      uni.createSelectorQuery().select('.wish-card.active').boundingClientRect(resolve).exec()
+    })
+    if (rect) {
+      startRect.value = rect
+    }
+
+    // Check text content
     // #ifdef MP-WEIXIN
     const checkRes = await uniCloud.callFunction({ 
       name: 'set-check-text', 
-      data: { text: fulfillContent.value } 
+      data: { text: content } 
     })
     if (checkRes.result.errCode === 400) {
       throw new Error('内容不合规')
@@ -181,27 +295,43 @@ const handleFulfill = async () => {
     ]
     const aiMessage = aiMessages[Math.floor(Math.random() * aiMessages.length)]
 
-    await fulfillWish(selectedWishId.value, fulfillContent.value, aiMessage)
+    // Wait for API
+    await fulfillWish(currentWish.value._id, content, aiMessage)
     
-    uni.showToast({
-      title: '还愿成功',
-      icon: 'success'
-    })
+    // Start Typewriter
+    await typeWriter(aiMessage)
     
-    setTimeout(() => {
-      uni.navigateBack()
-    }, 1500)
+    // Prepare Result Data (Combined)
+    resultData.value = {
+      ...currentWish.value,
+      fullfilled: true,
+      fullfill_content: content, // Current fulfillment content
+      ai_message: aiMessage, // Current AI message
+      original_ai_message: currentWish.value.content_style?.aiMessage || currentWish.value.ai_message || currentWish.value.aiMessage, // Preserve original AI message
+      // Ensure display logic in card detail works
+      content: content // Card detail might use this if fulfilled
+    }
     
+    showResult.value = true
+    hasFulfilled.value = true
+
   } catch (e) {
     console.error(e)
     if (e.message === '内容不合规') {
       showToast('内容不合规，请重新编辑')
+      fulfillContent.value = content
     } else {
       showToast('还愿失败，请重试')
+      fulfillContent.value = content
     }
   } finally {
     submitting.value = false
   }
+}
+
+const closeResult = () => {
+  showResult.value = false
+  uni.navigateBack()
 }
 
 onMounted(() => {
@@ -214,8 +344,8 @@ onMounted(() => {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: #f9f9f9;
   position: relative;
+  overflow: hidden;
 }
 
 .page-bg {
@@ -224,9 +354,24 @@ onMounted(() => {
   left: 0;
   width: 100%;
   height: 100vh;
-  background: linear-gradient(180deg, #6FCFFB 0%, #B59DFF 100%);
   z-index: 0;
-  opacity: 0.9;
+  transition: all 0.5s ease;
+
+  .bg-image {
+    width: 100%;
+    height: 100%;
+    transition: opacity 0.5s ease;
+  }
+
+  .bg-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); 
+    backdrop-filter: blur(10px);
+  }
 }
 
 .nav-header {
@@ -236,236 +381,326 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: rgba(111, 207, 251, 0.95);
-  backdrop-filter: blur(10px);
   position: sticky;
   top: 0;
   z-index: 100;
   
   .title { 
-    font-size: 20px; 
-    font-weight: 800; 
+    font-size: 18px; 
+    font-weight: 600; 
     color: #fff; 
     letter-spacing: 1px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
   }
   .placeholder { width: 24px; }
 }
 
-.content-area {
+.content-container {
   flex: 1;
-  padding: 20px;
-  box-sizing: border-box;
-  z-index: 1;
-}
-
-.section-header {
-  margin-bottom: 16px;
-  .section-title {
-    font-size: 18px;
-    font-weight: bold;
-    color: #fff; /* White on gradient */
-    margin-right: 8px;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
-    display: inline-flex;
-    align-items: center;
-    
-    &::before {
-      content: '';
-      display: block;
-      width: 4px;
-      height: 18px;
-      background-color: #FFD700;
-      margin-right: 8px;
-      border-radius: 2px;
-    }
-  }
-  .section-subtitle {
-    font-size: 12px;
-    color: rgba(255,255,255,0.8);
-  }
-}
-
-.wish-list-container {
-  min-height: 100px;
-  margin-bottom: 30px;
-}
-
-.wish-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  justify-content: flex-start;
+  align-items: center;
+  z-index: 10;
+  width: 100%;
+  overflow: hidden;
+  padding-bottom: calc(120rpx + env(safe-area-inset-bottom));
 }
 
-.wish-item {
-  background: rgba(255, 255, 255, 0.95);
-  padding: 20px;
-  border-radius: 20px; /* Larger radius */
+// Wish Swiper Area
+.wish-area {
+  width: 100%;
+  height: 450rpx;
+  margin-top: 20rpx;
+  flex-shrink: 0;
   display: flex;
+  justify-content: center;
   align-items: center;
-  justify-content: space-between;
-  border: 2px solid transparent;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-  backdrop-filter: blur(5px);
-  
-  &.active {
-    border-color: #FF6B81;
-    background-color: #fff;
-    box-shadow: 0 8px 20px rgba(255, 107, 129, 0.15);
+
+  .loading-state, .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
   }
-  
-  .wish-content-wrapper {
-    flex: 1;
-    margin-right: 16px;
-    display: flex;
-    flex-direction: column;
-    
-    .wish-content {
-      font-size: 16px;
-      color: #333;
-      margin-bottom: 8px;
-      line-height: 1.5;
-      font-weight: 500;
-      display: -webkit-box;
-      -webkit-box-orient: vertical;
-      -webkit-line-clamp: 2;
+
+  .rotating {
+      animation: rotate 1s linear infinite;
+  }
+
+  .wish-swiper {
+    width: 100%;
+    height: 100%;
+
+    .swiper-item {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .wish-card {
+      width: 500rpx; 
+      height: 350rpx; 
+      border-radius: 20rpx;
       overflow: hidden;
-    }
-    
-    .wish-date {
-      font-size: 12px;
-      color: #999;
+      position: relative;
+      transition: all 0.3s ease;
+      transform: scale(0.9);
+      opacity: 0.8;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+      background: #fff;
+
+      &.active {
+        transform: scale(1.05);
+        opacity: 1;
+        z-index: 10;
+        border: 2px solid rgba(255, 215, 0, 0.8);
+      }
+
+      .card-bg {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+      }
+      
+      .card-overlay {
+          position: absolute;
+          top: 0; left: 0; width: 100%; height: 100%;
+          background: rgba(0,0,0,0.3);
+      }
+
+      .card-info {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        padding: 40rpx;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 2;
+        
+        .wish-content {
+          color: #fff;
+          font-size: 32rpx;
+          font-weight: 600;
+          text-align: center;
+          text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+          display: -webkit-box;
+          -webkit-box-orient: vertical;
+          -webkit-line-clamp: 3;
+          overflow: hidden;
+          margin-bottom: 20rpx;
+        }
+        
+        .wish-date {
+            color: rgba(255,255,255,0.8);
+            font-size: 24rpx;
+        }
+      }
     }
   }
+}
+
+// Chat Area
+.chat-area {
+  flex: 1;
+  width: 100%;
+  padding: 0 30rpx;
+  box-sizing: border-box;
+  overflow: hidden;
   
-  .radio-circle {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    border: 2px solid #ddd;
+  .chat-list {
+    padding-bottom: 20rpx;
+    
+    .chat-item {
+      display: flex;
+      margin-bottom: 30rpx;
+      align-items: flex-start;
+      
+      .content-wrapper {
+        display: flex;
+        flex-direction: column;
+        max-width: 70%;
+      }
+      
+      .nickname {
+        font-size: 24rpx;
+        color: #fff;
+        margin-bottom: 8rpx;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+      }
+      
+      .avatar {
+        width: 80rpx;
+        height: 80rpx;
+        border-radius: 10rpx;
+        overflow: hidden;
+        flex-shrink: 0;
+        background: #fff;
+        
+        .avatar-img {
+          width: 100%;
+          height: 100%;
+        }
+      }
+      
+      .bubble {
+        padding: 20rpx;
+        border-radius: 10rpx;
+        position: relative;
+        font-size: 30rpx;
+        line-height: 1.5;
+        word-wrap: break-word;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      }
+
+      // User Specific Styles
+      &.user {
+        flex-direction: row-reverse;
+        
+        .content-wrapper {
+          align-items: flex-end;
+          margin-right: 20rpx;
+        }
+        
+        .nickname {
+          text-align: right;
+        }
+
+        .bubble {
+          background: #95ec69; 
+          color: #000;
+          
+          &::after { 
+            content: '';
+            position: absolute;
+            right: -10rpx;
+            top: 20rpx;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 10rpx 0 10rpx 12rpx;
+            border-color: transparent transparent transparent #95ec69;
+          }
+        }
+      }
+      
+      // AI Specific Styles
+      &.ai {
+        flex-direction: row;
+        
+        .content-wrapper {
+          align-items: flex-start;
+          margin-left: 20rpx;
+        }
+        
+        .nickname {
+          text-align: left;
+        }
+
+        .bubble {
+          background: #fff;
+          color: #333;
+          
+          &::after { 
+            content: '';
+            position: absolute;
+            left: -10rpx;
+            top: 20rpx;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 10rpx 12rpx 10rpx 0;
+            border-color: transparent #fff transparent transparent;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Bottom Bar
+.bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 20rpx 30rpx;
+  padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
+  background: rgba(0, 0, 0, 0.4); 
+  backdrop-filter: blur(10px);
+  z-index: 100;
+  display: flex;
+  align-items: stretch;
+  gap: 20rpx;
+  box-sizing: border-box;
+
+  .input-wrapper {
+    flex: 1;
+    background: #fff;
+    border-radius: 10rpx;
+    padding: 16rpx 20rpx;
+    display: flex;
+    align-items: center;
+    min-height: 80rpx;
+    
+    .fulfill-input {
+      width: 100%;
+      font-size: 30rpx;
+      color: #333;
+      line-height: 1.4;
+      
+      &::placeholder {
+        color: #999;
+      }
+    }
+  }
+
+  .send-btn {
+    width: 140rpx;
+    min-height: 80rpx;
+    border-radius: 10rpx;
+    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+    color: #fff;
+    font-size: 30rpx;
+    font-weight: 600;
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #fff;
+    padding: 0;
+    margin: 0;
+    border: none;
     
-    .radio-inner {
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      background-color: #FF6B81;
+    &.is-disabled {
+      opacity: 0.6;
+      background: #ccc;
     }
-  }
-  
-  &.active .radio-circle {
-    border-color: #FF6B81;
+    
+    &:active {
+      opacity: 0.8;
+    }
+    
+    .loading-dots {
+      .dot {
+        font-size: 40rpx;
+        animation: dotFade 1.4s infinite ease-in-out both;
+        &:nth-child(1) { animation-delay: -0.32s; }
+        &:nth-child(2) { animation-delay: -0.16s; }
+      }
+    }
   }
 }
 
-.loading-state, .empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 0;
-  color: rgba(255,255,255,0.8);
-  font-size: 14px;
-  
-  .rotating {
-    animation: rotate 1s linear infinite;
-    margin-bottom: 10px;
-  }
-  
-  .empty-img {
-    width: 120px;
-    height: 120px;
-    margin-bottom: 10px;
-    opacity: 0.8;
-  }
+@keyframes dotFade {
+  0%, 80%, 100% { opacity: 0; }
+  40% { opacity: 1; }
 }
 
 @keyframes rotate {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
-}
-
-.input-section {
-  transition: opacity 0.3s;
-  &.disabled {
-    opacity: 0.5;
-    pointer-events: none;
-  }
-  
-  .textarea-wrapper {
-    background: rgba(255, 255, 255, 0.95);
-    border-radius: 20px;
-    padding: 20px;
-    position: relative;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    backdrop-filter: blur(5px);
-    
-    .fulfill-input {
-      width: 100%;
-      height: 140px;
-      font-size: 16px;
-      line-height: 1.6;
-      color: #333;
-    }
-    
-    .char-count {
-      position: absolute;
-      bottom: 16px;
-      right: 20px;
-      font-size: 13px;
-      color: #999;
-    }
-  }
-}
-
-.action-bar {
-  padding: 20px 30px;
-  padding-bottom: calc(20px + env(safe-area-inset-bottom));
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(10px);
-  border-top: none;
-  box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
-  z-index: 100;
-  
-  .fulfill-btn {
-    height: 56px;
-    border-radius: 30px;
-    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
-    color: #fff;
-    font-size: 18px;
-    font-weight: 800;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: none;
-    transition: all 0.3s;
-    box-shadow: 0 8px 20px rgba(255, 165, 0, 0.3);
-    
-    &.disabled {
-      opacity: 0.6;
-      background: #ccc;
-      box-shadow: none;
-    }
-    
-    &:active:not(.disabled) {
-      transform: scale(0.98);
-    }
-    
-    .loading-dots {
-      display: flex;
-      gap: 4px;
-      text { animation: bounce 1.4s infinite ease-in-out both; }
-      text:nth-child(1) { animation-delay: -0.32s; }
-      text:nth-child(2) { animation-delay: -0.16s; }
-    }
-  }
-}
-
-@keyframes bounce {
-  0%, 80%, 100% { transform: scale(0); }
-  40% { transform: scale(1); }
 }
 </style>
