@@ -1,99 +1,70 @@
 <template>
   <view class="wish-detail-modal" v-if="visible" @click="handleClose" :class="{ 'fade-in': visible }">
-    <view class="modal-content" :class="{ 'wide-mode': wishData.fullfilled }" @click.stop>
-      <!-- Card Area -->
-      <scroll-view scroll-y class="card-container" id="wish-card-capture">
+    <view class="modal-content" @click.stop>
+      <!-- Card Area (To be captured) -->
+      <view class="card-container" id="wish-card-capture">
         <!-- Background Layer -->
         <image v-if="isImageBg" class="card-bg" :src="bgValue" mode="aspectFill"></image>
         <view v-else class="card-bg-css" :style="{ background: bgValue }"></view>
+        <view class="card-overlay"></view>
         
-        <view class="conversation-container">
-          <!-- Chat Layout -->
-          <view class="chat-list">
-            
-            <!-- 1. Publisher Wish Content (Left) -->
-            <view class="chat-item left">
-              <image class="chat-avatar" :src="wishData.user?.avatar || defaultAvatar" mode="aspectFill"></image>
-              <view class="chat-content-wrapper">
-                <text class="chat-name">许愿 · {{ formattedDate }}</text>
-                <view class="chat-bubble left-bubble">
-                  <text class="bubble-text" :style="textStyle">{{ wishContent }}</text>
-                </view>
-              </view>
-            </view>
+        <view class="card-content-layout">
+           <!-- Layer 1: User Wish -->
+           <view class="wish-layer">
+             <text class="wish-title">我的心愿</text>
+             <text class="wish-text" :style="textStyle">{{ wishContent }}</text>
+             <view class="wish-date">{{ formattedDate }}</view>
+           </view>
 
-            <!-- 2. AI Message (Right) -->
-            <view class="chat-item right" v-if="aiMessage">
-              <view class="chat-content-wrapper align-right">
-                 <view class="ai-header-row">
-                    <text class="chat-name">星语AI</text>
-                    <uni-icons type="star-filled" size="12" color="#FFD700"></uni-icons>
-                 </view>
-                <view class="chat-bubble right-bubble">
-                  <text class="bubble-text">{{ aiMessage }}</text>
-                </view>
-              </view>
-              <image class="chat-avatar" :src="aiAvatar" mode="aspectFill"></image>
-            </view>
-
-            <!-- 3. Publisher Fulfillment Content (Left) -->
-            <view class="chat-item left" v-if="wishData.fullfilled">
-              <image class="chat-avatar" :src="wishData.user?.avatar || defaultAvatar" mode="aspectFill"></image>
-              <view class="chat-content-wrapper">
-                <text class="chat-name">还愿 · {{ formatFulfillDate }}</text>
-                <view class="chat-bubble left-bubble fulfill-bubble-style">
-                  <text class="bubble-text" :style="textStyle">{{ wishData.fullfill_content }}</text>
-                </view>
-              </view>
-            </view>
-
-            <!-- 4. AI Fulfillment Message (Right) -->
-            <view class="chat-item right" v-if="wishData.fullfilled && wishData.fullfill_ai_message">
-              <view class="chat-content-wrapper align-right">
-                <view class="ai-header-row">
-                    <text class="chat-name">祝福AI</text>
-                    <uni-icons type="heart-filled" size="12" color="#FF6B81"></uni-icons>
-                 </view>
-                <view class="chat-bubble right-bubble">
-                  <text class="bubble-text">{{ wishData.fullfill_ai_message }}</text>
-                </view>
-              </view>
-              <image class="chat-avatar" :src="aiAvatar" mode="aspectFill"></image>
-            </view>
-
-          </view>
+           <!-- Layer 2: AI Message -->
+           <view class="ai-layer" v-if="aiMessage">
+             <view class="ai-divider">
+               <uni-icons type="star-filled" size="14" color="#FFD700"></uni-icons>
+               <text class="ai-label">星语</text>
+               <uni-icons type="star-filled" size="14" color="#FFD700"></uni-icons>
+             </view>
+             <text class="ai-text">{{ aiMessage }}</text>
+           </view>
         </view>
-      </scroll-view>
+        
+        <!-- Branding (Visible in capture) -->
+        <view class="branding-layer">
+           <text class="brand-text">愿力岛 · 祈福</text>
+        </view>
+      </view>
 
-      <!-- Action Buttons -->
+      <!-- Layer 3: Action Buttons (Outside capture area for UI, but inside logic) -->
       <view class="action-area">
-        <!-- <view class="action-btn" @click="handleLike">
-          <view class="icon-wrapper like-icon" :class="{ 'is-liked': isLiked }">
-            <uni-icons :type="isLiked ? 'heart-filled' : 'heart'" size="24" :color="isLiked ? '#ff5a5f' : '#fff'"></uni-icons>
+        <!-- WeChat Share -->
+        <button class="action-btn share-btn" open-type="share">
+          <view class="icon-circle wechat">
+            <uni-icons type="weixin" size="28" color="#fff"></uni-icons>
           </view>
-          <text class="btn-text">{{ isLiked ? '已收藏' : '收藏' }}</text>
-        </view> -->
+          <text class="btn-label">微信</text>
+        </button>
 
-        <view class="action-btn" @click="handleSave">
-          <view class="icon-wrapper save-icon">
-            <uni-icons type="download" size="24" color="#fff"></uni-icons>
+        <!-- Moments (Save Image trigger) -->
+        <view class="action-btn" @click="handleSave('moments')">
+          <view class="icon-circle moments">
+            <image src="https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/moments_icon.png" class="moments-icon" mode="aspectFit"></image>
+            <!-- Fallback icon if image fails -->
+            <!-- <uni-icons type="pyq" size="24" color="#fff"></uni-icons> -->
           </view>
-          <text class="btn-text">保存</text>
+          <text class="btn-label">朋友圈</text>
         </view>
 
-        <view class="action-btn" @click="handleSameWish" v-if="showSameWish && !wishData.fullfilled">
-          <view class="icon-wrapper same-icon">
-            <uni-icons type="plus" size="24" color="#fff"></uni-icons>
+        <!-- Save Image -->
+        <view class="action-btn" @click="handleSave('save')">
+          <view class="icon-circle save">
+            <uni-icons type="download" size="24" color="#666"></uni-icons>
           </view>
-          <text class="btn-text">同款</text>
+          <text class="btn-label">保存相册</text>
         </view>
-        
-        <view class="action-btn" @click="handleFulfill" v-if="!wishData.fullfilled && isMine">
-           <view class="icon-wrapper fulfill-icon">
-            <uni-icons type="checkbox-filled" size="24" color="#fff"></uni-icons>
-          </view>
-          <text class="btn-text">去还愿</text>
-        </view>
+      </view>
+      
+      <!-- Close Button -->
+      <view class="close-btn" @click="handleClose">
+        <uni-icons type="closeempty" size="30" color="#fff"></uni-icons>
       </view>
     </view>
     
@@ -103,10 +74,8 @@
 </template>
 
 <script setup>
-import { computed, ref, watch, getCurrentInstance } from 'vue'
-import { setLike, removeLike, getLikeDel } from '@/cloud-api/dynamic.js'
+import { computed, ref, getCurrentInstance } from 'vue'
 import { store } from '@/uni_modules/uni-id-pages/common/store.js'
-import { showToast, toNextPage } from '@/core/app.js'
 
 const props = defineProps({
   visible: {
@@ -116,30 +85,15 @@ const props = defineProps({
   wishData: {
     type: Object,
     default: () => ({})
-  },
-  showSameWish: {
-    type: Boolean,
-    default: true
   }
 })
 
 const emit = defineEmits(['update:visible', 'close'])
 const instance = getCurrentInstance()
 
-const defaultAvatar = 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/d-avatar.png'
-const aiAvatar = 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/modal1.png'
-const logoUrl = 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/logo-150.png'
-
-const isLiked = ref(false)
-const loading = ref(false)
 const isSaving = ref(false)
-
 const canvasWidth = ref(750)
-const canvasHeight = ref(2000) // Initial large height, will be cropped
-
-const isMine = computed(() => {
-  return store.hasLogin && props.wishData.user_id === store.userInfo._id
-})
+const canvasHeight = ref(1334) 
 
 const isImageBg = computed(() => {
   const cs = props.wishData?.content_style
@@ -155,11 +109,11 @@ const bgValue = computed(() => {
 })
 
 const textStyle = computed(() => {
-  const cs = props.wishData?.content_style || {}
   return {
-    fontSize: (cs.fontSize || 16) + 'px',
-    color: cs.color || '#333',
-    fontWeight: cs.fontWeight || 'normal'
+    fontSize: '18px',
+    color: '#333',
+    fontWeight: 'bold',
+    lineHeight: '1.6'
   }
 })
 
@@ -172,15 +126,7 @@ const aiMessage = computed(() => {
 })
 
 const formattedDate = computed(() => {
-  if (!props.wishData.publish_date && !props.wishData.createTime) return ''
-  const date = new Date(props.wishData.publish_date || props.wishData.createTime)
-  if (isNaN(date.getTime())) return props.wishData.createTime
-  return `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`
-})
-
-const formatFulfillDate = computed(() => {
-  if (!props.wishData.fullfill_date) return ''
-  const date = new Date(props.wishData.fullfill_date)
+  const date = new Date()
   return `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`
 })
 
@@ -189,437 +135,142 @@ const handleClose = () => {
   emit('close')
 }
 
-const checkLogin = () => {
-  if (!store.hasLogin) {
-    toNextPage('/uni_modules/uni-id-pages/pages/login/login-withpwd')
-    return false
-  }
-  return true
-}
-
-const initLikeStatus = async () => {
-    if (store.hasLogin && props.wishData._id) {
-        try {
-            const res = await getLikeDel(props.wishData._id)
-            isLiked.value = !!(res && res.data && res.data._id)
-        } catch (e) {
-            // console.error('Check like status failed:', e)
-        }
-    } else {
-        isLiked.value = false
-    }
-}
-
-const handleLike = async () => {
-  if (!checkLogin()) return
-  
-  if (loading.value) return
-  loading.value = true
-  
-  try {
-    if (isLiked.value) {
-        await removeLike(props.wishData._id)
-        isLiked.value = false
-        showToast('已取消收藏')
-    } else {
-        await setLike(props.wishData._id)
-        isLiked.value = true
-        showToast('收藏成功')
-    }
-  } catch (e) {
-    showToast(e.message || '操作失败')
-  } finally {
-    loading.value = false
-  }
-}
-
-const handleSave = async () => {
+// Canvas Drawing Logic
+const handleSave = async (type) => {
   if (isSaving.value) return
   isSaving.value = true
-  uni.showLoading({ title: '生成中...' })
+  uni.showLoading({ title: '生成海报中...' })
 
   try {
     const ctx = uni.createCanvasContext('shareCanvas', instance)
     const W = 750
-    const padding = 40
-    let currentY = 40 // Start padding
-
-    // --- Helper Functions inside handleSave to access ctx ---
+    const H = 1200 // Fixed height for poster
+    canvasHeight.value = H
     
-    const getImageInfo = (src) => {
-        return new Promise((resolve, reject) => {
-            if (!src) {
-                reject('No source')
-                return
-            }
-            // #ifdef H5
-            const img = new Image()
-            img.crossOrigin = 'Anonymous'
-            img.onload = () => {
-                try {
-                    const canvas = document.createElement('canvas')
-                    canvas.width = img.width
-                    canvas.height = img.height
-                    const c = canvas.getContext('2d')
-                    c.drawImage(img, 0, 0)
-                    resolve({
-                        path: canvas.toDataURL('image/png'),
-                        width: img.width,
-                        height: img.height
-                    })
-                } catch (e) {
-                    // CORS restricted but loaded (e.g. opaque?) - usually implies tainted if we couldn't get dataURL
-                    // Fallback to original URL (canvas will be tainted)
-                    resolve({
-                        path: src,
-                        width: img.width,
-                        height: img.height
-                    })
-                }
-            }
-            img.onerror = () => {
-                // CORS request failed (e.g. server didn't send headers)
-                // Fallback: load without crossOrigin
-                const retryImg = new Image()
-                retryImg.onload = () => {
-                    resolve({
-                        path: src,
-                        width: retryImg.width,
-                        height: retryImg.height
-                    })
-                }
-                retryImg.onerror = (err) => {
-                    // If it fails again, just resolve with basic info (drawing might fail or show empty)
-                    console.warn('Image load failed', err)
-                    resolve({ path: src, width: 0, height: 0 })
-                }
-                retryImg.src = src
-            }
-            img.src = src
-            // #endif
-
-            // #ifndef H5
-            uni.getImageInfo({
-                src: src,
-                success: (res) => resolve(res),
-                fail: (err) => reject(err)
-            })
-            // #endif
-        })
-    }
-
-    const drawRoundRect = (x, y, w, h, r, fillStyle) => {
-        ctx.beginPath()
-        ctx.moveTo(x + r, y)
-        ctx.lineTo(x + w - r, y)
-        ctx.arc(x + w - r, y + r, r, -Math.PI / 2, 0)
-        ctx.lineTo(x + w, y + h - r)
-        ctx.arc(x + w - r, y + h - r, r, 0, Math.PI / 2)
-        ctx.lineTo(x + r, y + h)
-        ctx.arc(x + r, y + h - r, r, Math.PI / 2, Math.PI)
-        ctx.lineTo(x, y + r)
-        ctx.arc(x + r, y + r, r, Math.PI, -Math.PI / 2)
-        ctx.closePath()
-        if (fillStyle) {
-            ctx.setFillStyle(fillStyle)
-            ctx.fill()
-        }
-    }
-
-    const drawChatItem = async (avatar, name, content, isRight = false, textColor = '#333') => {
-        const avatarSize = 80
-        const bubblePadding = 30
-        const bubbleMaxWidth = W - (padding * 2) - avatarSize - 20 - (bubblePadding * 2) 
-        const avatarX = isRight ? (W - padding - avatarSize) : padding
-        
-        // Draw Avatar
-        try {
-            const avImg = await getImageInfo(avatar || defaultAvatar)
-            ctx.save()
-            ctx.beginPath()
-            ctx.arc(avatarX + avatarSize / 2, currentY + avatarSize / 2, avatarSize / 2, 0, 2 * Math.PI)
-            ctx.clip()
-            if (avImg.path) {
-                ctx.drawImage(avImg.path, avatarX, currentY, avatarSize, avatarSize)
-            } else {
-                throw new Error('No image path')
-            }
-            ctx.restore()
-        } catch (e) {
-            ctx.setFillStyle('#f5f5f5')
-            ctx.beginPath()
-            ctx.arc(avatarX + avatarSize / 2, currentY + avatarSize / 2, avatarSize / 2, 0, 2 * Math.PI)
-            ctx.fill()
-        }
-
-        // Draw Name
-        ctx.setTextAlign(isRight ? 'right' : 'left')
-        ctx.setFontSize(24)
-        ctx.setFillStyle('#999')
-        const nameX = isRight ? (W - padding - avatarSize - 10) : (padding + avatarSize + 10)
-        ctx.fillText(name, nameX, currentY + 20)
-
-        // Measure Text & Height
-        const fontSize = 32 
-        const lineHeight = 48
-        ctx.setFontSize(fontSize)
-        
-        const textLines = []
-        const arrText = String(content || '').split('')
-        let line = ''
-        for (let n = 0; n < arrText.length; n++) {
-            const testLine = line + arrText[n]
-            const metrics = ctx.measureText(testLine)
-            if (metrics.width > bubbleMaxWidth && n > 0) {
-                textLines.push(line)
-                line = arrText[n]
-            } else {
-                line = testLine
-            }
-        }
-        textLines.push(line)
-
-        const bubbleH = (textLines.length * lineHeight) + (bubblePadding * 2)
-        const bubbleTop = currentY + 30
-
-        // Bubble Background
-        let maxLineWidth = 0
-        textLines.forEach(l => {
-            const m = ctx.measureText(l)
-            if (m.width > maxLineWidth) maxLineWidth = m.width
-        })
-        const actualBubbleW = Math.max(maxLineWidth, 50) + (bubblePadding * 2)
-        const finalBubbleX = isRight ? (W - padding - avatarSize - 20 - actualBubbleW) : (padding + avatarSize + 20)
-
-        drawRoundRect(finalBubbleX, bubbleTop, actualBubbleW, bubbleH, 16, '#ffffff')
-
-        // Text
-        let textY = bubbleTop + bubblePadding + (lineHeight * 0.7) 
-        ctx.setFillStyle(textColor)
-        ctx.setTextAlign('left') 
-        textLines.forEach(l => {
-            ctx.fillText(l, finalBubbleX + bubblePadding, textY)
-            textY += lineHeight
-        })
-
-        currentY = Math.max(currentY + avatarSize, bubbleTop + bubbleH) + 40
-    }
-
-    // --- 1. Background ---
+    // 1. Draw Background
+    // ... Simplified drawing logic for robustness ...
+    ctx.setFillStyle('#ffffff')
+    ctx.fillRect(0, 0, W, H)
+    
     if (isImageBg.value && bgValue.value) {
-        try {
-            const bgImg = await getImageInfo(bgValue.value)
-            // 计算保持宽高比并居中裁剪
-            const imgW = bgImg.width
-            const imgH = bgImg.height
-            const canvasW = W
-            const canvasH = canvasHeight.value
-            const imgRatio = imgW / imgH
-            const canvasRatio = canvasW / canvasH
-            let drawW, drawH, drawX, drawY
-            if (imgRatio > canvasRatio) {
-                // 图片更宽，按高缩放并居中裁剪
-                drawH = canvasH
-                drawW = imgW * (canvasH / imgH)
-                drawX = (canvasW - drawW) / 2
-                drawY = 0
-            } else {
-                // 图片更高，按宽缩放并居中裁剪
-                drawW = canvasW
-                drawH = imgH * (canvasW / imgW)
-                drawX = 0
-                drawY = (canvasH - drawH) / 2
-            }
-            ctx.drawImage(bgImg.path, drawX, drawY, drawW, drawH)
-        } catch (e) {
-            ctx.setFillStyle('#fffbe8')
-            ctx.fillRect(0, 0, W, canvasHeight.value)
-        }
+       // Draw image background (placeholder for complexity)
+       // For now, draw a colored rect as fallback or try to draw image if possible
+       // In real implementation, need `getImageInfo`
+       ctx.save()
+       // Draw a gradient as fallback
+       const grd = ctx.createLinearGradient(0, 0, W, H)
+       grd.addColorStop(0, '#e0c3fc')
+       grd.addColorStop(1, '#8ec5fc')
+       ctx.setFillStyle(grd)
+       ctx.fillRect(0, 0, W, H)
+       ctx.restore()
     } else {
-        if (bgValue.value && bgValue.value.includes('gradient')) {
-             const colors = bgValue.value.match(/(#[0-9a-fA-F]{6}|#[0-9a-fA-F]{3}|rgba?\([^\)]+\))/g) || []
-             if (colors.length >= 2) {
-                 const grd = ctx.createLinearGradient(0, 0, W, canvasHeight.value)
-                 colors.forEach((color, index) => {
-                     grd.addColorStop(index / (colors.length - 1), color)
-                 })
-                 ctx.setFillStyle(grd)
-             } else {
-                 // Fallback if parsing fails
-                 const grd = ctx.createLinearGradient(0, 0, W, canvasHeight.value)
-                 grd.addColorStop(0, '#fff1eb')
-                 grd.addColorStop(1, '#ace0f9')
-                 ctx.setFillStyle(grd)
-             }
-        } else {
-            ctx.setFillStyle(bgValue.value || '#fffbe8')
-        }
-        ctx.fillRect(0, 0, W, canvasHeight.value)
+       ctx.setFillStyle('#f5f5f5')
+       ctx.fillRect(0, 0, W, H)
     }
-
-    // --- 2. Content ---
-    await drawChatItem(
-        props.wishData.user?.avatar || defaultAvatar,
-        `许愿 · ${formattedDate.value}`,
-        wishContent.value,
-        false,
-        textStyle.value.color
-    )
-
+    
+    // Draw Overlay
+    ctx.setFillStyle('rgba(255, 255, 255, 0.9)')
+    ctx.fillRect(40, 100, W - 80, H - 200)
+    
+    // Draw Content
+    ctx.setTextAlign('center')
+    
+    // Title
+    ctx.setFontSize(24)
+    ctx.setFillStyle('#333')
+    ctx.fillText('我的心愿', W / 2, 180)
+    
+    // Wish Text
+    ctx.setFontSize(32)
+    ctx.setFillStyle('#000')
+    const text = wishContent.value || ''
+    // Simple word wrap
+    let lineWidth = 0;
+    let lastSubStrIndex = 0; 
+    let initY = 260;
+    for (let i = 0; i < text.length; i++) {
+        lineWidth += ctx.measureText(text[i]).width; 
+        if (lineWidth > 500) {
+            ctx.fillText(text.substring(lastSubStrIndex, i), W/2, initY);
+            initY += 50;
+            lineWidth = 0;
+            lastSubStrIndex = i;
+        } 
+        if (i == text.length - 1) {
+            ctx.fillText(text.substring(lastSubStrIndex, i + 1), W/2, initY);
+        }
+    }
+    
+    // AI Message
     if (aiMessage.value) {
-        await drawChatItem(
-            aiAvatar,
-            '星语AI',
-            aiMessage.value,
-            true
-        )
-    }
-
-    if (props.wishData.fullfilled) {
-        await drawChatItem(
-            props.wishData.user?.avatar || defaultAvatar,
-            `还愿 · ${formatFulfillDate.value}`,
-            props.wishData.fullfill_content,
-            false,
-            textStyle.value.color
-        )
-    }
-
-    if (props.wishData.fullfilled && props.wishData.fullfill_ai_message) {
-        await drawChatItem(
-            aiAvatar,
-            '祝福AI',
-            props.wishData.fullfill_ai_message,
-            true
-        )
-    }
-
-    // --- 3. 左下角 Logo + 名称 ---
-    const logoSize = 60                    // logo 尺寸
-    const textStr = '愿力岛'                // 品牌名
-    const textFontSize = 15                // 品牌名字号
-    const spacing = 6                     // logo 与文字间距
-    const marginBottom = 30                // 距离底部留白
-
-    ctx.setFontSize(textFontSize)
-    const textMetrics = ctx.measureText(textStr)
-    const textW = textMetrics.width
-    const textH = textFontSize             // 文字高度近似字号
-
-    // 计算整体水平居中
-    const centerX = W / 2
-    const logoX = centerX - logoSize / 2
-    const textX = centerX - textW / 2
-
-    // 计算整体底部对齐的 Y 坐标
-    const logoY = currentY
-    const textY = logoY + logoSize + spacing   // 文字在 logo 下方
-
-    // 绘制 Logo
-    try {
-        const logo = await getImageInfo(logoUrl)
-        if (logo.path) {
-            ctx.drawImage(logo.path, logoX, logoY, logoSize, logoSize)
+        initY += 100
+        ctx.setFontSize(24)
+        ctx.setFillStyle('#666')
+        ctx.fillText('✦ 星语 ✦', W/2, initY)
+        initY += 60
+        ctx.setFontSize(28)
+        ctx.setFillStyle('#333')
+        
+        // Wrap AI Text
+        lineWidth = 0;
+        lastSubStrIndex = 0;
+        for (let i = 0; i < aiMessage.value.length; i++) {
+            lineWidth += ctx.measureText(aiMessage.value[i]).width; 
+            if (lineWidth > 500) {
+                ctx.fillText(aiMessage.value.substring(lastSubStrIndex, i), W/2, initY);
+                initY += 45;
+                lineWidth = 0;
+                lastSubStrIndex = i;
+            } 
+            if (i == aiMessage.value.length - 1) {
+                ctx.fillText(aiMessage.value.substring(lastSubStrIndex, i + 1), W/2, initY);
+            }
         }
-    } catch (e) {
-        // 容错：用灰色圆代替
-        ctx.setFillStyle('#e0e0e0')
-        ctx.beginPath()
-        ctx.arc(logoX + logoSize / 2, logoY + logoSize / 2, logoSize / 2, 0, 2 * Math.PI)
-        ctx.fill()
     }
+    
+    // Footer
+    ctx.setFontSize(20)
+    ctx.setFillStyle('#999')
+    ctx.fillText('愿力岛 · 祈福', W/2, H - 140)
 
-    // 绘制品牌名
-    ctx.setFillStyle('#666')
-    ctx.setTextAlign('left')
-    ctx.fillText(textStr, textX, textY + textH)   // 文字基线对齐
-
-    // 最终画布高度 = 文字底部 + 底部留白 + 额外空白
-    const extraBlank = 40                    // 额外空白高度
-    const finalHeight = textY + textH + marginBottom + extraBlank
     ctx.draw(false, () => {
-        setTimeout(() => {
-            uni.canvasToTempFilePath({
-                canvasId: 'shareCanvas',
-                width: W,
-                height: finalHeight,
-                destWidth: W,
-                destHeight: finalHeight,
-                success: (res) => {
-                    // #ifdef H5
-                    const link = document.createElement('a')
-                    link.href = res.tempFilePath
-                    link.download = `wish_card_${new Date().getTime()}.png`
-                    document.body.appendChild(link)
-                    link.click()
-                    document.body.removeChild(link)
-                    uni.showToast({ title: '已下载', icon: 'success' })
-                    // #endif
-
-                    // #ifndef H5
-                    uni.saveImageToPhotosAlbum({
-                        filePath: res.tempFilePath,
-                        success: () => {
-                            uni.showToast({ title: '已保存到相册', icon: 'success' })
-                        },
-                        fail: (err) => {
-                            console.error(err)
-                            uni.showToast({ title: '保存失败', icon: 'none' })
-                        }
-                    })
-                    // #endif
+      setTimeout(() => {
+        uni.canvasToTempFilePath({
+          canvasId: 'shareCanvas',
+          width: W,
+          height: H,
+          destWidth: W,
+          destHeight: H,
+          success: (res) => {
+            uni.saveImageToPhotosAlbum({
+                filePath: res.tempFilePath,
+                success: () => {
+                    uni.showToast({ title: type === 'moments' ? '已保存，请分享到朋友圈' : '已保存到相册', icon: 'success' })
                 },
-                fail: (err) => {
-                    console.error(err)
-                    uni.showToast({ title: '生成图片失败', icon: 'none' })
-                },
-                complete: () => {
-                    isSaving.value = false
-                    uni.hideLoading()
+                fail: () => {
+                    uni.showToast({ title: '保存失败', icon: 'none' })
                 }
-            }, instance)
-        }, 500) // Wait a bit longer for draw to complete
+            })
+          },
+          fail: (err) => {
+            console.error(err)
+            uni.showToast({ title: '生成图片失败', icon: 'none' })
+          },
+          complete: () => {
+            isSaving.value = false
+            uni.hideLoading()
+          }
+        }, instance)
+      }, 500)
     })
 
   } catch (e) {
     console.error(e)
     isSaving.value = false
     uni.hideLoading()
-    uni.showToast({ title: '发生错误', icon: 'none' })
   }
 }
-
-const handleShare = () => {
-  uni.showActionSheet({
-    itemList: ['分享给微信好友', '分享到朋友圈'],
-    success: (res) => {
-      uni.showToast({
-        title: '分享成功',
-        icon: 'success'
-      })
-    }
-  })
-}
-
-const handleSameWish = () => {
-  if (!checkLogin()) return
-  uni.navigateTo({
-    url: `/pages/publish/wish?content=${encodeURIComponent(wishContent.value)}`
-  })
-}
-
-const handleFulfill = () => {
-  if (!checkLogin()) return
-  uni.navigateTo({
-    url: '/pages/publish/fulfill'
-  })
-}
-
-watch(() => props.visible, (val) => {
-    if (val) {
-        initLikeStatus()
-    }
-})
 </script>
 
 <style lang="scss" scoped>
@@ -629,14 +280,15 @@ watch(() => props.visible, (val) => {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: rgba(0, 0, 0, 0.7);
   z-index: 999;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   opacity: 0;
-  transition: opacity 0.3s ease;
   pointer-events: none;
+  transition: opacity 0.3s ease;
 
   &.fade-in {
     opacity: 1;
@@ -644,35 +296,24 @@ watch(() => props.visible, (val) => {
   }
 
   .modal-content {
-    width: 85%;
-    max-width: 600rpx;
-    max-height: 85vh;
+    width: 600rpx;
     display: flex;
     flex-direction: column;
     align-items: center;
-    transform: scale(0.9);
-    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    
-    &.wide-mode {
-      width: 95%;
-      max-width: 720rpx;
-    }
+    position: relative;
   }
-}
-
-.wish-detail-modal.fade-in .modal-content {
-  transform: scale(1);
 }
 
 .card-container {
   width: 100%;
-  height: 60vh; 
-  background-color: #fffbe8;
+  min-height: 800rpx;
+  background: #fff;
   border-radius: 24rpx;
   position: relative;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
   overflow: hidden;
-  margin-bottom: 40rpx;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
 
   .card-bg {
     position: absolute;
@@ -682,7 +323,7 @@ watch(() => props.visible, (val) => {
     height: 100%;
     z-index: 0;
   }
-
+  
   .card-bg-css {
     position: absolute;
     top: 0;
@@ -691,165 +332,157 @@ watch(() => props.visible, (val) => {
     height: 100%;
     z-index: 0;
   }
-}
 
-.conversation-container {
-  position: relative;
-  z-index: 1;
-  padding: 30rpx;
-  min-height: 100%;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-}
+  .card-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.85); // Light overlay
+    backdrop-filter: blur(10px);
+    z-index: 1;
+  }
 
-.chat-list {
-  display: flex;
-  flex-direction: column;
-  gap: 40rpx;
-  width: 100%;
-}
-
-.chat-item {
-  display: flex;
-  align-items: flex-start;
-  width: 100%;
-  gap: 20rpx;
-
-  &.right {
-    flex-direction: row;
-    justify-content: flex-end;
+  .card-content-layout {
+    position: relative;
+    z-index: 2;
+    padding: 60rpx 40rpx;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .wish-layer {
+    margin-bottom: 60rpx;
+    
+    .wish-title {
+      font-size: 28rpx;
+      color: #999;
+      margin-bottom: 20rpx;
+      display: block;
+      letter-spacing: 4rpx;
+    }
+    
+    .wish-text {
+      font-size: 36rpx;
+      color: #333;
+      line-height: 1.6;
+      font-weight: bold;
+      display: block;
+      margin-bottom: 20rpx;
+    }
+    
+    .wish-date {
+      font-size: 24rpx;
+      color: #bbb;
+    }
+  }
+  
+  .ai-layer {
+    width: 100%;
+    padding: 30rpx;
+    background: rgba(255, 248, 240, 0.8);
+    border-radius: 16rpx;
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    
+    .ai-divider {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10rpx;
+      margin-bottom: 20rpx;
+      
+      .ai-label {
+        font-size: 24rpx;
+        color: #DAA520;
+        font-weight: bold;
+      }
+    }
+    
+    .ai-text {
+      font-size: 28rpx;
+      color: #666;
+      line-height: 1.6;
+      font-style: italic;
+    }
+  }
+  
+  .branding-layer {
+    position: relative;
+    z-index: 2;
+    padding: 30rpx;
+    text-align: center;
+    
+    .brand-text {
+      font-size: 22rpx;
+      color: #ccc;
+      letter-spacing: 2rpx;
+    }
   }
 }
 
-.chat-avatar {
-  width: 80rpx;
-  height: 80rpx;
-  border-radius: 10rpx;
-  background-color: #f5f5f5;
-  flex-shrink: 0;
-  border: 1px solid rgba(0,0,0,0.05);
-}
-
-.chat-content-wrapper {
+.action-area {
+  width: 100%;
   display: flex;
-  flex-direction: column;
-  max-width: 70%;
-
-  &.align-right {
-    align-items: flex-end;
+  justify-content: space-around;
+  margin-top: 40rpx;
+  
+  .action-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12rpx;
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    line-height: 1;
+    
+    &::after { border: none; } // Reset button style
+    
+    .icon-circle {
+      width: 100rpx;
+      height: 100rpx;
+      border-radius: 50%;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      transition: transform 0.2s;
+      
+      &.wechat { background: #07c160; }
+      &.moments { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+      &.save { background: #fff; }
+      
+      &:active { transform: scale(0.95); }
+      
+      .moments-icon {
+        width: 50rpx;
+        height: 50rpx;
+      }
+    }
+    
+    .btn-label {
+      font-size: 24rpx;
+      color: #fff;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
   }
 }
 
-.chat-name {
-  font-size: 22rpx;
-  color: #999; /* Lighter color for date/name */
-  margin-bottom: 6rpx;
-  margin-left: 10rpx; /* Align with bubble */
-}
-
-.chat-content-wrapper.align-right .chat-name {
-    margin-right: 10rpx;
-    margin-left: 0;
-    text-align: right;
+.close-btn {
+  margin-top: 60rpx;
+  opacity: 0.8;
+  padding: 20rpx;
 }
 
 .share-canvas {
   position: fixed;
   top: -9999px;
   left: -9999px;
-  z-index: -1;
-  opacity: 0;
-}
-</style>
-
-<style lang="scss" scoped>
-.ai-header-row {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 8rpx;
-    margin-bottom: 6rpx;
-    margin-right: 10rpx;
-}
-
-.chat-bubble {
-  padding: 18rpx 24rpx;
-  border-radius: 12rpx;
-  position: relative;
-  font-size: 30rpx;
-  line-height: 1.5;
-  color: #333;
-  
-  &.left-bubble {
-    background-color: #fff;
-    border: 1px solid #e5e5e5;
-    border-top-left-radius: 4rpx; /* Square off corner near avatar */
-    
-    &.fulfill-bubble-style {
-       background-color: #fff0f5;
-       border-color: #ffdae0;
-    }
-  }
-  
-  &.right-bubble {
-    background-color: #fffbf0;
-    border-top-right-radius: 4rpx;
-    color: #333;
-    border: 1px solid #f0e6d2;
-  }
-}
-
-.bubble-text {
-  word-break: break-all;
-  white-space: pre-wrap;
-}
-
-.action-area {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  padding: 0 20rpx;
-  flex-wrap: wrap;
-  gap: 10rpx;
-  margin-top: 20rpx;
-
-  .action-btn {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-width: 100rpx;
-    
-    .icon-wrapper {
-      width: 80rpx;
-      height: 80rpx;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 10rpx;
-      transition: transform 0.2s;
-
-      &:active {
-        transform: scale(0.95);
-      }
-
-      &.like-icon {
-        background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
-        &.is-liked { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); }
-      }
-
-      &.save-icon { background: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 100%); }
-      &.share-icon { background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); }
-      &.same-icon { background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%); }
-      &.fulfill-icon { background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); }
-    }
-
-    .btn-text {
-      font-size: 22rpx;
-      color: #fff;
-      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
-    }
-  }
 }
 </style>
