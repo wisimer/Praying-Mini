@@ -17,6 +17,7 @@ exports.main = async (event, context) => {
 	const uid = attachParams.get("uid");
 	const product_id = attachParams.get("product_id");
 	const order_no = params.get('order_no');
+	const out_trade_no = params.get('out_trade_no');
 	const code = params.get('code')
 
 	console.log('Extracted params:', uid, order_no, code);
@@ -36,14 +37,13 @@ exports.main = async (event, context) => {
 		}
 	}
 
-	if (res.status === '已支付') {
+	if (res.status === '支付成功') {
 		// 订单已支付
 		return { code: 200, data: 'SUCCESS' };
 	}
 
 	// 主动查单，确认真实支付状态
 	const mch_id = "1695436159";
-	const out_trade_no = params.get('out_trade_no');
 	const timestamp = String(Math.floor(Date.now() / 1000));
 	// 组装 JSON 格式参数
 	const reqParams = { mch_id, out_trade_no, timestamp };
@@ -89,7 +89,7 @@ exports.main = async (event, context) => {
 
 	// 支付成功
 	await db.collection('app-order').where({
-		'order_no': db.command.eq(order_no),
+		'out_trade_no': db.command.eq(out_trade_no),
 		'order_status': db.command.eq("待支付")
 	}).update({
 		'order_status': "支付成功",
