@@ -26,8 +26,8 @@
           class="scene-swiper" 
           circular 
           :current="currentIndex" 
-          previous-margin="100rpx" 
-          next-margin="100rpx"
+          previous-margin="130rpx" 
+          next-margin="130rpx"
           @change="onSwiperChange"
         >
           <swiper-item v-for="(scene, index) in scenes" :key="index" class="swiper-item">
@@ -71,7 +71,7 @@
         :disabled="!canSubmit || isAnimating"
       >
         <template v-if="!isAnimating">
-          <text class="btn-text">许愿（✨愿力符号：{{ remainingWishes }}）</text>
+          <text class="btn-text">许愿（✨：{{ remainingWishes }}）</text>
         </template>
         <view v-else class="loading-dots">
           <text class="dot">.</text><text class="dot">.</text><text class="dot">.</text>
@@ -332,18 +332,18 @@ const closeResult = () => {
     }
 
     .scene-card {
-      width: 400rpx; // Base width
-      height: 260rpx; // Base height
+      width: 420rpx; // Slightly increased base width
+      height: 280rpx; // Slightly increased base height
       border-radius: 20rpx;
       overflow: hidden;
       position: relative;
       transition: all 0.3s ease;
-      transform: scale(0.8);
+      transform: scale(0.9); // Scale up non-active cards slightly
       opacity: 0.8;
       box-shadow: 0 8px 16px rgba(0,0,0,0.3);
 
       &.active {
-        transform: scale(1.2);
+        transform: scale(1.15); // Adjust active scale to prevent overflow
         opacity: 1;
         z-index: 10;
         border: 2px solid rgba(255, 255, 255, 0.8);

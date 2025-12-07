@@ -97,15 +97,17 @@ const canvasHeight = ref(1334)
 
 const isImageBg = computed(() => {
   const cs = props.wishData?.content_style
-  return cs?.bgType === 'image' || (!cs?.bgType && props.wishData?.poster)
+  if (cs?.bgType) return cs.bgType === 'image'
+  if (props.wishData?.bgType) return props.wishData.bgType === 'image'
+  return !!props.wishData?.poster
 })
 
 const bgValue = computed(() => {
   const cs = props.wishData?.content_style
   if (isImageBg.value) {
-    return cs?.bgValue || props.wishData?.poster
+    return cs?.bgValue || props.wishData?.bgValue || props.wishData?.poster
   }
-  return cs?.bgValue || 'linear-gradient(135deg, #fff1eb 0%, #ace0f9 100%)'
+  return cs?.bgValue || props.wishData?.bgValue || 'linear-gradient(135deg, #fff1eb 0%, #ace0f9 100%)'
 })
 
 const textStyle = computed(() => {
@@ -122,7 +124,7 @@ const wishContent = computed(() => {
 })
 
 const aiMessage = computed(() => {
-  return props.wishData.ai_message || props.wishData.content_style?.aiMessage
+  return props.wishData.ai_message || props.wishData.aiMessage || props.wishData.content_style?.aiMessage
 })
 
 const formattedDate = computed(() => {
@@ -339,8 +341,8 @@ const handleSave = async (type) => {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(255, 255, 255, 0.85); // Light overlay
-    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.4); // Light overlay
+    backdrop-filter: blur(5px);
     z-index: 1;
   }
 
