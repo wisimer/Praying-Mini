@@ -286,9 +286,61 @@ const handleClose = () => {
   emit('close')
 }
 
-// Canvas Drawing Logic
-const drawCanvas = async () => {
-  return new Promise((resolve, reject) => {
+  // Helper to download image
+  const getImageInfo = (url) => {
+    return new Promise((resolve, reject) => {
+      if (!url) {
+        reject(new Error('Image URL is empty'))
+        return
+      }
+
+      // #ifdef H5
+      const img = new Image()
+      img.crossOrigin = 'Anonymous'
+      const src = url.indexOf('?') > -1 ? `${url}&t=${Date.now()}` : `${url}?t=${Date.now()}`
+      
+      img.onload = () => {
+        try {
+          const canvas = document.createElement('canvas')
+          canvas.width = img.width
+          canvas.height = img.height
+          const ctx = canvas.getContext('2d')
+          ctx.drawImage(img, 0, 0)
+          const base64 = canvas.toDataURL('image/png')
+          resolve({
+            path: base64,
+            width: img.width,
+            height: img.height
+          })
+        } catch (e) {
+          resolve({
+            path: url,
+            width: img.width,
+            height: img.height
+          })
+        }
+      }
+      
+      img.onerror = (e) => {
+        reject(e)
+      }
+      
+      img.src = src
+      // #endif
+
+      // #ifndef H5
+      uni.getImageInfo({
+        src: url,
+        success: (res) => resolve(res),
+        fail: (err) => reject(err)
+      })
+      // #endif
+    })
+  }
+
+  // Canvas Drawing Logic
+  const drawCanvas = async () => {
+  return new Promise(async (resolve, reject) => {
     try {
       const ctx = uni.createCanvasContext('shareCanvas', instance)
       const W = 750
@@ -299,32 +351,59 @@ const drawCanvas = async () => {
       ctx.setFillStyle('#ffffff')
       ctx.fillRect(0, 0, W, H)
       
-      // Simple gradient fallback if image fails or for speed
-      const grd = ctx.createLinearGradient(0, 0, W, H)
-      grd.addColorStop(0, '#e0c3fc')
-      grd.addColorStop(1, '#8ec5fc')
-      ctx.setFillStyle(grd)
-      ctx.fillRect(0, 0, W, H)
+      // Draw Image Background (If available)
+      if (isImageBg.value && bgValue.value) {
+        try {
+          const bgImg = await getImageInfo(bgValue.value)
+          // Draw aspect fill
+          const imgW = bgImg.width
+          const imgH = bgImg.height
+          const scale = Math.max(W / imgW, H / imgH)
+          const x = (W - imgW * scale) / 2
+          const y = (H - imgH * scale) / 2
+          ctx.drawImage(bgImg.path, x, y, imgW * scale, imgH * scale)
+        } catch(e) {
+           console.warn('BG Image load failed', e)
+           // Fallback gradient
+           const grd = ctx.createLinearGradient(0, 0, W, H)
+           grd.addColorStop(0, '#e0c3fc')
+           grd.addColorStop(1, '#8ec5fc')
+           ctx.setFillStyle(grd)
+           ctx.fillRect(0, 0, W, H)
+        }
+      } else {
+        // Simple gradient fallback
+        const grd = ctx.createLinearGradient(0, 0, W, H)
+        grd.addColorStop(0, '#e0c3fc')
+        grd.addColorStop(1, '#8ec5fc')
+        ctx.setFillStyle(grd)
+        ctx.fillRect(0, 0, W, H)
+      }
 
-      // 2. Draw Image Background (If available)
-      // Note: In real app, we must use uni.getImageInfo to get local path for canvas
-      // Here we skip for simplicity/stability, relying on gradient or if we had preloaded paths
-      
       // 3. Draw Overlay
-      ctx.setFillStyle('rgba(255, 255, 255, 0.9)')
-      ctx.fillRect(40, 100, W - 80, H - 200)
+      ctx.setFillStyle('rgba(255, 255, 255, 0.4)') // Match CSS overlay opacity
+      ctx.fillRect(0, 0, W, H)
+      
+      // Draw Content Box Background (White semi-transparent)
+      // Note: The UI has a card-overlay covering full screen, but content layout has padding.
+      // But wait, the card-container in UI has white background? No, it has bg-image.
+      // And card-overlay is on top of bg-image.
+      // The content is directly on top of overlay.
       
       // 4. Draw Content
       ctx.setTextAlign('center')
       
       // Title
-      ctx.setFontSize(24)
-      ctx.setFillStyle('#333')
+      ctx.setFontSize(28)
+      ctx.setFillStyle('#999')
       ctx.fillText('我的心愿', W / 2, 180)
       
       // Wish Text
-      ctx.setFontSize(32)
-      ctx.setFillStyle('#000')
+      ctx.setFontSize(36)
+      ctx.setFillStyle('#333')
+      // Bold simulation
+      // ctx.font = 'bold 36px sans-serif' // Not fully supported in all mp contexts, use offset fill
+      
       const text = wishContent.value || ''
       // Simple word wrap
       let lineWidth = 0;
@@ -334,46 +413,100 @@ const drawCanvas = async () => {
           lineWidth += ctx.measureText(text[i]).width; 
           if (lineWidth > 500) {
               ctx.fillText(text.substring(lastSubStrIndex, i), W/2, initY);
-              initY += 50;
+              // Bold simulation
+              ctx.fillText(text.substring(lastSubStrIndex, i), W/2 - 0.5, initY - 0.5);
+              
+              initY += 60;
               lineWidth = 0;
               lastSubStrIndex = i;
           } 
           if (i == text.length - 1) {
               ctx.fillText(text.substring(lastSubStrIndex, i + 1), W/2, initY);
+               // Bold simulation
+              ctx.fillText(text.substring(lastSubStrIndex, i + 1), W/2 - 0.5, initY - 0.5);
           }
       }
       
-      // AI Message
+      // Date
+      initY += 40
+      ctx.setFontSize(24)
+      ctx.setFillStyle('#bbb')
+      ctx.fillText(formattedDate.value, W/2, initY)
+      
+      // AI Message Box
       if (aiMessage.value) {
-          initY += 100
-          ctx.setFontSize(24)
-          ctx.setFillStyle('#666')
-          ctx.fillText('✦ 星语 ✦', W/2, initY)
           initY += 60
-          ctx.setFontSize(28)
-          ctx.setFillStyle('#333')
+          const boxY = initY
+          const boxPadding = 30
+          // Estimate height
+          // Title + Text lines
           
-          // Wrap AI Text
-          lineWidth = 0;
-          lastSubStrIndex = 0;
-          for (let i = 0; i < aiMessage.value.length; i++) {
-              lineWidth += ctx.measureText(aiMessage.value[i]).width; 
-              if (lineWidth > 500) {
-                  ctx.fillText(aiMessage.value.substring(lastSubStrIndex, i), W/2, initY);
-                  initY += 45;
-                  lineWidth = 0;
-                  lastSubStrIndex = i;
-              } 
-              if (i == aiMessage.value.length - 1) {
-                  ctx.fillText(aiMessage.value.substring(lastSubStrIndex, i + 1), W/2, initY);
+          // Draw Box Background
+          // Need to measure text height first or fixed estimate?
+          // Let's draw text and box together or calculate first.
+          
+          // Background Rect (Rounded)
+          // We can't easily do rounded rect with fill in standard canvas without helper, 
+          // but we can just do rect for now or helper.
+          
+          // Let's assume box width 600 (W-150)
+          const boxW = 600
+          const boxX = (W - boxW) / 2
+          
+          // Header: Star 星语 Star
+          const headerY = boxY + 50
+          
+          // Text Start
+          let textY = headerY + 50
+          ctx.setFontSize(32) // 16px * 2
+          
+          // Measure text lines
+          const aiText = aiMessage.value
+          const lines = []
+          lineWidth = 0
+          lastSubStrIndex = 0
+          for (let i = 0; i < aiText.length; i++) {
+              lineWidth += ctx.measureText(aiText[i]).width
+              if (lineWidth > (boxW - 60)) { // Padding 30*2
+                  lines.push(aiText.substring(lastSubStrIndex, i))
+                  lineWidth = 0
+                  lastSubStrIndex = i
+              }
+              if (i === aiText.length - 1) {
+                  lines.push(aiText.substring(lastSubStrIndex, i + 1))
               }
           }
+          
+          const boxH = 50 + 40 + (lines.length * 50) + 40 // Header + spacing + lines + padding
+          
+          // Draw Box
+          ctx.setFillStyle('rgba(255, 248, 240, 0.9)')
+          ctx.setStrokeStyle('rgba(255, 215, 0, 0.3)')
+          ctx.setLineWidth(2)
+          ctx.fillRect(boxX, boxY, boxW, boxH)
+          ctx.strokeRect(boxX, boxY, boxW, boxH)
+          
+          // Draw Header
+          ctx.setFontSize(28)
+          ctx.setFillStyle('#DAA520')
+          ctx.fillText('✦ 星语 ✦', W/2, headerY)
+          
+          // Draw Text
+          ctx.setFontSize(32)
+          ctx.setFillStyle('#333')
+          ctx.setTextAlign('left')
+          lines.forEach((line, index) => {
+              ctx.fillText(line, boxX + 30, textY + (index * 50))
+          })
+          
+          // Reset Align
+          ctx.setTextAlign('center')
       }
       
       // Footer
-      ctx.setFontSize(20)
-      ctx.setFillStyle('#999')
-      ctx.fillText('愿力岛 · 祈福', W/2, H - 140)
+      ctx.setFontSize(22)
+      ctx.setFillStyle('#ccc')
+      ctx.fillText('愿力岛 · 祈福', W/2, H - 60)
 
       ctx.draw(false, () => {
         setTimeout(() => {
