@@ -32,14 +32,33 @@
         <button class="pay-btn" @click="toWxPayment(item)">支付</button>
       </view>
     </view>
+    <view class="order-list-card">
+      <view class="order-title">订单记录</view>
+      <view v-if="orderList.length === 0" class="order-empty">暂无订单记录</view>
+      <view v-else class="order-list">
+        <view class="order-item" v-for="item in orderList" :key="item._id">
+          <view class="order-main">
+            <view class="order-left">
+              <text class="order-coin">{{ item.product_id }}金币</text>
+              <text class="order-price">¥{{ item.total_fee }}</text>
+            </view>
+            <view class="order-right">
+              <text :class="['order-status', item.order_status === '支付成功' ? 'status-success' : 'status-pending']">{{ item.order_status }}</text>
+            </view>
+          </view>
+          <view class="order-sub">{{ formatDate(item.created_time, 'YYYY-MM-DD hh:mm') }}</view>
+        </view>
+      </view>
+    </view>
   </view>
 </template>
 
 <script setup>
 import { ref } from 'vue'
 import { onLoad, onShow } from '@dcloudio/uni-app'
-import { showToast, toNextPage } from '@/core/app.js'
+import { showToast, toNextPage ,showLoading} from '@/core/app.js'
 import { w_md5 } from '@/core/js-md5/w_md5.js';
+import { formatDate } from '@/utils/date.js'
 import {
   store,
   mutations
@@ -58,6 +77,7 @@ const headerStyle = ref({})
 const spacerStyle = ref({})
 const wx_openid = ref('')
 const globalData = ref({})
+const orderList = ref([])
 
 onShow(() => {
   const self = this; //声明常量
@@ -89,6 +109,7 @@ onShow(() => {
           content: '请继续使用~'
         })
         initTotalMoney()
+        initOrderList()
       } else if (data.code === 1) {
         //支付已取消或支付接口返回错误等
         globalData.value.pay_status = 1; //支付已取消
@@ -131,19 +152,37 @@ onLoad(() => {
   // #endif
 
   initTotalMoney()
+  initOrderList()
 })
 
 const initTotalMoney = () => {
   console.log("initTotalMoney : store.userInfo._id : ", store.userInfo._id)
   //查询app-player表的coin字段
   const db = uniCloud.database()
+  showLoading('加载中...')
   db.collection('app-player').where({
     'user_id': db.command.eq(store.userInfo._id)
   }).get().then(res => {
     if (res && res.result && res.result.data && res.result.data.length > 0) {
       totalMoney.value = res.result.data[0].coin
     }
+  }).finally(() => {
+    uni.hideLoading()
   })
+}
+
+const initOrderList = async () => {
+  const db = uniCloud.database()
+  try {
+    const res = await db.collection('app-order')
+      .where({ user_id: store.userInfo._id })
+      .orderBy('created_time', 'desc')
+      .limit(20)
+      .get()
+    orderList.value = (res && res.result && res.result.data) ? res.result.data : []
+  } catch (e) {
+    console.error('加载订单失败', e)
+  }
 }
 
 // 用这个
@@ -328,5 +367,89 @@ const toWxPayment = async (item) => {
       }
     }
   }
+}
+
+.order-list-card {
+  background-color: #fff;
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin-top: 30rpx;
+}
+
+.order-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  margin-bottom: 20rpx;
+  color: #333;
+}
+
+.order-empty {
+  font-size: 26rpx;
+  color: #999;
+}
+
+.order-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.order-item {
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+
+.order-item:last-child {
+  border-bottom: none;
+}
+
+.order-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.order-left {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.order-coin {
+  font-size: 30rpx;
+  color: #333;
+  font-weight: 600;
+}
+
+.order-price {
+  font-size: 28rpx;
+  color: #ff4d4f;
+}
+
+.order-right {
+  display: flex;
+  align-items: center;
+}
+
+.order-status {
+  font-size: 24rpx;
+  padding: 6rpx 14rpx;
+  border-radius: 24rpx;
+}
+
+.status-pending {
+  color: #8a6d3b;
+  background: #fbf1d2;
+}
+
+.status-success {
+  color: #3c763d;
+  background: #dff0d8;
+}
+
+.order-sub {
+  margin-top: 10rpx;
+  font-size: 24rpx;
+  color: #999;
 }
 </style>
