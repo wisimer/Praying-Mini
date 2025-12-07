@@ -248,7 +248,7 @@ const startEntranceAnimation = () => {
            transform: 'translate(0, 0) scale(1, 1)',
            transformOrigin: 'center center',
            opacity: 1,
-           transition: 'transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)',
+           transition: 'transform 0.5s ease-out',
            willChange: 'auto'
          }
          // Also set this to ensure background fade-in works
@@ -517,7 +517,7 @@ const handleAppShare = async (scene) => {
     /* Default state for fallback CSS animation */
     transform: scale(0.8);
     opacity: 0;
-    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: all 0.3s ease-out;
   }
 }
 

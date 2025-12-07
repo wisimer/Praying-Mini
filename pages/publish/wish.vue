@@ -93,17 +93,18 @@
     </view>
 
     <!-- 3. Bottom Input Area -->
-    <view class="bottom-bar">
+    <view class="bottom-bar" v-if="!hasWished">
       <view class="input-wrapper">
-        <input
+        <textarea
           class="wish-input"
           v-model="wishText"
           placeholder="写下你的心愿..."
           placeholder-class="input-placeholder"
           maxlength="100"
-          :confirm-type="'send'"
-          @confirm="handleWish"
-        />
+          auto-height
+          :cursor-spacing="20"
+          :show-confirm-bar="false"
+        ></textarea>
       </view>
       
       <button 
@@ -162,6 +163,8 @@ const userInfo = ref({
   nickname: 'XP',
   avatar: '' // Will use default
 })
+
+const hasWished = ref(false)
 
 const currentScene = computed(() => scenes[currentIndex.value] || scenes[0])
 const canSubmit = computed(() => wishText.value.trim().length > 0)
@@ -318,6 +321,7 @@ const handleWish = async () => {
     // Trigger Modal
     showResult.value = true
     remainingWishes.value = Math.max(0, remainingWishes.value - 1)
+    hasWished.value = true
 
   } catch (e) {
     console.error(e)
@@ -599,7 +603,7 @@ const closeResult = () => {
   backdrop-filter: blur(10px);
   z-index: 100;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   gap: 20rpx;
   box-sizing: border-box;
 
@@ -616,6 +620,7 @@ const closeResult = () => {
       width: 100%;
       font-size: 30rpx;
       color: #333;
+      line-height: 1.4;
       
       &::placeholder {
         color: #999;
