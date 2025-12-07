@@ -364,7 +364,7 @@ const handleClose = () => {
     try {
       const ctx = uni.createCanvasContext('shareCanvas', instance)
       const W = 750
-      const H = 1200 
+      const H = 1500 
       canvasHeight.value = H
       
       // 1. Draw Background
@@ -404,87 +404,113 @@ const handleClose = () => {
       ctx.setFillStyle('rgba(255, 255, 255, 0.4)') // Match CSS overlay opacity
       ctx.fillRect(0, 0, W, H)
       
-      // Draw Content Box Background (White semi-transparent)
-      // Note: The UI has a card-overlay covering full screen, but content layout has padding.
-      // But wait, the card-container in UI has white background? No, it has bg-image.
-      // And card-overlay is on top of bg-image.
-      // The content is directly on top of overlay.
-      
       // 4. Draw Content
-      ctx.setTextAlign('center')
       
-      // Title
-      ctx.setFontSize(28)
-      ctx.setFillStyle('#999')
-      ctx.fillText('我的心愿', W / 2, 180)
-      
-      // Wish Text
-      ctx.setFontSize(36)
-      ctx.setFillStyle('#333')
-      // Bold simulation
-      // ctx.font = 'bold 36px sans-serif' // Not fully supported in all mp contexts, use offset fill
-      
-      const text = wishContent.value || ''
-      // Simple word wrap
-      let lineWidth = 0;
-      let lastSubStrIndex = 0; 
-      let initY = 260;
-      for (let i = 0; i < text.length; i++) {
-          lineWidth += ctx.measureText(text[i]).width; 
-          if (lineWidth > 500) {
-              ctx.fillText(text.substring(lastSubStrIndex, i), W/2, initY);
-              // Bold simulation
-              ctx.fillText(text.substring(lastSubStrIndex, i), W/2 - 0.5, initY - 0.5);
-              
-              initY += 60;
-              lineWidth = 0;
-              lastSubStrIndex = i;
-          } 
-          if (i == text.length - 1) {
-              ctx.fillText(text.substring(lastSubStrIndex, i + 1), W/2, initY);
-               // Bold simulation
-              ctx.fillText(text.substring(lastSubStrIndex, i + 1), W/2 - 0.5, initY - 0.5);
+      // Helper for text drawing
+      const drawText = (text, x, startY, maxWidth, fontSize, color, lineHeight, align = 'center', bold = false) => {
+          ctx.setFontSize(fontSize)
+          ctx.setFillStyle(color)
+          ctx.setTextAlign(align)
+          
+          if (!text) return startY
+          
+          let lineWidth = 0
+          let lastSubStrIndex = 0
+          let currentY = startY
+          
+          for (let i = 0; i < text.length; i++) {
+              lineWidth += ctx.measureText(text[i]).width
+              if (lineWidth > maxWidth) {
+                  const line = text.substring(lastSubStrIndex, i)
+                  ctx.fillText(line, x, currentY)
+                  if (bold) ctx.fillText(line, x - 0.5, currentY - 0.5)
+                  
+                  currentY += lineHeight
+                  lineWidth = 0
+                  lastSubStrIndex = i
+              }
+              if (i === text.length - 1) {
+                  const line = text.substring(lastSubStrIndex, i + 1)
+                  ctx.fillText(line, x, currentY)
+                  if (bold) ctx.fillText(line, x - 0.5, currentY - 0.5)
+                  currentY += lineHeight
+              }
           }
+          return currentY
       }
       
-      // Date
-      initY += 40
+      let currentY = 180
+      
+      // --- Title: 我的心愿 ---
+      ctx.setFontSize(28)
+      ctx.setFillStyle('#999')
+      ctx.setTextAlign('center')
+      ctx.fillText('我的心愿', W / 2, currentY)
+      currentY += 60
+      
+      // --- Wish Text ---
+      currentY = drawText(wishContent.value || '', W/2, currentY, 500, 36, '#333', 50, 'center', true)
+      currentY += 20
+      
+      // --- Original AI Message (If fulfilled) ---
+      if (props.wishData.fullfilled && props.wishData.original_ai_message) {
+          currentY += 30
+          // Tag
+          ctx.setFontSize(24)
+          ctx.setFillStyle('#DAA520')
+          ctx.setTextAlign('center')
+          ctx.fillText('AI许愿寄语', W/2, currentY)
+          currentY += 40
+          
+          // Content
+          currentY = drawText(props.wishData.original_ai_message, W/2, currentY, 480, 28, '#666', 40, 'center', false)
+          currentY += 20
+      }
+
+      // --- Fulfill Content (If fulfilled) ---
+      if (props.wishData.fullfilled) {
+          currentY += 30
+          // Divider
+          ctx.setStrokeStyle('rgba(0,0,0,0.1)')
+          ctx.beginPath()
+          ctx.moveTo(W * 0.15, currentY)
+          ctx.lineTo(W * 0.85, currentY)
+          ctx.stroke()
+          currentY += 40
+          
+          // Title
+          ctx.setFontSize(28)
+          ctx.setFillStyle('#999')
+          ctx.setTextAlign('center')
+          ctx.fillText('还愿内容', W / 2, currentY)
+          currentY += 60
+          
+          // Content
+          const fulfillText = props.wishData.content || props.wishData.fullfill_content || ''
+          currentY = drawText(fulfillText, W/2, currentY, 500, 36, '#333', 50, 'center', true)
+          currentY += 20
+      }
+      
+      // --- Date ---
+      currentY += 20
       ctx.setFontSize(24)
       ctx.setFillStyle('#bbb')
-      ctx.fillText(formattedDate.value, W/2, initY)
+      ctx.setTextAlign('center')
+      ctx.fillText(formattedDate.value, W/2, currentY)
       
-      // AI Message Box
+      // --- AI Message Box (Current AI Message) ---
       if (aiMessage.value) {
-          initY += 60
-          const boxY = initY
-          const boxPadding = 30
-          // Estimate height
-          // Title + Text lines
-          
-          // Draw Box Background
-          // Need to measure text height first or fixed estimate?
-          // Let's draw text and box together or calculate first.
-          
-          // Background Rect (Rounded)
-          // We can't easily do rounded rect with fill in standard canvas without helper, 
-          // but we can just do rect for now or helper.
-          
-          // Let's assume box width 600 (W-150)
+          currentY += 60
+          const boxY = currentY
           const boxW = 600
           const boxX = (W - boxW) / 2
           
-          // Header: Star 星语 Star
-          const headerY = boxY + 50
-          
-          // Text Start
-          let textY = headerY + 50
-          ctx.setFontSize(32) // 16px * 2
-          
-          // Measure text lines
+          // Pre-calculate text lines
           const aiText = aiMessage.value
           const lines = []
-          lineWidth = 0
-          lastSubStrIndex = 0
+          ctx.setFontSize(32)
+          let lineWidth = 0
+          let lastSubStrIndex = 0
           for (let i = 0; i < aiText.length; i++) {
               lineWidth += ctx.measureText(aiText[i]).width
               if (lineWidth > (boxW - 60)) { // Padding 30*2
@@ -497,7 +523,9 @@ const handleClose = () => {
               }
           }
           
-          const boxH = 50 + 40 + (lines.length * 50) + 40 // Header + spacing + lines + padding
+          const headerHeight = 90 // Spacing + Text
+          const textHeight = lines.length * 50
+          const boxH = headerHeight + textHeight + 40
           
           // Draw Box
           ctx.setFillStyle('rgba(255, 248, 240, 0.9)')
@@ -509,24 +537,27 @@ const handleClose = () => {
           // Draw Header
           ctx.setFontSize(28)
           ctx.setFillStyle('#DAA520')
-          ctx.fillText('✦ 星语 ✦', W/2, headerY)
+          ctx.setTextAlign('center')
+          const title = props.wishData.fullfilled ? '✦ 还愿寄语 ✦' : '✦ 星语 ✦'
+          ctx.fillText(title, W/2, boxY + 50)
           
           // Draw Text
           ctx.setFontSize(32)
           ctx.setFillStyle('#333')
           ctx.setTextAlign('left')
           lines.forEach((line, index) => {
-              ctx.fillText(line, boxX + 30, textY + (index * 50))
+              ctx.fillText(line, boxX + 30, boxY + 100 + (index * 50))
           })
           
-          // Reset Align
-          ctx.setTextAlign('center')
+          currentY = boxY + boxH
       }
       
       // Footer
+      currentY += 60
       ctx.setFontSize(22)
       ctx.setFillStyle('#ccc')
-      ctx.fillText('愿力岛 · 祈福', W/2, H - 60)
+      ctx.setTextAlign('center')
+      ctx.fillText('愿力岛 · 祈福', W/2, currentY) // Use currentY instead of fixed bottom
 
       ctx.draw(false, () => {
         setTimeout(() => {
