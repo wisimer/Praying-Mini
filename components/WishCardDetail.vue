@@ -12,17 +12,24 @@
            <!-- Layer 1: User Wish -->
            <view class="wish-layer">
              <text class="wish-title">我的心愿</text>
-             <text class="wish-text" :style="textStyle">{{ wishContent }}</text>
+             <text class="wish-text" :style="textStyle">{{ wishData.original_content || wishContent }}</text>
+             
+             <template v-if="wishData.fullfilled">
+               <view class="wish-divider"></view>
+               <text class="wish-title">还愿内容</text>
+               <text class="wish-text" :style="textStyle">{{ wishData.content || wishData.fullfill_content }}</text>
+             </template>
+             
              <view class="wish-date">{{ formattedDate }}</view>
            </view>
 
            <!-- Layer 2: AI Message -->
           <view class="ai-layer">
             <view class="ai-divider">
-              <uni-icons type="star-filled" size="14" color="#FFD700"></uni-icons>
-              <text class="ai-label">星语</text>
-              <uni-icons type="star-filled" size="14" color="#FFD700"></uni-icons>
-            </view>
+            <uni-icons type="star-filled" size="14" color="#FFD700"></uni-icons>
+            <text class="ai-label">{{ wishData.fullfilled ? '还愿寄语' : '星语' }}</text>
+            <uni-icons type="star-filled" size="14" color="#FFD700"></uni-icons>
+          </view>
             <view class="ai-text-container">
                <text class="ai-text">{{ displayedAiText }}</text>
                <view class="cursor" v-if="isTyping"></view>
@@ -71,14 +78,13 @@
         </view>
         <!-- #endif -->
         
-        <!-- #ifdef MP-WEIXIN -->
-         <view class="action-btn" @click="handleMpShare">
-          <view class="icon-circle moments">
-            <image src="https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/moments_icon.png" class="moments-icon" mode="aspectFit"></image>
+        <!-- Fulfill Button -->
+        <view class="action-btn" v-if="showFulfillAction && !wishData.fullfilled && isMine" @click="handleFulfill">
+          <view class="icon-circle fulfill">
+            <uni-icons type="checkbox-filled" size="28" color="#fff"></uni-icons>
           </view>
-          <text class="btn-label">朋友圈</text>
+          <text class="btn-label">我要还愿</text>
         </view>
-        <!-- #endif -->
 
         <!-- Save Image -->
         <view class="action-btn" @click="handleSave('save')">
@@ -116,6 +122,10 @@ const props = defineProps({
   startRect: {
     type: Object,
     default: null
+  },
+  showFulfillAction: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -169,6 +179,10 @@ const aiMessage = computed(() => {
 const formattedDate = computed(() => {
   const date = new Date()
   return `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`
+})
+
+const isMine = computed(() => {
+  return store.hasLogin && props.wishData?.user_id === store.userInfo?._id
 })
 
 // Typewriter Effect
@@ -638,6 +652,15 @@ const handleSave = async (type) => {
   }
 }
 
+const handleFulfill = () => {
+  const id = props.wishData._id || props.wishData.id
+  if (id) {
+    uni.navigateTo({
+        url: `/pages/publish/fulfill?id=${id}`
+    })
+  }
+}
+
 // App Share
 const handleAppShare = async (scene) => {
     if (isSaving.value) return
@@ -768,6 +791,14 @@ const handleAppShare = async (scene) => {
   .wish-layer {
     margin-bottom: 60rpx;
     
+    .wish-divider {
+      height: 1px;
+      background: rgba(0,0,0,0.1);
+      margin: 30rpx 0;
+      width: 80%;
+      margin-left: 10%;
+    }
+
     .wish-title {
       font-size: 28rpx;
       color: #999;
@@ -892,6 +923,7 @@ const handleAppShare = async (scene) => {
       &.wechat { background: #07c160; }
       &.moments { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
       &.save { background: #fff; }
+      &.fulfill { background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); }
       
       &:active { transform: scale(0.95); }
       

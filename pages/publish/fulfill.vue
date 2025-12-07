@@ -93,8 +93,13 @@ const fulfillContent = ref('')
 const loadingWishes = ref(false)
 const submitting = ref(false)
 const navStyle = ref({})
+const preSelectId = ref('') // Store ID passed from URL
 
-onLoad(() => {
+onLoad((options) => {
+  if (options.id) {
+    preSelectId.value = options.id
+  }
+
   // #ifdef MP-WEIXIN
   try {
     const menuButton = uni.getMenuButtonBoundingClientRect()
@@ -126,6 +131,14 @@ const loadWishes = async () => {
   try {
     const res = await getUnfulfilledWishes()
     wishes.value = res.data || []
+    
+    // Check pre-selection
+    if (preSelectId.value) {
+       const found = wishes.value.find(w => w._id === preSelectId.value)
+       if (found) {
+         selectedWishId.value = preSelectId.value
+       }
+    }
   } catch (e) {
     console.error(e)
     showToast('获取愿望列表失败')
