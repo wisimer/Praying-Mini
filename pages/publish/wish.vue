@@ -603,7 +603,7 @@ const closeResult = () => {
   backdrop-filter: blur(10px);
   z-index: 100;
   display: flex;
-  align-items: flex-end;
+  align-items: stretch;
   gap: 20rpx;
   box-sizing: border-box;
 
@@ -630,7 +630,7 @@ const closeResult = () => {
 
   .send-btn {
     width: 140rpx;
-    height: 80rpx;
+    min-height: 80rpx;
     border-radius: 10rpx;
     background: #07c160; // WeChat Green or keep gradient? User mentioned WeChat style, maybe green is better, or keep theme.
     // Keeping theme for consistency but style for layout
