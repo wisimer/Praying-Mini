@@ -95,6 +95,20 @@ export function changeAchievement(id) {
 	})
 }
 
+// 更新玩家愿力值
+export function updatePlayerCan(can) {
+	const player = db.collection('app-player')
+	return new Promise((resolve, reject) => {
+		player.where("user_id == $cloudEnv_uid").update({
+			can: can
+		}).then(res => {
+			resolve(res.result)
+		}).catch(err => {
+			reject(err.errMsg)
+		})
+	})
+}
+
 
 // 查询我的页面全部信息
 export function getWodePage() {

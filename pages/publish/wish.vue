@@ -39,6 +39,7 @@
               <image class="card-img" :src="scene.preview" mode="aspectFill"></image>
               <view class="card-info">
                 <text class="scene-name">{{ scene.name }}</text>
+                <text class="scene-cost">愿力 -{{ scene.canConsumption }}</text>
               </view>
             </view>
           </swiper-item>
@@ -94,6 +95,10 @@
 
     <!-- 3. Bottom Input Area -->
     <view class="bottom-bar" v-if="!hasWished">
+      <view class="can-info">
+        <text class="label">剩余愿力</text>
+        <text class="value">{{ can }}</text>
+      </view>
       <view class="input-wrapper">
         <textarea
           class="wish-input"
@@ -138,15 +143,16 @@ import { ref, computed, reactive, onMounted, nextTick } from 'vue'
 import { onLoad, onShareAppMessage } from '@dcloudio/uni-app'
 import WishCardDetail from '@/components/WishCardDetail.vue'
 import { addWish } from '@/cloud-api/dynamic.js'
+import { getWodePage, updatePlayerCan } from '@/cloud-api/index.js'
 import { showToast } from '@/core/app.js'
 
 // Data
 const scenes = [
-  { name: '云端筑梦', preview: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/card_bg_1.png', bg: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/card_bg_1.png' },
-  { name: '静谧森林', preview: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/card_bg_2.png', bg: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/card_bg_2.png' },
-  { name: '星辰大海', preview: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/card_bg_3.png', bg: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/card_bg_3.png' },
-  { name: '极光之夜', preview: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/card_bg_4.png', bg: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/card_bg_4.png' },
-  { name: '落日余晖', preview: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/card_bg_5.png', bg: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/card_bg_5.png' },
+  { name: '云端筑梦', preview: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/card_bg_1.png', bg: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/card_bg_1.png', canConsumption: 5 },
+  { name: '静谧森林', preview: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/card_bg_2.png', bg: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/card_bg_2.png', canConsumption: 3 },
+  { name: '星辰大海', preview: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/card_bg_3.png', bg: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/card_bg_3.png', canConsumption: 6 },
+  { name: '极光之夜', preview: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/card_bg_4.png', bg: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/card_bg_4.png', canConsumption: 8 },
+  { name: '落日余晖', preview: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/card_bg_5.png', bg: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/card_bg_5.png', canConsumption: 4 },
 ]
 
 const currentIndex = ref(0)
@@ -155,7 +161,7 @@ const isAnimating = ref(false)
 const showResult = ref(false)
 const resultData = ref({})
 const navStyle = ref({})
-const remainingWishes = ref(5) // Mock value
+const can = ref(0)
 const startRect = ref(null)
 const chatList = ref([])
 const scrollViewId = ref('')
@@ -191,6 +197,15 @@ onLoad(() => {
   // Preload images
   scenes.forEach(scene => {
     uni.getImageInfo({ src: scene.bg })
+  })
+  
+  // Fetch user can
+  getWodePage().then(res => {
+    if (res && res[1] && res[1].data) {
+        can.value = res[1].data.can || 0
+    }
+  }).catch(err => {
+      console.error('Fetch user info failed', err)
   })
 })
 
@@ -244,6 +259,13 @@ const typeWriter = async (text) => {
 const handleWish = async () => {
   if (!canSubmit.value || isAnimating.value) return
 
+  // Check can
+  const consumption = currentScene.value.canConsumption || 0
+  if (can.value < consumption) {
+      showToast(`愿力值不足，需要${consumption}`)
+      return
+  }
+
   isAnimating.value = true
   const currentWishText = wishText.value
   wishText.value = '' // Clear input immediately
@@ -271,6 +293,10 @@ const handleWish = async () => {
       throw new Error('内容不合规')
     }
     // #endif
+
+    // Deduct can
+    await updatePlayerCan(can.value - consumption)
+    can.value -= consumption
 
     // Generate AI Message
     const aiMessages = [
@@ -320,7 +346,6 @@ const handleWish = async () => {
     
     // Trigger Modal
     showResult.value = true
-    remainingWishes.value = Math.max(0, remainingWishes.value - 1)
     hasWished.value = true
 
   } catch (e) {
@@ -468,6 +493,18 @@ const closeResult = () => {
           border-radius: 20rpx;
           backdrop-filter: blur(4px);
         }
+
+        .scene-cost {
+          display: inline-block;
+          margin-top: 10rpx;
+          color: #FFD700;
+          font-size: 22rpx;
+          font-weight: 600;
+          text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+          background: rgba(0,0,0,0.5);
+          padding: 4rpx 12rpx;
+          border-radius: 10rpx;
+        }
       }
     }
   }
@@ -606,6 +643,32 @@ const closeResult = () => {
   align-items: stretch;
   gap: 20rpx;
   box-sizing: border-box;
+
+  .can-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10rpx;
+    padding: 0 16rpx;
+    min-width: 100rpx;
+    flex-shrink: 0;
+    
+    .label {
+      font-size: 20rpx;
+      color: #fff;
+      margin-bottom: 2rpx;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    }
+    
+    .value {
+      font-size: 32rpx;
+      font-weight: bold;
+      color: #FFD700;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    }
+  }
 
   .input-wrapper {
     flex: 1;
