@@ -7,8 +7,8 @@ export async function getUserDynamicList(option) {
 	const article = db.collection('app-dynamic')
 	return new Promise((resolve) => {
 		article.where("user_id == $cloudEnv_uid").skip(option.pageNum).limit(option.pageSize).get({
-				getCount: true
-			})
+			getCount: true
+		})
 			.then(res => {
 				resolve(res.result)
 			})
@@ -89,8 +89,11 @@ export async function getDynamicListAggregate(option) {
 	const pageNum = option.pageNum
 	const where = {}
 	const sort = [1, 2, 3, 4, 5]
-	if (sort.indexOf(option.state) > -1) {
+	// 对应了 TASK_TYPE 的任务类型，如果大于就是指定类别，否则就是查询全部（但是这里有个点就是状态0表示审核中）
+	if (sort.indexOf(option.state) > 0) {
 		where.sort = option.state
+	} else {
+		where.article_status = dbCmd.gt(0)
 	}
 
 	return new Promise((resolve) => {
@@ -209,16 +212,16 @@ export async function getHomeWishList(option) {
 	const $ = db.command.aggregate
 	const pageNum = option.pageNum || 0
 	const pageSize = option.pageSize || 20
-	
+
 	const matchObj = {
-		
+
 	}
 	if (option.fullfilled !== undefined) {
 		matchObj.fullfilled = option.fullfilled
 	}
 
 	let agg = db.collection('app-wish').aggregate()
-		.match(matchObj)	
+		.match(matchObj)
 		.lookup({
 			from: 'uni-id-users',
 			let: {
@@ -234,17 +237,17 @@ export async function getHomeWishList(option) {
 			as: 'userInfo'
 		})
 
-	
-		agg = agg.addFields({
-			isLiked: false,
-			user: $.arrayElemAt(['$userInfo', 0])
-		})
-	
+
+	agg = agg.addFields({
+		isLiked: false,
+		user: $.arrayElemAt(['$userInfo', 0])
+	})
+
 
 	return new Promise((resolve) => {
 		agg.sort({
-				view_count: -1
-			})
+			view_count: -1
+		})
 			.skip(pageNum * pageSize)
 			.limit(pageSize)
 			.end()

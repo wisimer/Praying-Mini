@@ -621,7 +621,7 @@
     }
 
     // debugger
-    if (dynamicDetail.value.article_status > 0) {
+    if (dynamicDetail.value.article_status > 1) {
       showToast('已被其他人接单')
       return
     }

@@ -79,3 +79,33 @@ export const SHARE_MENUS = [{
     id: 7,
     name: '书法绘画'
   }]
+
+
+export const TASK_TYPE = [{
+    id: 1,
+    name: '寺庙代拜'
+  }, {
+    id: 2,
+    name: '景点祈福'
+  }, {
+    id: 3,
+    name: '手工艺品'
+  }, {
+    id: 4,
+    name: '定制创作'
+  }, {
+    id: 5,
+    name: '活动陪伴'
+  }, {
+    id: 6,
+    name: '情感咨询'
+  }, {
+    id: 7,
+    name: '语音祝福'
+  }, {
+    id: 8,
+    name: '视频录制'
+  }, {
+    id: 9,
+    name: '书法绘画'
+  }]
