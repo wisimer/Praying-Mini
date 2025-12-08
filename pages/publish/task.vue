@@ -145,6 +145,7 @@ import { addDynamic } from '@/cloud-api/dynamic.js'
 import { showToast, showLoading, asyncUploadFile, showModal, toNextPage } from '@/core/app.js'
 import { getPlayer } from '@/cloud-api/index.js'
 import { SHARE_MENUS, TASK_TYPE } from '@/core/constants.js'
+import { store } from '@/uni_modules/uni-id-pages/common/store'
 const navStyle = ref({})
 
 onLoad(() => {
@@ -306,6 +307,18 @@ const handlePublish = async () => {
 
     await addDynamic(taskData)
     
+    // Deduct coins from app-player via cloud function
+    // 本地 db 实现：先查 app-player 的 coin，再减去 priceYuan，最后更新 coin
+    const db = uniCloud.database()
+    const uid = store.userInfo._id
+    // 1. 查询当前金币
+    const { result: playerRes } = await db.collection('app-player').where({ user_id: uid }).get()
+    const currentCoin = playerRes.data[0].coin
+    const newCoin = currentCoin - priceYuan
+    if (newCoin < 0) throw new Error('金币不足')
+    // 2. 更新金币
+    await db.collection('app-player').doc(playerRes.data[0]._id).update({ coin: newCoin })
+
     // 触发上一页数据刷新
     uni.$emit('saveRecord')
     
