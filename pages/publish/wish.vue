@@ -105,19 +105,8 @@ import WishCardDetail from '@/components/WishCardDetail.vue'
 import { addWish } from '@/cloud-api/dynamic.js'
 import { getWodePage, updatePlayerCan } from '@/cloud-api/index.js'
 import { showToast } from '@/core/app.js'
-	import { store } from '@/uni_modules/uni-id-pages/common/store'
-
-// Data
-const scenes = [
-  { name: '山林寺庙', preview: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene1.png', bg: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene1.png', canConsumption: 5, god_avatar: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/god1-iphone.png', god_name: '木和' },
-  { name: '火山祭坛', preview: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene2.png', bg: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene2.png', canConsumption: 3, god_avatar: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/god2-iphone.png', god_name: '安明' },
-  { name: '海边鸟居', preview: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene3.png', bg: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene3.png', canConsumption: 6, god_avatar: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/god3-iphone.png', god_name: '曦行' },
-  { name: '爱情神社', preview: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene4.png', bg: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene4.png', canConsumption: 8, god_avatar: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/god4-iphone.png', god_name: '绒心' },
-  { name: '湖畔祈愿', preview: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene5.png', bg: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene5.png', canConsumption: 4, god_avatar: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/god5-iphone.png', god_name: '启途' },
-  { name: '古树祈福', preview: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene6.png', bg: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene6.png', canConsumption: 4, god_avatar: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/god6-iphone.png', god_name: '清书' },
-  { name: '原生森林', preview: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene7.png', bg: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene7.png', canConsumption: 4, god_avatar: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/god7-iphone.png', god_name: '白灵' },
-
-]
+import { store } from '@/uni_modules/uni-id-pages/common/store'
+import { scenes } from '@/core/constants.js'
 
 const currentIndex = ref(0)
 const wishText = ref('')
@@ -291,14 +280,13 @@ const handleWish = async () => {
     const contentStyle = {
       bgType: 'image',
       bgValue: currentScene.value.bg,
-      sceneName: currentScene.value.name,
-      aiMessage: aiMessage
+      sceneName: currentScene.value.name
     }
 
     const obj = {
       content: currentWishText,
-      sort: 0,
       imgs: "",
+      ai_message: aiMessage,
       content_style: contentStyle
     }
 
