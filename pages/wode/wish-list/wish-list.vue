@@ -14,7 +14,7 @@
       <view class="list-item" v-for="item in list" :key="item._id" @click="toDetail(item)">
         <view class="item-header">
           <text class="time">{{ formatDate(item.publish_date) }}</text>
-          <text class="status" :class="`status-${item.article_status || 0}`">{{ getStatusText(item.article_status) }}</text>
+          <!-- <text class="status" :class="`status-${item.article_status || 0}`">{{ getStatusText(item.article_status) }}</text> -->
         </view>
         <view class="item-content">{{ item.content }}</view>
         <!-- <view class="item-footer">

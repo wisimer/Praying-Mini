@@ -69,12 +69,12 @@
         
         <!-- App Share (WeChat) -->
         <!-- #ifdef APP-PLUS -->
-        <view class="action-btn" @click="handleAppShare('WXSceneSession')">
+        <!-- <view class="action-btn" @click="handleAppShare('WXSceneSession')">
           <view class="icon-circle wechat">
             <uni-icons type="weixin" size="28" color="#fff"></uni-icons>
           </view>
           <text class="btn-label">微信</text>
-        </view>
+        </view> -->
         <!-- #endif -->
 
         <!-- Moments (Save Image trigger or Share Timeline) -->
@@ -82,16 +82,16 @@
         <!-- For App, we can share to Timeline directly -->
         
         <!-- #ifdef APP-PLUS -->
-        <view class="action-btn" @click="handleAppShare('WXSenceTimeline')">
+        <!-- <view class="action-btn" @click="handleAppShare('WXSenceTimeline')">
           <view class="icon-circle moments">
             <image src="https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/moments_icon.png" class="moments-icon" mode="aspectFit"></image>
           </view>
           <text class="btn-label">朋友圈</text>
-        </view>
+        </view> -->
         <!-- #endif -->
         
         <!-- Fulfill Button -->
-        <view class="action-btn" v-if="showFulfillAction && !wishData.fullfilled && isMine" @click="handleFulfill">
+        <view class="action-btn" v-if="showFulfillAction && !wishData.fullfilled" @click="handleFulfill">
           <view class="icon-circle fulfill">
             <uni-icons type="checkbox-filled" size="28" color="#fff"></uni-icons>
           </view>
