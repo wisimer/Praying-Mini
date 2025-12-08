@@ -208,8 +208,14 @@ onShow(() => {
     success: (res) => {
       if (res.result && res.result.enableExtraTabs === false) {
         showAddIcon.value = false
+        // #ifdef MP-WEIXIN
+        uni.hideTabBar()
+        // #endif
       } else {
         showAddIcon.value = true
+        // #ifdef MP-WEIXIN
+        uni.showTabBar()
+        // #endif
       }
     },
     fail: (err) => {

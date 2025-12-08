@@ -62,9 +62,16 @@
 					if (res.result && res.result.enableExtraTabs === false) {
 						// 隐藏 任务(index=1)、消息(index=2)、我的(index=3)
 						// 注意：隐藏tabBarItem需按照index倒序或者并行执行，这里直接指定index
+						
+						// #ifdef MP-WEIXIN
+						uni.hideTabBar()
+						// #endif
+						
+						// #ifndef MP-WEIXIN
 						uni.setTabBarItem({ index: 1, visible: false })
 						uni.setTabBarItem({ index: 2, visible: false })
 						uni.setTabBarItem({ index: 3, visible: false })
+						// #endif
 					}
 				},
 				fail: (err) => {
