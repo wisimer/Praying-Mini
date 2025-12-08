@@ -54,6 +54,24 @@
 				})
 			});
 			// #endif
+			
+			// 获取APP配置，控制Tab显示
+			uniCloud.callFunction({
+				name: 'get-app-config',
+				success: (res) => {
+					if (res.result && res.result.enableExtraTabs === false) {
+						// 隐藏 任务(index=1)、消息(index=2)、我的(index=3)
+						// 注意：隐藏tabBarItem需按照index倒序或者并行执行，这里直接指定index
+						uni.setTabBarItem({ index: 1, visible: false })
+						uni.setTabBarItem({ index: 2, visible: false })
+						uni.setTabBarItem({ index: 3, visible: false })
+					}
+				},
+				fail: (err) => {
+					console.error('get-app-config failed', err)
+				}
+			})
+
 			getUnreadComments().then(res => {
 				const total = res.total
 				if (total > 0) {

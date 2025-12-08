@@ -105,6 +105,7 @@ import WishCardDetail from '@/components/WishCardDetail.vue'
 import { addWish } from '@/cloud-api/dynamic.js'
 import { getWodePage, updatePlayerCan } from '@/cloud-api/index.js'
 import { showToast } from '@/core/app.js'
+	import { store } from '@/uni_modules/uni-id-pages/common/store'
 
 // Data
 const scenes = [
@@ -128,10 +129,7 @@ const can = ref(0)
 const startRect = ref(null)
 const chatList = ref([])
 const scrollViewId = ref('')
-const userInfo = ref({
-  nickname: 'XP',
-  avatar: '' // Will use default
-})
+const userInfo = ref({})
 
 const hasWished = ref(false)
 
@@ -156,7 +154,8 @@ onLoad(() => {
     console.error('Header calculation failed:', e)
   }
   // #endif
-
+  userInfo.name = store.userInfo.name
+  userInfo.avatar = store.userInfo.avatar
   // Preload images
   scenes.forEach(scene => {
     uni.getImageInfo({ src: scene.bg })

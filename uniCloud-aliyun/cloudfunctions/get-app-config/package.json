@@ -1,0 +1,9 @@
+{
+  "name": "get-app-config",
+  "version": "1.0.0",
+  "description": "获取小程序全局配置",
+  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
