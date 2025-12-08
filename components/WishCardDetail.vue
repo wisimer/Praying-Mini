@@ -370,7 +370,7 @@ const handleClose = () => {
     try {
       const ctx = uni.createCanvasContext('shareCanvas', instance)
       const W = 750
-      const H = 1500 
+      const H = 1300 
       canvasHeight.value = H
       
       // 1. Draw Background
@@ -413,10 +413,12 @@ const handleClose = () => {
       // 4. Draw Content
       
       // Helper for text drawing
-      const drawText = (text, x, startY, maxWidth, fontSize, color, lineHeight, align = 'center', bold = false) => {
+      const drawText = (text, x, startY, maxWidth, fontSize, color, lineHeight, align = 'center', bold = false, dryRun = false) => {
           ctx.setFontSize(fontSize)
-          ctx.setFillStyle(color)
-          ctx.setTextAlign(align)
+          if (!dryRun) {
+            ctx.setFillStyle(color)
+            ctx.setTextAlign(align)
+          }
           
           if (!text) return startY
           
@@ -427,183 +429,208 @@ const handleClose = () => {
           for (let i = 0; i < text.length; i++) {
               lineWidth += ctx.measureText(text[i]).width
               if (lineWidth > maxWidth) {
-                  const line = text.substring(lastSubStrIndex, i)
-                  ctx.fillText(line, x, currentY)
-                  if (bold) ctx.fillText(line, x - 0.5, currentY - 0.5)
+                  if (!dryRun) {
+                    const line = text.substring(lastSubStrIndex, i)
+                    ctx.fillText(line, x, currentY)
+                    if (bold) ctx.fillText(line, x - 0.5, currentY - 0.5)
+                  }
                   
                   currentY += lineHeight
                   lineWidth = 0
                   lastSubStrIndex = i
               }
               if (i === text.length - 1) {
-                  const line = text.substring(lastSubStrIndex, i + 1)
-                  ctx.fillText(line, x, currentY)
-                  if (bold) ctx.fillText(line, x - 0.5, currentY - 0.5)
+                  if (!dryRun) {
+                    const line = text.substring(lastSubStrIndex, i + 1)
+                    ctx.fillText(line, x, currentY)
+                    if (bold) ctx.fillText(line, x - 0.5, currentY - 0.5)
+                  }
                   currentY += lineHeight
               }
           }
           return currentY
       }
-      
-      let currentY = 160
-      
-      // --- Title: 我的心愿 ---
-      ctx.setFontSize(28)
-      ctx.setFillStyle('#999')
-      ctx.setTextAlign('center')
-      ctx.fillText('我的心愿', W / 2, currentY)
-      currentY += 30
-      
-      // --- Wish Text ---
-      currentY = drawText(wishContent.value || '', W/2, currentY, 500, 32, '#333', 42, 'center', true)
-      currentY += 10
-      
-      // --- Original AI Message (If fulfilled) ---
-      const originalAiMsg = props.wishData.original_ai_message || props.wishData.content_style?.aiMessage
-      if (props.wishData.fullfilled && originalAiMsg) {
-          currentY += 20
-          const boxY = currentY
-          const boxW = 600
-          const boxX = (W - boxW) / 2
-          
-          // Pre-calculate text lines
-          const aiText = originalAiMsg
-          const lines = []
-          ctx.setFontSize(32)
-          let lineWidth = 0
-          let lastSubStrIndex = 0
-          for (let i = 0; i < aiText.length; i++) {
-              lineWidth += ctx.measureText(aiText[i]).width
-              if (lineWidth > (boxW - 60)) { // Padding 30*2
-                  lines.push(aiText.substring(lastSubStrIndex, i))
-                  lineWidth = 0
-                  lastSubStrIndex = i
-              }
-              if (i === aiText.length - 1) {
-                  lines.push(aiText.substring(lastSubStrIndex, i + 1))
-              }
-          }
-          
-          const headerHeight = 60 // Spacing + Text
-          const textHeight = lines.length * 46
-          const boxH = headerHeight + textHeight + 20
-          
-          // Draw Box
-          ctx.setFillStyle('rgba(255, 248, 240, 0.9)')
-          ctx.setStrokeStyle('rgba(255, 215, 0, 0.3)')
-          ctx.setLineWidth(2)
-          ctx.fillRect(boxX, boxY, boxW, boxH)
-          ctx.strokeRect(boxX, boxY, boxW, boxH)
-          
-          // Draw Header
-          ctx.setFontSize(28)
-          ctx.setFillStyle('#DAA520')
-          ctx.setTextAlign('center')
-          const title = '✦ AI许愿寄语 ✦'
-          ctx.fillText(title, W/2, boxY + 36)
-          
-          // Draw Text
-          ctx.setFontSize(32)
-          ctx.setFillStyle('#333')
-          ctx.setTextAlign('left')
-          lines.forEach((line, index) => {
-              ctx.fillText(line, boxX + 30, boxY + 70 + (index * 46))
-          })
-          
-          currentY = boxY + boxH
-      }
 
-      // --- Fulfill Content (If fulfilled) ---
-      if (props.wishData.fullfilled) {
-          currentY += 16
-          // Divider
-          ctx.setStrokeStyle('rgba(0,0,0,0.1)')
-          ctx.beginPath()
-          ctx.moveTo(W * 0.15, currentY)
-          ctx.lineTo(W * 0.85, currentY)
-          ctx.stroke()
-          currentY += 20
+      const renderContent = (startY, dryRun = false) => {
+          let currentY = startY
           
-          // Title
+          // --- Title: 我的心愿 ---
           ctx.setFontSize(28)
-          ctx.setFillStyle('#999')
-          ctx.setTextAlign('center')
-          ctx.fillText('还愿内容', W / 2, currentY)
-          currentY += 30
+          if (!dryRun) {
+             ctx.setFillStyle('#999')
+             ctx.setTextAlign('center')
+             ctx.fillText('我的心愿', W / 2, currentY)
+          }
+          currentY += 40
           
-          // Content
-          const fulfillText = props.wishData.content || props.wishData.fullfill_content || ''
-          currentY = drawText(fulfillText, W/2, currentY, 500, 32, '#333', 42, 'center', true)
-          currentY += 10
-      }
-      
-      // --- Date ---
-      currentY += 10
-      ctx.setFontSize(24)
-      ctx.setFillStyle('#bbb')
-      ctx.setTextAlign('center')
-      ctx.fillText(formattedDate.value, W/2, currentY)
-      
-      // --- AI Message Box (Current AI Message) ---
-      if (aiMessage.value) {
+          // --- Wish Text ---
+          currentY = drawText(wishContent.value || '', W/2, currentY, 500, 32, '#333', 42, 'center', true, dryRun)
           currentY += 20
-          const boxY = currentY
-          const boxW = 600
-          const boxX = (W - boxW) / 2
           
-          // Pre-calculate text lines
-          const aiText = aiMessage.value
-          const lines = []
-          ctx.setFontSize(32)
-          let lineWidth = 0
-          let lastSubStrIndex = 0
-          for (let i = 0; i < aiText.length; i++) {
-              lineWidth += ctx.measureText(aiText[i]).width
-              if (lineWidth > (boxW - 60)) { // Padding 30*2
-                  lines.push(aiText.substring(lastSubStrIndex, i))
-                  lineWidth = 0
-                  lastSubStrIndex = i
+          // --- Original AI Message (If fulfilled) ---
+          const originalAiMsg = props.wishData.original_ai_message || props.wishData.content_style?.aiMessage
+          if (props.wishData.fullfilled && originalAiMsg) {
+              currentY += 30
+              const boxY = currentY
+              const boxW = 600
+              const boxX = (W - boxW) / 2
+              
+              // Pre-calculate text lines
+              const aiText = originalAiMsg
+              const lines = []
+              ctx.setFontSize(32)
+              let lineWidth = 0
+              let lastSubStrIndex = 0
+              for (let i = 0; i < aiText.length; i++) {
+                  lineWidth += ctx.measureText(aiText[i]).width
+                  if (lineWidth > (boxW - 60)) { 
+                      lines.push(aiText.substring(lastSubStrIndex, i))
+                      lineWidth = 0
+                      lastSubStrIndex = i
+                  }
+                  if (i === aiText.length - 1) {
+                      lines.push(aiText.substring(lastSubStrIndex, i + 1))
+                  }
               }
-              if (i === aiText.length - 1) {
-                  lines.push(aiText.substring(lastSubStrIndex, i + 1))
+              
+              const headerHeight = 60 
+              const textHeight = lines.length * 46
+              const boxH = headerHeight + textHeight + 20
+              
+              if (!dryRun) {
+                  // Draw Box
+                  ctx.setFillStyle('rgba(255, 248, 240, 0.9)')
+                  ctx.setStrokeStyle('rgba(255, 215, 0, 0.3)')
+                  ctx.setLineWidth(2)
+                  ctx.fillRect(boxX, boxY, boxW, boxH)
+                  ctx.strokeRect(boxX, boxY, boxW, boxH)
+                  
+                  // Draw Header
+                  ctx.setFontSize(28)
+                  ctx.setFillStyle('#DAA520')
+                  ctx.setTextAlign('center')
+                  const title = '✦ AI许愿寄语 ✦'
+                  ctx.fillText(title, W/2, boxY + 36)
+                  
+                  // Draw Text
+                  ctx.setFontSize(32)
+                  ctx.setFillStyle('#333')
+                  ctx.setTextAlign('left')
+                  lines.forEach((line, index) => {
+                      ctx.fillText(line, boxX + 30, boxY + 70 + (index * 46))
+                  })
               }
+              
+              currentY = boxY + boxH
+          }
+
+          // --- Fulfill Content (If fulfilled) ---
+          if (props.wishData.fullfilled) {
+              currentY += 32
+              if (!dryRun) {
+                  // Divider
+                  ctx.setStrokeStyle('rgba(0,0,0,0.1)')
+                  ctx.beginPath()
+                  ctx.moveTo(W * 0.15, currentY)
+                  ctx.lineTo(W * 0.85, currentY)
+                  ctx.stroke()
+              }
+              currentY += 40
+              
+              // Title
+              ctx.setFontSize(28)
+              if (!dryRun) {
+                  ctx.setFillStyle('#999')
+                  ctx.setTextAlign('center')
+                  ctx.fillText('还愿内容', W / 2, currentY)
+              }
+              currentY += 50
+              
+              // Content
+              const fulfillText = props.wishData.content || props.wishData.fullfill_content || ''
+              currentY = drawText(fulfillText, W/2, currentY, 500, 32, '#333', 42, 'center', true, dryRun)
+              currentY += 20
           }
           
-          const headerHeight = 60 // Spacing + Text
-          const textHeight = lines.length * 46
-          const boxH = headerHeight + textHeight + 20
+          // --- Date ---
+          currentY += 20
+          ctx.setFontSize(24)
+          if (!dryRun) {
+              ctx.setFillStyle('#bbb')
+              ctx.setTextAlign('center')
+              ctx.fillText(formattedDate.value, W/2, currentY)
+          }
           
-          // Draw Box
-          ctx.setFillStyle('rgba(255, 248, 240, 0.9)')
-          ctx.setStrokeStyle('rgba(255, 215, 0, 0.3)')
-          ctx.setLineWidth(2)
-          ctx.fillRect(boxX, boxY, boxW, boxH)
-          ctx.strokeRect(boxX, boxY, boxW, boxH)
+          // --- AI Message Box (Current AI Message) ---
+          if (aiMessage.value) {
+              currentY += 40
+              const boxY = currentY
+              const boxW = 600
+              const boxX = (W - boxW) / 2
+              
+              const aiText = aiMessage.value
+              const lines = []
+              ctx.setFontSize(32)
+              let lineWidth = 0
+              let lastSubStrIndex = 0
+              for (let i = 0; i < aiText.length; i++) {
+                  lineWidth += ctx.measureText(aiText[i]).width
+                  if (lineWidth > (boxW - 60)) { 
+                      lines.push(aiText.substring(lastSubStrIndex, i))
+                      lineWidth = 0
+                      lastSubStrIndex = i
+                  }
+                  if (i === aiText.length - 1) {
+                      lines.push(aiText.substring(lastSubStrIndex, i + 1))
+                  }
+              }
+              
+              const headerHeight = 60 
+              const textHeight = lines.length * 46
+              const boxH = headerHeight + textHeight + 20
+              
+              if (!dryRun) {
+                  ctx.setFillStyle('rgba(255, 248, 240, 0.9)')
+                  ctx.setStrokeStyle('rgba(255, 215, 0, 0.3)')
+                  ctx.setLineWidth(2)
+                  ctx.fillRect(boxX, boxY, boxW, boxH)
+                  ctx.strokeRect(boxX, boxY, boxW, boxH)
+                  
+                  ctx.setFontSize(28)
+                  ctx.setFillStyle('#DAA520')
+                  ctx.setTextAlign('center')
+                  const title = props.wishData.fullfilled ? '✦ 还愿寄语 ✦' : '✦ 星语 ✦'
+                  ctx.fillText(title, W/2, boxY + 36)
+                  
+                  ctx.setFontSize(32)
+                  ctx.setFillStyle('#333')
+                  ctx.setTextAlign('left')
+                  lines.forEach((line, index) => {
+                      ctx.fillText(line, boxX + 30, boxY + 70 + (index * 46))
+                  })
+              }
+              
+              currentY = boxY + boxH
+          }
           
-          // Draw Header
-          ctx.setFontSize(28)
-          ctx.setFillStyle('#DAA520')
-          ctx.setTextAlign('center')
-          const title = props.wishData.fullfilled ? '✦ 还愿寄语 ✦' : '✦ 星语 ✦'
-          ctx.fillText(title, W/2, boxY + 36)
+          // Footer
+          currentY += 50
+          ctx.setFontSize(22)
+          if (!dryRun) {
+              ctx.setFillStyle('#ccc')
+              ctx.setTextAlign('center')
+              ctx.fillText('愿力岛 · 祈福', W/2, currentY)
+          }
           
-          // Draw Text
-          ctx.setFontSize(32)
-          ctx.setFillStyle('#333')
-          ctx.setTextAlign('left')
-          lines.forEach((line, index) => {
-              ctx.fillText(line, boxX + 30, boxY + 70 + (index * 46))
-          })
-          
-          currentY = boxY + boxH
+          return currentY
       }
       
-      // Footer
-      currentY += 30
-      ctx.setFontSize(22)
-      ctx.setFillStyle('#ccc')
-      ctx.setTextAlign('center')
-      ctx.fillText('愿力岛 · 祈福', W/2, currentY) // Use currentY instead of fixed bottom
+      // Calculate layout
+      const contentH = renderContent(0, true)
+      const startY = (H - contentH) / 2
+      
+      // Draw content
+      renderContent(startY, false)
 
       ctx.draw(false, () => {
         setTimeout(() => {
