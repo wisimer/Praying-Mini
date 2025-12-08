@@ -1,0 +1,7 @@
+{
+  "name": "ai-message",
+  "version": "1.0.0",
+  "description": "Generate wish message using DeepSeek API",
+  "main": "index.js",
+  "dependencies": {}
+}

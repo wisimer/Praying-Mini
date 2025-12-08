@@ -299,20 +299,38 @@ const handleWish = async () => {
     can.value -= consumption
 
     // Generate AI Message
-    const aiMessages = [
-      "你的愿望已被星辰听见，正在赶来的路上。",
-      "愿你所求皆如愿，所行化坦途。",
-      "念念不忘，必有回响。加油！",
-      "美好的事情即将发生，请保持期待。"
-    ]
-    const randomMsg = aiMessages[Math.floor(Math.random() * aiMessages.length)]
+    let aiMessage = ''
+    try {
+      const aiRes = await uniCloud.callFunction({
+        name: 'ai-message',
+        data: {
+          content: currentWishText,
+          type: 'wish'
+        }
+      })
+      
+      if (aiRes.result.code === 0) {
+        aiMessage = aiRes.result.data.content
+      } else {
+        throw new Error(aiRes.result.message || 'AI生成失败')
+      }
+    } catch (err) {
+      console.error('AI generation failed, falling back to local:', err)
+      const fallbackMessages = [
+        "你的愿望已被星辰听见，正在赶来的路上。",
+        "愿你所求皆如愿，所行化坦途。",
+        "念念不忘，必有回响。加油！",
+        "美好的事情即将发生，请保持期待。"
+      ]
+      aiMessage = fallbackMessages[Math.floor(Math.random() * fallbackMessages.length)]
+    }
     
     // Construct Data
     const contentStyle = {
       bgType: 'image',
       bgValue: currentScene.value.bg,
       sceneName: currentScene.value.name,
-      aiMessage: randomMsg
+      aiMessage: aiMessage
     }
     
     const obj = {
@@ -328,7 +346,7 @@ const handleWish = async () => {
     })
     
     // Start Typewriter Effect
-    await typeWriter(randomMsg)
+    await typeWriter(aiMessage)
     
     // Prepare Result Data
     resultData.value = {
@@ -341,7 +359,7 @@ const handleWish = async () => {
       bgType: 'image',
       bgValue: currentScene.value.bg,
       poster: currentScene.value.bg,
-      aiMessage: randomMsg
+      aiMessage: aiMessage
     }
     
     // Trigger Modal

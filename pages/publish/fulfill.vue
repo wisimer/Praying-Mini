@@ -310,13 +310,31 @@ const handleFulfill = async () => {
     // #endif
 
     // Generate AI Message
-    const aiMessages = [
-      "你的诚心已获回应，愿福泽常伴左右。",
-      "感恩之心是幸福的源泉，愿你未来更加美好。",
-      "善愿得偿，功德无量。继续保持这份美好。",
-      "愿望成真，是努力与幸运的共鸣。祝贺你！"
-    ]
-    const aiMessage = aiMessages[Math.floor(Math.random() * aiMessages.length)]
+    let aiMessage = ''
+    try {
+      const aiRes = await uniCloud.callFunction({
+        name: 'ai-message',
+        data: {
+          content: content,
+          type: 'fulfill'
+        }
+      })
+      
+      if (aiRes.result.code === 0) {
+        aiMessage = aiRes.result.data.content
+      } else {
+        throw new Error(aiRes.result.message || 'AI生成失败')
+      }
+    } catch (err) {
+      console.error('AI generation failed, falling back to local:', err)
+      const fallbackMessages = [
+        "你的诚心已获回应，愿福泽常伴左右。",
+        "感恩之心是幸福的源泉，愿你未来更加美好。",
+        "善愿得偿，功德无量。继续保持这份美好。",
+        "愿望成真，是努力与幸运的共鸣。祝贺你！"
+      ]
+      aiMessage = fallbackMessages[Math.floor(Math.random() * fallbackMessages.length)]
+    }
 
     // Wait for API
     await fulfillWish(currentWish.value._id, content, aiMessage)
