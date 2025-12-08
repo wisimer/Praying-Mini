@@ -69,7 +69,12 @@
 
       <!-- Price -->
       <div class="form-item">
-        <div class="label">悬赏金币</div>
+        <div class="label">
+          悬赏金币
+          <div class="help-icon" @click="showHelp" style="margin-left: 8px; display: flex; align-items: center;">
+            <uni-icons type="help" size="18" color="#666"></uni-icons>
+          </div>
+        </div>
         <div class="price-input-box">
           <span class="currency">¥</span>
           <input 
@@ -93,6 +98,43 @@
         <div v-else class="loading-spinner">...</div>
       </button>
     </div>
+
+    <!-- Help Popup -->
+    <uni-popup ref="helpPopup" type="center" :mask-click="true">
+      <div class="help-popup-content">
+        <div class="popup-header">
+          <span class="popup-title">任务发布说明</span>
+          <div class="close-icon" @click="closeHelp">
+            <uni-icons type="closeempty" size="20" color="#999"></uni-icons>
+          </div>
+        </div>
+        <scroll-view scroll-y class="popup-body">
+          <div class="section">
+            <div class="section-title">1. 发布任务的扣款说明</div>
+            <div class="section-text">
+              发布任务时，系统将预先扣除相应的悬赏金币。若任务最终未完成或被取消，金币将按退款政策退回您的账户。
+            </div>
+          </div>
+          <div class="section">
+            <div class="section-title">2. 任务发布之后的流程</div>
+            <div class="section-text">
+              发布任务 -> 等待接单 -> 选定接单人 -> 等待交付 -> 确认验收 -> 任务完成
+            </div>
+          </div>
+          <div class="section">
+            <div class="section-title">3. 退款政策</div>
+            <div class="section-text">
+              <div class="policy-item">• 若任务在截止日期前无人接单，系统将自动取消并全额退款。</div>
+              <div class="policy-item">• 若您主动取消任务，且尚未有接单人，将全额退款。</div>
+              <div class="policy-item">• 若任务执行中发生争议，将由平台客服介入仲裁，根据实际情况处理退款。</div>
+            </div>
+          </div>
+        </scroll-view>
+        <div class="popup-footer">
+          <button class="confirm-btn" @click="closeHelp">我知道了</button>
+        </div>
+      </div>
+    </uni-popup>
   </div>
 </template>
 
@@ -130,6 +172,15 @@ const deadline = ref('')
 const price = ref('1')
 const isLoading = ref(false)
 const coin = ref(0)
+const helpPopup = ref(null)
+
+const showHelp = () => {
+  helpPopup.value.open()
+}
+
+const closeHelp = () => {
+  helpPopup.value.close()
+}
 
 const startDate = computed(() => {
   const tomorrow = new Date()
@@ -537,6 +588,111 @@ const handlePublish = async () => {
       opacity: 0.7;
       background: #ccc;
       box-shadow: none;
+    }
+  }
+}
+
+.help-popup-content {
+  width: 600rpx;
+  background-color: #fff;
+  border-radius: 20rpx;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-height: 80vh;
+
+  .popup-header {
+    padding: 30rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    border-bottom: 1rpx solid #f5f5f5;
+
+    .popup-title {
+      font-size: 32rpx;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .close-icon {
+      position: absolute;
+      right: 30rpx;
+      top: 50%;
+      transform: translateY(-50%);
+      padding: 10rpx;
+    }
+  }
+
+  .popup-body {
+    padding: 30rpx;
+    flex: 1;
+    overflow-y: auto;
+    box-sizing: border-box;
+    /* #ifndef APP-NVUE */
+    max-height: 60vh; 
+    /* #endif */
+
+    .section {
+      margin-bottom: 40rpx;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      .section-title {
+        font-size: 28rpx;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 16rpx;
+        position: relative;
+        padding-left: 20rpx;
+
+        &::before {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 8rpx;
+          height: 28rpx;
+          background: #FFD700;
+          border-radius: 4rpx;
+        }
+      }
+
+      .section-text {
+        font-size: 26rpx;
+        color: #666;
+        line-height: 1.6;
+        text-align: justify;
+        
+        .policy-item {
+          margin-bottom: 8rpx;
+        }
+      }
+    }
+  }
+
+  .popup-footer {
+    padding: 30rpx;
+    border-top: 1rpx solid #f5f5f5;
+
+    .confirm-btn {
+      width: 100%;
+      height: 80rpx;
+      line-height: 80rpx;
+      text-align: center;
+      background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+      color: #fff;
+      font-size: 30rpx;
+      font-weight: bold;
+      border-radius: 40rpx;
+      border: none;
+      
+      &:active {
+        opacity: 0.9;
+      }
     }
   }
 }
