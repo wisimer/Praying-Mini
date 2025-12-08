@@ -59,12 +59,12 @@
      <view class="action-area" :class="{ 'show': showActions }">
         <!-- WeChat Share (MP) -->
         <!-- #ifdef MP-WEIXIN -->
-        <view class="action-btn" @click="handleMpShare">
+        <!-- <view class="action-btn" @click="handleMpShare">
           <view class="icon-circle wechat">
             <uni-icons type="weixin" size="28" color="#fff"></uni-icons>
           </view>
           <text class="btn-label">微信</text>
-        </view>
+        </view> -->
         <!-- #endif -->
         
         <!-- App Share (WeChat) -->
