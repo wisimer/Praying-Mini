@@ -28,7 +28,7 @@
       </div>
     </div>
 
-    <AddIconComponent style="margin-right: 44rpx;"/>
+    <AddIconComponent v-if="showAddIcon" style="margin-right: 44rpx;"/>
     
     <WishCardDetail 
       v-model:visible="showDetail" 
@@ -60,6 +60,7 @@ const loadStatus = ref('more')
 
 const showDetail = ref(false)
 const selectedWish = ref({})
+const showAddIcon = ref(true)
 
 // Computed list merging wishList and userLikes
 const displayWishList = computed(() => {
@@ -202,6 +203,21 @@ const loadData = async (reload = false) => {
 
 onShow(() => {
   // uni.hideTabBar()
+  uniCloud.callFunction({
+    name: 'get-app-config',
+    success: (res) => {
+      if (res.result && res.result.enableExtraTabs === false) {
+        showAddIcon.value = false
+      } else {
+        showAddIcon.value = true
+      }
+    },
+    fail: (err) => {
+      console.error('get-app-config failed', err)
+      // Default to true on error
+      showAddIcon.value = true
+    }
+  })
 })
 
 onHide(() => {
