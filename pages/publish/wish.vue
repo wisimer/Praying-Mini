@@ -40,11 +40,11 @@
             <template v-if="msg.type === 'ai'">
               <view class="avatar ai-avatar">
                 <image class="avatar-img"
-                  src="https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/avatar_ai.png"
+                  :src="msg.avatar || 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/avatar_ai.png'"
                   mode="aspectFill"></image>
               </view>
               <view class="content-wrapper">
-                <text class="nickname">飞飞</text>
+                <text class="nickname">{{ msg.name || '飞飞' }}</text>
                 <view class="bubble">
                   <text class="text">{{ msg.content }}</text>
                 </view>
@@ -60,7 +60,7 @@
                   mode="aspectFill"></image>
               </view>
               <view class="content-wrapper">
-                <text class="nickname">{{ userInfo.nickname || 'XP' }}</text>
+                <text class="nickname">{{ userInfo.name || 'XP' }}</text>
                 <view class="bubble">
                   <text class="text">{{ msg.content }}</text>
                 </view>
@@ -109,13 +109,13 @@ import { showToast } from '@/core/app.js'
 
 // Data
 const scenes = [
-  { name: '山林寺庙', preview: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene1.png', bg: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene1.png', canConsumption: 5 },
-  { name: '火山祭坛', preview: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene2.png', bg: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene2.png', canConsumption: 3 },
-  { name: '海边鸟居', preview: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene3.png', bg: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene3.png', canConsumption: 6 },
-  { name: '爱情神社', preview: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene4.png', bg: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene4.png', canConsumption: 8 },
-  { name: '湖畔祈愿', preview: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene5.png', bg: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene5.png', canConsumption: 4 },
-  { name: '古树祈福', preview: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene6.png', bg: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene6.png', canConsumption: 4 },
-  { name: '原生森林', preview: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene7.png', bg: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene7.png', canConsumption: 4 },
+  { name: '山林寺庙', preview: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene1.png', bg: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene1.png', canConsumption: 5, god_avatar: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/god1-iphone.png', god_name: '木和' },
+  { name: '火山祭坛', preview: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene2.png', bg: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene2.png', canConsumption: 3, god_avatar: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/god2-iphone.png', god_name: '安明' },
+  { name: '海边鸟居', preview: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene3.png', bg: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene3.png', canConsumption: 6, god_avatar: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/god3-iphone.png', god_name: '曦行' },
+  { name: '爱情神社', preview: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene4.png', bg: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene4.png', canConsumption: 8, god_avatar: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/god4-iphone.png', god_name: '绒心' },
+  { name: '湖畔祈愿', preview: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene5.png', bg: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene5.png', canConsumption: 4, god_avatar: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/god5-iphone.png', god_name: '启途' },
+  { name: '古树祈福', preview: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene6.png', bg: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene6.png', canConsumption: 4, god_avatar: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/god6-iphone.png', god_name: '清书' },
+  { name: '原生森林', preview: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene7.png', bg: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene7.png', canConsumption: 4, god_avatar: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/god7-iphone.png', god_name: '白灵' },
 
 ]
 
@@ -154,8 +154,8 @@ onLoad(() => {
     console.error('Header calculation failed:', e)
   }
   // #endif
-  userInfo.name = store.userInfo.name
-  userInfo.avatar = store.userInfo.avatar
+  userInfo.value.name = store.userInfo.nickname
+  userInfo.value.avatar = store.userInfo.avatar_file.url
   // Preload images
   scenes.forEach(scene => {
     uni.getImageInfo({ src: scene.bg })
@@ -199,9 +199,9 @@ const scrollToBottom = () => {
   })
 }
 
-const typeWriter = async (text) => {
+const typeWriter = async (text, avatar, name) => {
   const msgIndex = chatList.value.length
-  chatList.value.push({ type: 'ai', content: '' })
+  chatList.value.push({ type: 'ai', content: '', avatar, name })
 
   let index = 0
   return new Promise(resolve => {
@@ -308,14 +308,14 @@ const handleWish = async () => {
     })
 
     // Start Typewriter Effect
-    await typeWriter(aiMessage)
+    await typeWriter(aiMessage, currentScene.value.god_avatar, currentScene.value.god_name)
 
     // Prepare Result Data
     resultData.value = {
       title: currentWishText,
       user: {
-        nickname: '我',
-        avatar: ''
+        nickname: userInfo.value.name || 'XP',
+        avatar: userInfo.value.avatar || ''
       },
       createTime: new Date().getTime(),
       bgType: 'image',
