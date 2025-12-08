@@ -73,10 +73,10 @@ export const SHARE_MENUS = [{
     id: 7,
     name: '语音祝福'
   }, {
-    id: 6,
+    id: 8,
     name: '视频录制'
   }, {
-    id: 7,
+    id: 9,
     name: '书法绘画'
   }]
 

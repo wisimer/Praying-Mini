@@ -1,5 +1,6 @@
 const db = uniCloud.database()
 const doc = db.collection('app-dynamic')
+import { SHARE_MENUS, TASK_TYPE } from '@/core/constants.js'
 
 
 // 查询当前登录用户已发布的动态
@@ -88,7 +89,7 @@ export async function getDynamicListAggregate(option) {
 
 	const pageNum = option.pageNum
 	const where = {}
-	const sort = [1, 2, 3, 4, 5]
+	const sort = TASK_TYPE.map(item => item.id)
 	// 对应了 TASK_TYPE 的任务类型，如果大于就是指定类别，否则就是查询全部（但是这里有个点就是状态0表示审核中）
 	if (sort.indexOf(option.state) > 0) {
 		where.sort = option.state
