@@ -13,9 +13,9 @@
       <!-- Task Type -->
       <div class="form-item">
         <div class="label">任务类型</div>
-        <picker @change="bindTypeChange" :value="typeIndex" :range="taskTypes">
+        <picker @change="bindTypeChange" :value="typeIndex" :range="SHARE_MENUS" range-key="name">
           <div class="picker-box">
-            <span v-if="typeIndex > -1">{{ taskTypes[typeIndex] }}</span>
+            <span v-if="typeIndex > -1">{{ SHARE_MENUS[typeIndex].name }}</span>
             <span v-else class="placeholder-text">选择任务类型</span>
             <uni-icons type="bottom" size="14" color="#999"></uni-icons>
           </div>
@@ -102,8 +102,7 @@ import { onLoad } from '@dcloudio/uni-app'
 import { addDynamic } from '@/cloud-api/dynamic.js'
 import { showToast, showLoading, asyncUploadFile, showModal, toNextPage } from '@/core/app.js'
 import { getPlayer } from '@/cloud-api/index.js'
-
-const taskTypes = ['日常委托', '跑腿代购', '技能服务', '其他']
+import { SHARE_MENUS } from '@/core/constants.js'
 const navStyle = ref({})
 
 onLoad(() => {

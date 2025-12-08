@@ -42,25 +42,9 @@
 
 	const menuIndex = ref(0)
 
-	const menus = ref([{
-		id: 0,
-		name: '全部'
-	}, {
-		id: 1,
-		name: '动态'
-	}, {
-		id: 2,
-		name: '问答'
-	}, {
-		id: 3,
-		name: '种草'
-	}, {
-		id: 4,
-		name: '送养'
-	}, {
-		id: 5,
-		name: '服务'
-	}])
+import { SHARE_MENUS } from '@/core/constants.js'
+
+const menus = ref(SHARE_MENUS)
 
 
 	const shares = ref([])
