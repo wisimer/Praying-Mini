@@ -27,12 +27,6 @@
 					<text class="amount">{{ (dynamicDetail.price / 100).toFixed(2) }}</text>
 				</view>
 
-				<view class="img-box" v-if="dynamicDetail.imgs && dynamicDetail.imgs.length">
-					<image mode="aspectFill" :src="`${img}?x-oss-process=image/resize,p_40`"
-						class="remark-img margin-t20" v-for="(img, index) in dynamicDetail.imgs" :key="index"
-						@click.stop="showPic(img)">
-					</image>
-				</view>
 			</view>
 			<view class="flex align-center margin-t20 font-size22">
 				<view class="font-size28">
