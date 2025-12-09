@@ -6,7 +6,7 @@ const {
 } = require('prayingUtils')
 
 function mapproduct_id(product_id) {
-	let totalFee = 100 // 100ge 金币，90元人民币，暂时这么测试
+	let totalFee = 90 // 100ge 金币，90元人民币，暂时这么测试
 	if (product_id == 10) {
 		// 10个金币，9元人民币
 		totalFee = 9

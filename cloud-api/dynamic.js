@@ -17,13 +17,22 @@ export async function getUserDynamicList(option) {
 }
 
 export function addWish(obj) {
-	const wish = db.collection('app-wish')
-
 	return new Promise((resolve, reject) => {
-		wish.add(obj).then((res) => {
-			resolve(res.result)
+		const uid = uniCloud.getCurrentUserInfo().uid
+		uniCloud.callFunction({
+			name: 'publish_wish',
+			data: {
+				...obj,
+				user_id: uid
+			}
+		}).then((res) => {
+			if (res.result.code === 0) {
+				resolve(res.result.result)
+			} else {
+				reject(res.result.msg)
+			}
 		}).catch(err => {
-			reject(err.errMsg)
+			reject(err.errMsg || err)
 		})
 	})
 }
