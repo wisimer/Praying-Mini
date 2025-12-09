@@ -70,6 +70,12 @@ exports.main = async (event, context) => {
 				await db.collection('app-daily-tasks').doc(task._id).update({
 					complete_task_force: dbCmd.inc(3)
 				})
+				// 同时增加app-player的can值
+				await db.collection('app-player').where({
+					user_id
+				}).update({
+					can: dbCmd.inc(3)
+				})
 			}
 		} else {
 			// 不存在则创建
@@ -82,6 +88,12 @@ exports.main = async (event, context) => {
 				publish_task_force: 0,
 				complete_task_force: 3,
 				create_date: Date.now()
+			})
+			// 同时增加app-player的can值
+			await db.collection('app-player').where({
+				user_id
+			}).update({
+				can: dbCmd.inc(3)
 			})
 		}
 
