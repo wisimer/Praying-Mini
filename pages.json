@@ -111,6 +111,12 @@
             "style": {
                 "navigationBarTitleText": "关于"
             }
+        },
+        {
+            "path": "pages/wode/daily-tasks/daily-tasks",
+            "style": {
+                "navigationBarTitleText": "今日打卡任务"
+            }
         }
 		// {
 		// 	"path": "uni_modules/uni-id-pages/pages/login/login-withoutpwd",

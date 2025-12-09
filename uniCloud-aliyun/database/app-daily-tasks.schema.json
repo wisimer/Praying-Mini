@@ -1,0 +1,59 @@
+{
+  "bsonType": "object",
+  "required": ["user_id", "date_timestamp"],
+  "permission": {
+    "read": "doc.user_id == auth.uid",
+    "create": "auth.uid != null",
+    "update": "doc.user_id == auth.uid",
+    "delete": "doc.user_id == auth.uid"
+  },
+  "properties": {
+    "_id": {
+      "description": "ID，系统自动生成"
+    },
+    "user_id": {
+      "bsonType": "string",
+      "description": "用户ID",
+      "foreignKey": "uni-id-users._id",
+      "defaultValue": {
+        "$env": "uid"
+      }
+    },
+    "date_timestamp": {
+      "bsonType": "timestamp",
+      "description": "日期0点时间戳"
+    },
+    "login_force": {
+      "bsonType": "int",
+      "description": "登录愿力值",
+      "defaultValue": 0
+    },
+    "publish_wish_force": {
+      "bsonType": "int",
+      "description": "发布愿望愿力值",
+      "defaultValue": 0
+    },
+    "fulfill_wish_force": {
+      "bsonType": "int",
+      "description": "还愿愿力值",
+      "defaultValue": 0
+    },
+    "publish_task_force": {
+      "bsonType": "int",
+      "description": "发布任务愿力值",
+      "defaultValue": 0
+    },
+    "complete_task_force": {
+      "bsonType": "int",
+      "description": "完成任务愿力值",
+      "defaultValue": 0
+    },
+    "create_date": {
+      "bsonType": "timestamp",
+      "description": "记录时间",
+      "forceDefaultValue": {
+        "$env": "now"
+      }
+    }
+  }
+}

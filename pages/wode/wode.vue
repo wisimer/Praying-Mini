@@ -70,6 +70,16 @@
 
       <!-- Group 2: Recharge & Support -->
       <view class="menu-group">
+        <view class="menu-item" @click="toNextPage('/pages/wode/daily-tasks/daily-tasks')">
+          <view class="item-left">
+            <view class="icon-box blue">
+              <uni-icons type="calendar" size="20" color="#fff"></uni-icons>
+            </view>
+            <text class="item-text">每日打卡任务</text>
+          </view>
+          <uni-icons type="right" size="16" color="#ccc"></uni-icons>
+        </view>
+
         <view class="menu-item" @click="toNextPage('/pages/wode/recharge/recharge')">
           <view class="item-left">
             <view class="icon-box orange">
