@@ -408,15 +408,21 @@ export async function getUnfulfilledWishes() {
 // 许愿还愿
 export async function fulfillWish(id, content, aiMessage) {
 	return new Promise((resolve, reject) => {
-		db.collection('app-wish').doc(id).update({
-			fullfilled: true,
-			fullfill_content: content,
-			fullfill_ai_message: aiMessage,
-			fullfill_date: Date.now()
+		uniCloud.callFunction({
+			name: 'fulfill_wish',
+			data: {
+				id,
+				content,
+				aiMessage
+			}
 		}).then(res => {
-			resolve(res.result)
+			if (res.result.code === 0) {
+				resolve(res.result.result)
+			} else {
+				reject(res.result.msg)
+			}
 		}).catch(err => {
-			reject(err.errMsg)
+			reject(err.errMsg || err)
 		})
 	})
 }

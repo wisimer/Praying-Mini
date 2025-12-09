@@ -143,7 +143,7 @@ watch(currentWish, (newVal) => {
     const history = []
     const sceneName = newVal.content_style?.sceneName
     const scene = scenes.find(s => s.name === sceneName)
-    debugger
+    
     godName.value = scene?.god_name || ''
     godAvatar.value = scene?.god_avatar || ''
 
