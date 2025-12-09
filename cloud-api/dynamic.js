@@ -224,53 +224,39 @@ export async function getDynamicListDelAggregate(id) {
 
 // 首页愿望卡片列表
 export async function getHomeWishList(option) {
-	const db = uniCloud.database()
-	const dbCmd = db.command
-	const $ = db.command.aggregate
-	const pageNum = option.pageNum || 0
-	const pageSize = option.pageSize || 20
-
-	const matchObj = {
-
-	}
-	if (option.fullfilled !== undefined) {
-		matchObj.fullfilled = option.fullfilled
-	}
-
-	let agg = db.collection('app-wish').aggregate()
-		.match(matchObj)
-		.lookup({
-			from: 'uni-id-users',
-			let: {
-				user_id: '$user_id'
-			},
-			pipeline: $.pipeline()
-				.match(dbCmd.expr($.eq(['$_id', '$$user_id'])))
-				.project({
-					nickname: 1,
-					avatar_file: 1
-				})
-				.done(),
-			as: 'userInfo'
+	return new Promise((resolve, reject) => {
+		uniCloud.callFunction({
+			name: 'get_home_wish_list',
+			data: {
+				...option
+			}
+		}).then((res) => {
+			if (res.result.code === 0) {
+				resolve({
+					data: res.result.result
+				}) // 适配原有的返回格式，原逻辑 res.result 是 aggregate 的结果 {data: []}，这里我直接返回了 data 数组，或者需要包装一下？
+                // 查看 cloud function implementation: result: wishListResult.data
+                // 原逻辑 resolve(res.result) 其中 res 是 aggregate.end() 的结果，结构为 { data: [...], requestId: ... }
+                // 所以原函数的 caller 期望得到 { data: [...] } 还是 [...] ?
+                // 让我们看原代码: resolve(res.result)
+                // db...end().then(res => resolve(res.result))
+                // res.result from aggregate is { data: [...] }
+                // My cloud function returns { code: 0, result: [...] } (array directly)
+                // Wait, in my cloud function: result: wishListResult.data. So it is an Array.
+                // The original code returned an object { data: [...] } ?
+                // db...end() returns { result: { data: [...] } }
+                // So original resolve(res.result) resolves to { data: [...] }
+                // My cloud function result.result is [...] (Array).
+                // So I should resolve({ data: res.result.result }) to match { data: [...] } structure if caller expects it.
+                // Or I can change cloud function to return { data: wishListResult.data }.
+                // Let's adjust client code to match original behavior.
+                // Original: resolve({ data: ... })
+			} else {
+				reject(res.result.msg)
+			}
+		}).catch(err => {
+			reject(err.errMsg || err)
 		})
-
-
-	agg = agg.addFields({
-		isLiked: false,
-		user: $.arrayElemAt(['$userInfo', 0])
-	})
-
-
-	return new Promise((resolve) => {
-		agg.sort({
-			view_count: -1
-		})
-			.skip(pageNum * pageSize)
-			.limit(pageSize)
-			.end()
-			.then(res => {
-				resolve(res.result)
-			})
 	})
 }
 
