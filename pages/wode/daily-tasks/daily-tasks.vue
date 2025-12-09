@@ -54,8 +54,8 @@ const tasks = ref([
   { key: 'login_force', name: '每日登录', desc: '每天登录获取1点愿力值', max: 1, current: 0, icon: 'calendar', color: 'blue' },
   { key: 'publish_wish_force', name: '发布愿望', desc: '发布愿望获取2点愿力值', max: 2, current: 0, icon: 'heart', color: 'purple' },
   { key: 'fulfill_wish_force', name: '我要还愿', desc: '还愿获取2点愿力值', max: 2, current: 0, icon: 'heart-filled', color: 'pink' },
-  { key: 'publish_task_force', name: '发布任务', desc: '发布任务获取3点愿力值', max: 3, current: 0, icon: 'paperplane', color: 'orange' },
-  { key: 'complete_task_force', name: '完成任务', desc: '完成任务获取3点愿力值', max: 3, current: 0, icon: 'checkbox', color: 'green' }
+  { key: 'publish_task_force', name: '发布任务', desc: '发布任务获取3点愿力值', max: 9, current: 0, icon: 'paperplane', color: 'orange' },
+  { key: 'complete_task_force', name: '完成任务', desc: '完成任务获取3点愿力值', max: 9, current: 0, icon: 'checkbox', color: 'green' }
 ])
 
 const totalForce = computed(() => {

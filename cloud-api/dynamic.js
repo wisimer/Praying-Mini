@@ -39,10 +39,19 @@ export function addWish(obj) {
 export function addDynamic(obj) {
 
 	return new Promise((resolve, reject) => {
-		doc.add(obj).then((res) => {
-			resolve(res.result)
+		uniCloud.callFunction({
+			name: 'publish_dynamic',
+			data: {
+				...obj
+			}
+		}).then((res) => {
+			if (res.result.code === 0) {
+				resolve(res.result.result)
+			} else {
+				reject(res.result.msg)
+			}
 		}).catch(err => {
-			reject(err.errMsg)
+			reject(err.errMsg || err)
 		})
 	})
 }
