@@ -139,10 +139,14 @@ const handleSubmit = async () => {
     // Looking at home.vue: content: item.fullfilled && item.fullfill_content ? item.fullfill_content : item.content
     // It seems there is 'fullfill_content'.
     
-    await db.collection('app-dynamic').doc(taskId.value).update({
-        article_status: ARTICLE_STATUS.EXECUTED_WAIT_VERIFY, // 任务完成待确认
-        fullfill_content: taskContent.value,
-        fullfill_imgs: imageList.value
+    await uniCloud.callFunction({
+        name: 'complete_dynamic',
+        data: {
+            taskId: taskId.value,
+            article_status: ARTICLE_STATUS.EXECUTED_WAIT_VERIFY, // 任务完成待确认
+            fullfill_content: taskContent.value,
+            fullfill_imgs: imageList.value
+        }
     })
 
     // 2. Send Message
