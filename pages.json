@@ -115,7 +115,8 @@
         {
             "path": "pages/wode/daily-tasks/daily-tasks",
             "style": {
-                "navigationBarTitleText": "今日打卡任务"
+                "navigationBarTitleText": "今日打卡任务",
+                "navigationStyle": "custom"
             }
         }
 		// {

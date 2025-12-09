@@ -1,5 +1,14 @@
 <template>
   <view class="page-container">
+    <view class="custom-header" :style="headerStyle">
+      <view class="header-left" @click="goBack">
+        <uni-icons type="left" size="24" color="#333"></uni-icons>
+      </view>
+      <view class="header-title">今日打卡任务</view>
+      <view class="header-right"></view>
+    </view>
+    <view class="header-spacer" :style="spacerStyle"></view>
+
     <view class="header-card">
       <view class="title">今日愿力值获取情况</view>
       <view class="total-force">
@@ -34,6 +43,13 @@ import { ref, computed } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 
 const db = uniCloud.database()
+const headerStyle = ref({})
+const spacerStyle = ref({})
+
+const goBack = () => {
+  uni.navigateBack()
+}
+
 const tasks = ref([
   { key: 'login_force', name: '每日登录', desc: '每天登录获取1点愿力值', max: 1, current: 0, icon: 'calendar', color: 'blue' },
   { key: 'publish_wish_force', name: '发布愿望', desc: '发布愿望获取2点愿力值', max: 2, current: 0, icon: 'heart', color: 'purple' },
@@ -72,6 +88,26 @@ const fetchData = async () => {
 }
 
 onLoad(() => {
+  // #ifdef MP-WEIXIN
+  try {
+    const menuButton = uni.getMenuButtonBoundingClientRect()
+    const sysInfo = uni.getSystemInfoSync()
+    const statusBarHeight = sysInfo.statusBarHeight
+    const navBarContentHeight = (menuButton.top - statusBarHeight) * 2 + menuButton.height
+    const totalHeight = statusBarHeight + navBarContentHeight
+
+    headerStyle.value = {
+      height: `${totalHeight}px`,
+      paddingTop: `${statusBarHeight}px`
+    }
+    spacerStyle.value = {
+      height: `${totalHeight}px`
+    }
+  } catch (e) {
+    console.error('Header calculation failed:', e)
+  }
+  // #endif
+
   fetchData()
 })
 </script>
@@ -81,6 +117,35 @@ onLoad(() => {
   min-height: 100vh;
   background-color: #f5f7fa;
   padding: 30rpx;
+}
+
+.custom-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 44px;
+  padding-top: var(--status-bar-height);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 30rpx;
+  padding-right: 30rpx;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  z-index: 100;
+  box-sizing: border-box;
+}
+
+.header-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.header-spacer {
+  height: calc(44px + var(--status-bar-height));
+  margin-bottom: 30rpx;
 }
 
 .header-card {
