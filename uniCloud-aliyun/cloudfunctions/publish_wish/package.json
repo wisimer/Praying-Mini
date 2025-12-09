@@ -1,7 +1,8 @@
 {
   "name": "publish_wish",
   "dependencies": {
-    "dayjs-utils": "file:../common/dayjs-utils"
+    "dayjs-utils": "file:../common/dayjs-utils",
+    "uni-id-common": "file:../../../uni_modules/uni-id-common/uniCloud/cloudfunctions/common/uni-id-common"
   },
   "extensions": {
     "uni-cloud-jql": {}

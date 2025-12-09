@@ -18,12 +18,10 @@ export async function getUserDynamicList(option) {
 
 export function addWish(obj) {
 	return new Promise((resolve, reject) => {
-		const uid = uniCloud.getCurrentUserInfo().uid
 		uniCloud.callFunction({
 			name: 'publish_wish',
 			data: {
 				...obj,
-				user_id: uid
 			}
 		}).then((res) => {
 			if (res.result.code === 0) {
