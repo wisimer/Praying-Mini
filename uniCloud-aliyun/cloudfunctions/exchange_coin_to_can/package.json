@@ -1,0 +1,7 @@
+{
+  "name": "exchange_coin_to_can",
+  "dependencies": {},
+  "extensions": {
+    "uni-cloud-jql": {}
+  }
+}

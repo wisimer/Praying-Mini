@@ -10,9 +10,26 @@
     <view class="header-spacer" :style="spacerStyle"></view>
 
     <view class="balance-card">
-      <text class="label">当前金币余额</text>
+      <view class="balance-header">
+        <text class="label">当前金币余额</text>
+        <view class="exchange-btn" @click="openExchange">兑换</view>
+      </view>
       <text class="amount">{{ totalMoney }}</text>
     </view>
+
+    <!-- 兑换弹窗 -->
+    <uni-popup ref="exchangePopup" type="dialog">
+      <uni-popup-dialog
+        mode="input"
+        title="金币兑换愿力"
+        placeholder="请输入兑换金币数量"
+        v-model="exchangeValue"
+        inputType="number"
+        confirmText="兑换"
+        @confirm="confirmExchange"
+      >
+      </uni-popup-dialog>
+    </uni-popup>
 
     <view class="recharge-options">
       <view class="option-title">选择充值金额</view>
@@ -78,6 +95,60 @@ const spacerStyle = ref({})
 const wx_openid = ref('')
 const globalData = ref({})
 const orderList = ref([])
+
+const exchangePopup = ref(null)
+const exchangeValue = ref('')
+
+const openExchange = () => {
+  exchangeValue.value = ''
+  exchangePopup.value.open()
+}
+
+const confirmExchange = async (val) => {
+  if (!val) {
+    showToast('请输入兑换数量')
+    return
+  }
+  
+  const amount = parseInt(val)
+  if (isNaN(amount) || amount < 1) {
+    showToast('最小兑换1金币')
+    return
+  }
+  
+  if (amount > totalMoney.value) {
+    showToast('余额不足')
+    return
+  }
+
+  const db = uniCloud.database()
+  showLoading('兑换中...')
+  
+  try {
+    // 调用云函数进行兑换
+    const { result } = await uniCloud.callFunction({
+      name: 'exchange_coin_to_can',
+      data: {
+        amount: amount,
+        uid: store.userInfo._id
+      }
+    })
+
+    if (result.code === 0) {
+      showToast('兑换成功')
+      exchangePopup.value.close()
+      // 刷新余额
+      initTotalMoney()
+    } else {
+      showToast(result.msg || '兑换失败')
+    }
+  } catch (e) {
+    console.error('兑换失败:', e)
+    showToast('兑换失败，请重试')
+  } finally {
+    uni.hideLoading()
+  }
+}
 
 onShow(() => {
   const self = this; //声明常量
@@ -270,10 +341,32 @@ const toWxPayment = async (item) => {
   flex-direction: column;
   align-items: center;
 
+  .balance-header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20rpx;
+    position: relative;
+  }
+
   .label {
     font-size: 28rpx;
-    margin-bottom: 20rpx;
     opacity: 0.9;
+  }
+
+  .exchange-btn {
+    font-size: 24rpx;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 8rpx 24rpx;
+    border-radius: 30rpx;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    
+    &:active {
+      opacity: 0.8;
+      background: rgba(255, 255, 255, 0.3);
+    }
   }
 
   .amount {

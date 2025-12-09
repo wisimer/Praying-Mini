@@ -18,7 +18,7 @@
     <view class="content-section">
       <view class="section-title">应用说明</view>
       <view class="text-content">
-        Praying 是一个互助许愿平台，用户可以发布愿望，也可以帮助他人实现愿望。我们致力于打造一个温暖互助的社区环境。
+        愿力岛是一个互助许愿平台，用户可以发布愿望，也可以帮助他人实现愿望。我们致力于打造一个温暖互助的社区环境。
       </view>
       
       <view class="section-title">使用指南</view>
