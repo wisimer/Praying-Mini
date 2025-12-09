@@ -18,12 +18,12 @@
         </div>
       </div>
       
-      <div class="interactions" v-if="showInteractions">
+      <!-- <div class="interactions" v-if="showInteractions">
         <div class="action-btn" @click.stop="toggleCollect">
           <uni-icons :type="'eye'" size="20" :color="data.isCollected ? '#FFCC00' : '#999'"></uni-icons>
           <span class="count">{{ data.view_count }}</span>
         </div>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>
