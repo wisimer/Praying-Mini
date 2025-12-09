@@ -11,12 +11,18 @@
 
     <!-- List Component -->
     <view class="list-container">
-      <view class="card-wrapper" v-for="(item, index) in list" :key="item._id" @click="handleItemClick(item)">
-        <DynamicCard 
-          :user-info="item.author" 
-          :dynamic-detail="item.dynamic" 
-          :isDetails="true"
-        ></DynamicCard>
+      <view class="list-item" v-for="(item, index) in list" :key="item._id" @click="handleItemClick(item)">
+        <view class="item-header">
+          <text class="time">{{ formatDate(item.dynamic.publish_date) }}</text>
+          <text class="status" :class="`status-${item.dynamic.article_status || 0}`">{{ getStatusText(item.dynamic.article_status) }}</text>
+        </view>
+        <view class="item-content">{{ item.dynamic.content }}</view>
+        <view class="item-footer">
+          <view class="price" v-if="item.dynamic.price">
+            <text class="symbol">¥</text>
+            <text class="amount">{{ item.dynamic.price / 100 }}</text>
+          </view>
+        </view>
       </view>
     </view>
 
@@ -39,7 +45,8 @@ import { ref } from 'vue'
 import { onLoad, onPullDownRefresh, onReachBottom } from '@dcloudio/uni-app'
 import { store } from '@/uni_modules/uni-id-pages/common/store'
 import { toNextPage, showToast } from '@/core/app.js'
-import DynamicCard from '@/components/Dynamic-card/index.vue'
+import { formatDate } from '@/utils/date.js'
+import { getStatusText } from '@/core/constants.js'
 import WishCardDetail from '@/components/WishCardDetail.vue'
 
 const goBack = () => {
@@ -201,9 +208,54 @@ const loadData = async (refresh = false) => {
 
 .list-container {
   padding: 20rpx;
+}
+
+.list-item {
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
   
-  .card-wrapper {
+  .item-header {
+    display: flex;
+    justify-content: space-between;
     margin-bottom: 20rpx;
+    
+    .time {
+      font-size: 24rpx;
+      color: #999;
+    }
+    
+    .status {
+      font-size: 24rpx;
+      padding: 4rpx 12rpx;
+      border-radius: 8rpx;
+      &.status-0 { color: #409EFF; background: #ecf5ff; }
+      &.status-1 { color: #67C23A; background: #f0f9eb; }
+    }
+  }
+  
+  .item-content {
+    font-size: 30rpx;
+    color: #333;
+    line-height: 1.5;
+    margin-bottom: 20rpx;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+  }
+  
+  .item-footer {
+    border-top: 1rpx solid #f5f5f5;
+    padding-top: 20rpx;
+    
+    .price {
+      color: #ff4d4f;
+      font-weight: bold;
+      .symbol { font-size: 24rpx; }
+      .amount { font-size: 32rpx; }
+    }
   }
 }
 
