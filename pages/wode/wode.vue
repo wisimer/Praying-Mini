@@ -32,7 +32,7 @@
             <view class="icon-box blue">
               <uni-icons type="list" size="20" color="#fff"></uni-icons>
             </view>
-            <text class="item-text">我的愿望列表</text>
+            <text class="item-text">愿望列表</text>
           </view>
           <uni-icons type="right" size="16" color="#ccc"></uni-icons>
         </view>
@@ -42,7 +42,7 @@
             <view class="icon-box red">
               <uni-icons type="heart-filled" size="20" color="#fff"></uni-icons>
             </view>
-            <text class="item-text">我的收藏</text>
+            <text class="item-text">收藏列表</text>
           </view>
           <uni-icons type="right" size="16" color="#ccc"></uni-icons>
         </view>
@@ -52,7 +52,7 @@
             <view class="icon-box purple">
               <uni-icons type="paperplane" size="20" color="#fff"></uni-icons>
             </view>
-            <text class="item-text">我发布的任务</text>
+            <text class="item-text">发布的任务</text>
           </view>
           <uni-icons type="right" size="16" color="#ccc"></uni-icons>
         </view>
@@ -62,7 +62,7 @@
             <view class="icon-box green">
               <uni-icons type="checkbox" size="20" color="#fff"></uni-icons>
             </view>
-            <text class="item-text">我接的任务</text>
+            <text class="item-text">申请的任务</text>
           </view>
           <uni-icons type="right" size="16" color="#ccc"></uni-icons>
         </view>
@@ -75,7 +75,7 @@
             <view class="icon-box blue">
               <uni-icons type="calendar" size="20" color="#fff"></uni-icons>
             </view>
-            <text class="item-text">每日打卡任务</text>
+            <text class="item-text">每日打卡</text>
           </view>
           <uni-icons type="right" size="16" color="#ccc"></uni-icons>
         </view>

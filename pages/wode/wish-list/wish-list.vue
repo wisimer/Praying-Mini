@@ -4,7 +4,7 @@
       <view class="header-left" @click="goBack">
         <uni-icons type="left" size="24" color="#333"></uni-icons>
       </view>
-      <view class="header-title">我的愿望</view>
+      <view class="header-title">愿望列表</view>
       <view class="header-right"></view>
     </view>
     <view class="header-spacer" :style="spacerStyle"></view>

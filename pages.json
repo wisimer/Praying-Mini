@@ -79,25 +79,25 @@
         {
             "path": "pages/wode/wish-list/wish-list",
             "style": {
-                "navigationBarTitleText": "我的愿望列表"
+                "navigationBarTitleText": "愿望列表"
             }
         },
         {
             "path": "pages/wode/my-favorites/my-favorites",
             "style": {
-                "navigationBarTitleText": "我的收藏"
+                "navigationBarTitleText": "收藏列表"
             }
         },
         {
             "path": "pages/wode/task-published/task-published",
             "style": {
-                "navigationBarTitleText": "我发布的任务"
+                "navigationBarTitleText": "发布的任务"
             }
         },
         {
             "path": "pages/wode/task-accepted/task-accepted",
             "style": {
-                "navigationBarTitleText": "我接的任务"
+                "navigationBarTitleText": "申请的任务"
             }
         },
         {
