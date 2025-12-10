@@ -174,7 +174,7 @@ const bgValue = computed(() => {
 const textStyle = computed(() => {
   return {
     fontSize: '18px',
-    color: '#333',
+    color: contentColor.value,
     fontWeight: 'bold',
     lineHeight: '1.6'
   }
@@ -521,7 +521,7 @@ const handleClose = () => {
                   ctx.setFillStyle('#333')
                   ctx.setTextAlign('left')
                   lines.forEach((line, index) => {
-                      ctx.fillText(line, boxX + 30, boxY + 70 + (index * 46))
+                      ctx.fillText(line, boxX + 30, boxY + 80 + (index * 46))
                   })
               }
               
@@ -610,7 +610,7 @@ const handleClose = () => {
                   ctx.setFillStyle('#333')
                   ctx.setTextAlign('left')
                   lines.forEach((line, index) => {
-                      ctx.fillText(line, boxX + 30, boxY + 70 + (index * 46))
+                      ctx.fillText(line, boxX + 30, boxY + 80 + (index * 46))
                   })
               }
               
