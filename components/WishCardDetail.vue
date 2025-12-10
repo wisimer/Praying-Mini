@@ -18,7 +18,7 @@
              <view v-if="wishData.fullfilled && (wishData.original_ai_message || wishData.content_style?.aiMessage)" class="ai-layer" style="margin-top: 20rpx;">
                <view class="ai-divider">
                  <uni-icons type="star-filled" size="14" color="#FFD700"></uni-icons>
-                 <text class="ai-label">AI许愿寄语</text>
+                 <text class="ai-label">许愿寄语</text>
                  <uni-icons type="star-filled" size="14" color="#FFD700"></uni-icons>
                </view>
                <view class="ai-text-container">
@@ -513,7 +513,7 @@ const handleClose = () => {
                   ctx.setFontSize(28)
                   ctx.setFillStyle('#DAA520')
                   ctx.setTextAlign('center')
-                  const title = '✦ AI许愿寄语 ✦'
+                  const title = '✦ 许愿寄语 ✦'
                   ctx.fillText(title, W/2, boxY + 36)
                   
                   // Draw Text
@@ -603,7 +603,7 @@ const handleClose = () => {
                   ctx.setFontSize(28)
                   ctx.setFillStyle('#DAA520')
                   ctx.setTextAlign('center')
-                  const title = props.wishData.fullfilled ? '✦ 还愿寄语 ✦' : '✦ 星语 ✦'
+                  const title = props.wishData.fullfilled ? '✦ 还愿寄语 ✦' : '✦ 许愿寄语 ✦'
                   ctx.fillText(title, W/2, boxY + 36)
                   
                   ctx.setFontSize(32)
