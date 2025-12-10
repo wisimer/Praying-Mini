@@ -27,97 +27,97 @@ export const ARTICLE_STATUS = {
 }
 
 export const getStatusText = (status) => {
-    const statusMap = {
-      [ARTICLE_STATUS.AUDITING]: '审核中',
-      [ARTICLE_STATUS.PUBLISHED]: '待接单',
-      [ARTICLE_STATUS.AUDIT_REJECT]: '审核驳回',
-      [ARTICLE_STATUS.APPROVED_EXECUTING]: '进行中',
-      [ARTICLE_STATUS.REJECTED]: '已拒绝',
-      [ARTICLE_STATUS.EXECUTED_WAIT_VERIFY]: '已完成',
-      [ARTICLE_STATUS.FAILED_TIMEOUT]: '已失败',
-      [ARTICLE_STATUS.VERIFY_PASS_WAIT_PLATFORM]: '待结算',
-      [ARTICLE_STATUS.VERIFY_FAIL_WAIT_PLATFORM]: '验证失败',
-      [ARTICLE_STATUS.PLATFORM_PASS_SETTLED]: '已结算',
-      [ARTICLE_STATUS.PLATFORM_FAIL]: '审核失败'
-    }
-    return statusMap[status] || '待接单'
+  const statusMap = {
+    [ARTICLE_STATUS.AUDITING]: '审核中',
+    [ARTICLE_STATUS.PUBLISHED]: '待接单',
+    [ARTICLE_STATUS.AUDIT_REJECT]: '审核驳回',
+    [ARTICLE_STATUS.APPROVED_EXECUTING]: '进行中',
+    [ARTICLE_STATUS.REJECTED]: '已拒绝',
+    [ARTICLE_STATUS.EXECUTED_WAIT_VERIFY]: '已完成',
+    [ARTICLE_STATUS.FAILED_TIMEOUT]: '已失败',
+    [ARTICLE_STATUS.VERIFY_PASS_WAIT_PLATFORM]: '待结算',
+    [ARTICLE_STATUS.VERIFY_FAIL_WAIT_PLATFORM]: '验证失败',
+    [ARTICLE_STATUS.PLATFORM_PASS_SETTLED]: '已结算',
+    [ARTICLE_STATUS.PLATFORM_FAIL]: '审核失败'
   }
+  return statusMap[status] || '待接单'
+}
 
 // Category IDs
 export const CATEGORY_ID = {
-    WISH: 0
+  WISH: 0
 }
 
 // 任务类型，查询用
 export const SHARE_MENUS = [{
-    id: 0,
-    name: '全部'
-  }, {
-    id: 1,
-    name: '寺庙代拜'
-  }, {
-    id: 2,
-    name: '景点祈福'
-  }, {
-    id: 3,
-    name: '手工艺品'
-  }, {
-    id: 4,
-    name: '定制创作'
-  }, {
-    id: 5,
-    name: '活动陪伴'
-  }, {
-    id: 6,
-    name: '情感咨询'
-  }, {
-    id: 7,
-    name: '语音祝福'
-  }, {
-    id: 8,
-    name: '视频录制'
-  }, {
-    id: 9,
-    name: '书法绘画'
-  }]
+  id: 0,
+  name: '全部'
+}, {
+  id: 1,
+  name: '寺庙代拜'
+}, {
+  id: 2,
+  name: '景点祈福'
+}, {
+  id: 3,
+  name: '手工艺品'
+}, {
+  id: 4,
+  name: '定制创作'
+}, {
+  id: 5,
+  name: '活动陪伴'
+}, {
+  id: 6,
+  name: '情感咨询'
+}, {
+  id: 7,
+  name: '语音祝福'
+}, {
+  id: 8,
+  name: '视频录制'
+}, {
+  id: 9,
+  name: '书法绘画'
+}]
 
 // 任务类型，创建任务用
 export const TASK_TYPE = [{
-    id: 1,
-    name: '寺庙代拜'
-  }, {
-    id: 2,
-    name: '景点祈福'
-  }, {
-    id: 3,
-    name: '手工艺品'
-  }, {
-    id: 4,
-    name: '定制创作'
-  }, {
-    id: 5,
-    name: '活动陪伴'
-  }, {
-    id: 6,
-    name: '情感咨询'
-  }, {
-    id: 7,
-    name: '语音祝福'
-  }, {
-    id: 8,
-    name: '视频录制'
-  }, {
-    id: 9,
-    name: '书法绘画'
-  }]
+  id: 1,
+  name: '寺庙代拜'
+}, {
+  id: 2,
+  name: '景点祈福'
+}, {
+  id: 3,
+  name: '手工艺品'
+}, {
+  id: 4,
+  name: '定制创作'
+}, {
+  id: 5,
+  name: '活动陪伴'
+}, {
+  id: 6,
+  name: '情感咨询'
+}, {
+  id: 7,
+  name: '语音祝福'
+}, {
+  id: 8,
+  name: '视频录制'
+}, {
+  id: 9,
+  name: '书法绘画'
+}]
 
 // 许愿和还愿场景
 export const scenes = [
-  { name: '山林寺庙', preview: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene1.png', bg: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene1.png', canConsumption: 2, god_avatar: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/god1-iphone.png', god_name: '木和' },
-  { name: '火山祭坛', preview: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene2.png', bg: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene2.png', canConsumption: 2, god_avatar: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/god2-iphone.png', god_name: '安明' },
-  { name: '海边鸟居', preview: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene3.png', bg: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene3.png', canConsumption: 2, god_avatar: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/god3-iphone.png', god_name: '曦行' },
-  { name: '爱情神社', preview: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene4.png', bg: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene4.png', canConsumption: 2, god_avatar: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/god4-iphone.png', god_name: '绒心' },
-  { name: '湖畔祈愿', preview: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene5.png', bg: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene5.png', canConsumption: 2, god_avatar: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/god5-iphone.png', god_name: '启途' },
-  { name: '古树祈福', preview: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene6.png', bg: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene6.png', canConsumption: 2, god_avatar: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/god6-iphone.png', god_name: '清书' },
-  { name: '原生森林', preview: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene7.png', bg: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene7.png', canConsumption: 2, god_avatar: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/god7-iphone.png', god_name: '白灵' },
+  { name: '山林寺庙', preview: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene1.png', bg: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene1.png', canConsumption: 2, god_avatar: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/god1-iphone.png', god_name: '木和', content_color: "#00ff00" },
+  { name: '火山祭坛', preview: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene2.png', bg: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene2.png', canConsumption: 2, god_avatar: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/god2-iphone.png', god_name: '安明', content_color: "#00ff00" },
+  { name: '海边鸟居', preview: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene3.png', bg: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene3.png', canConsumption: 2, god_avatar: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/god3-iphone.png', god_name: '曦行', content_color: "#00ff00" },
+  { name: '爱情神社', preview: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene4.png', bg: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene4.png', canConsumption: 2, god_avatar: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/god4-iphone.png', god_name: '绒心', content_color: "#00ff00" },
+  { name: '湖畔祈愿', preview: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene5.png', bg: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene5.png', canConsumption: 2, god_avatar: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/god5-iphone.png', god_name: '启途', content_color: "#00ff00" },
+  { name: '古树祈福', preview: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene6.png', bg: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene6.png', canConsumption: 2, god_avatar: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/god6-iphone.png', god_name: '清书', content_color: "#00ff00" },
+  { name: '原生森林', preview: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene7.png', bg: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/scene7.png', canConsumption: 2, god_avatar: 'https://mp-09b5b28d-2678-48cd-9dda-8851ee7bf3ed.cdn.bspapp.com/static_resource/god7-iphone.png', god_name: '白灵', content_color: "#00ff00" },
 ]

@@ -197,6 +197,10 @@ const isMine = computed(() => {
   return store.hasLogin && props.wishData?.user_id === store.userInfo?._id
 })
 
+const contentColor = computed(() => {
+  return props.wishData.contentColor || props.wishData.content_style?.contentColor || '#333'
+})
+
 // Typewriter Effect
 const startTypewriter = () => {
   // Reset
@@ -464,7 +468,7 @@ const handleClose = () => {
           currentY += 40
           
           // --- Wish Text ---
-          currentY = drawText(wishContent.value || '', W/2, currentY, 500, 32, '#333', 42, 'center', true, dryRun)
+          currentY = drawText(wishContent.value || '', W/2, currentY, 500, 32, contentColor.value, 42, 'center', true, dryRun)
           currentY += 20
           
           // --- Original AI Message (If fulfilled) ---
@@ -548,7 +552,7 @@ const handleClose = () => {
               
               // Content
               const fulfillText = props.wishData.content || props.wishData.fullfill_content || ''
-              currentY = drawText(fulfillText, W/2, currentY, 500, 32, '#333', 42, 'center', true, dryRun)
+              currentY = drawText(fulfillText, W/2, currentY, 500, 32, contentColor.value, 42, 'center', true, dryRun)
               currentY += 20
           }
           

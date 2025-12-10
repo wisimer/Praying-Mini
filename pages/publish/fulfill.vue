@@ -312,11 +312,13 @@ const handleFulfill = async () => {
     const scene = scenes.find(s => s.name === sceneName)
     const avatar = scene?.god_avatar
     const name = scene?.god_name
+    const contentColor = scene?.color || '#000'
     await typeWriter(aiMessage, avatar, name)
 
     // Prepare Result Data (Combined)
     resultData.value = {
       ...currentWish.value,
+      contentColor,
       fullfilled: true,
       fullfill_content: content, // Current fulfillment content
       ai_message: aiMessage, // Current AI message

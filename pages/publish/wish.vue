@@ -278,8 +278,7 @@ const handleWish = async () => {
 
     // Construct Data
     const contentStyle = {
-      bgType: 'image',
-      bgValue: currentScene.value.bg,
+      color: currentScene.value.content_color || '#000',
       sceneName: currentScene.value.name
     }
 
@@ -301,6 +300,7 @@ const handleWish = async () => {
     // Prepare Result Data
     resultData.value = {
       title: currentWishText,
+      contentColor: currentScene.value.content_color || '#000',
       user: {
         nickname: userInfo.value.name || 'XP',
         avatar: userInfo.value.avatar || ''
