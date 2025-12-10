@@ -33,7 +33,7 @@
       </view>
 
       <!-- Task Info -->
-      <view class="task-info-card" v-if="dynamicDetail.sort >= 11 && dynamicDetail.sort <= 14">
+      <view class="task-info-card">
         <view class="info-header">任务信息</view>
         
         <!-- Progress Bar -->
@@ -252,15 +252,7 @@
   }
 
   const currentStep = computed(() => {
-    const status = dynamicDetail.value.article_status || 0
-    
-    if (status >= ARTICLE_STATUS.PLATFORM_PASS_SETTLED) return 4
-    if (status >= ARTICLE_STATUS.VERIFY_PASS_WAIT_PLATFORM) return 3
-    if (status >= ARTICLE_STATUS.EXECUTED_WAIT_VERIFY) return 2
-    if (status >= ARTICLE_STATUS.APPROVED_EXECUTING) return 1
-    if (status >= ARTICLE_STATUS.PUBLISHED) return 0
-    
-    return -1
+    return dynamicDetail.value.article_status || 0
   })
 
 
