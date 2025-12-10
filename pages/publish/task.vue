@@ -297,7 +297,7 @@ const handlePublish = async () => {
 
   try {
     const taskData = {
-      sort: parseInt(typeIndex.value) + 11, // Map 0-3 to 11-14
+      sort: parseInt(TASK_TYPE[typeIndex.value].id),
       content: taskContent.value,
       imgs: imageList.value.length > 0 ? imageList.value[0] : '', // Store single image URL or empty string
       deadline_date: selectedDate.getTime(), // Save as timestamp

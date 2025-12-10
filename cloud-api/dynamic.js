@@ -107,10 +107,10 @@ export async function getDynamicListAggregate(option) {
 	const where = {}
 	const sort = TASK_TYPE.map(item => item.id)
 	// 对应了 TASK_TYPE 的任务类型，如果大于就是指定类别，否则就是查询全部（但是这里有个点就是状态0表示审核中）
-	if (sort.indexOf(option.state) > 0) {
+	if (sort.indexOf(option.state) > -1) {          // 修复：indexOf 找不到时返回 -1，应判断 > -1
 		where.sort = option.state
 	} else {
-		where.article_status = dbCmd.gt(0)
+		where.sort = dbCmd.gt(0)
 	}
 
 	return new Promise((resolve) => {
@@ -127,26 +127,6 @@ export async function getDynamicListAggregate(option) {
 						nickname: 1,
 						avatar_file: 1
 					})
-					.lookup({
-						from: 'app-player',
-						let: {
-							player_id: '$_id'
-						},
-						pipeline: $.pipeline()
-							.match(dbCmd.expr($.eq(['$user_id', '$$player_id'])))
-							.lookup({
-								from: 'app-achievement',
-								let: {
-									achievement_id: '$achievement_id'
-								},
-								pipeline: $.pipeline()
-									.match(dbCmd.expr($.eq(['$_id', '$$achievement_id'])))
-									.done(),
-								as: 'achievement_id',
-							})
-							.done(),
-						as: 'player',
-					})
 					.done(),
 				as: 'user_id',
 			})
@@ -161,7 +141,6 @@ export async function getDynamicListAggregate(option) {
 			})
 	})
 }
-
 
 // 聚合查询动态详情
 export async function getDynamicListDelAggregate(id) {

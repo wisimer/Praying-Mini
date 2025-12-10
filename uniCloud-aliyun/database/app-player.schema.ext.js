@@ -14,7 +14,7 @@ module.exports = {
 					strength: 10,
 					wisdom: 0,
 					agility: 0,
-					can: 0,
+					can: 10,
 					achievement_id: '67ea0e24149854a900153f56',
 					level: 1,
 					empirical: 0,
