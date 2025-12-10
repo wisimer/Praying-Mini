@@ -411,7 +411,7 @@ const handleClose = () => {
       }
 
       // 3. Draw Overlay
-      ctx.setFillStyle('rgba(255, 255, 255, 0.4)') // Match CSS overlay opacity
+      ctx.setFillStyle('rgba(255, 255, 255, 0.1)') // Match CSS overlay opacity
       ctx.fillRect(0, 0, W, H)
       
       // 4. Draw Content

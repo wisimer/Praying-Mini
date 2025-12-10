@@ -278,6 +278,8 @@ const handleWish = async () => {
 
     // Construct Data
     const contentStyle = {
+      bgType: 'image',
+      bgValue: currentScene.value.bg,
       color: currentScene.value.content_color || '#000',
       sceneName: currentScene.value.name
     }
